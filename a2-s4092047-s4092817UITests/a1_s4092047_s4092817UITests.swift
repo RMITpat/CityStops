@@ -1,13 +1,13 @@
 //
-//  a1_s4092047_s4092817UITests.swift
-//  a1-s4092047-s4092817UITests
+//  a2_s4092047_s4092817UITests.swift
+//  a2_s4092047-s4092817UITests
 //
 //  Created by Patrick Ly on 10/9/2026.
 //
 
 import XCTest
 
-final class a1_s4092047_s4092817UITests: XCTestCase {
+final class a2_s4092047_s4092817UITests: XCTestCase {
 
     override func setUpWithError() throws {
         // Put setup code here. This method is called before the invocation of each test method in the class.

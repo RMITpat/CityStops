@@ -1,6 +1,6 @@
 //
 //  AuthViewModel.swift
-//  FirebaseNotes
+//  a2_s4092047-s4092817
 //
 //  Created by Patrick Ly on 15/9/2026.
 //

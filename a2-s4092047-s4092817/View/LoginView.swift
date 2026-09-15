@@ -1,6 +1,6 @@
 //
 //  LoginView.swift
-//  a1-s4092047-s4092817
+//  a2_s4092047-s4092817
 //
 //  Created by Patrick Ly on 10/9/2026.
 //

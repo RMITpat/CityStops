@@ -1,1 +1,29 @@
-*.plist
+# Xcode user-specific files
+xcuserdata/
+*.xcuserstate
+*.xcscmblueprint
+
+# Build output
+DerivedData/
+build/
+*.ipa
+*.app
+
+# Swift Package Manager
+.swiftpm/
+.build/
+
+# CocoaPods
+Pods/
+
+# macOS
+.DS_Store
+
+# Firebase and local configuration
+GoogleService-Info.plist
+*.xcconfig
+
+# Environment and secret files
+.env
+.env.*
+!.env.example

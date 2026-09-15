@@ -25,6 +25,7 @@ import FirebaseAuth
         }
     }
     
+    /// Sign up with email and password
     func signUp() async {
         error = nil
         do {
@@ -34,6 +35,7 @@ import FirebaseAuth
         }
     }
     
+    /// Sign in with email and password
     func signIn() async {
         error = nil
         do {
@@ -44,6 +46,7 @@ import FirebaseAuth
         }
     }
     
+    /// Sign out of account
     func signOut() {
         do { try Auth.auth().signOut() } catch { self.error = error.localizedDescription }
     }

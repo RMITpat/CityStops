@@ -7,6 +7,8 @@
 
 import SwiftUI
 
+///
+/// Home view for viewing trip feed?
 struct HomeView: View {
     @Environment(AuthViewModel.self) var auth: AuthViewModel
 

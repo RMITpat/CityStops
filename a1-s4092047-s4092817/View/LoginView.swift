@@ -6,7 +6,9 @@
 //
 
 import SwiftUI
-
+///
+/// LoginView allows users to sign in or sign up through Firebase authentication
+///  - Uses  AuthViewModel methods for signing in and out
 struct LoginView: View {
     @State private var isSigningUp = false
 

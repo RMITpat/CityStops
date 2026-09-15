@@ -34,12 +34,16 @@ struct LoginView: View {
 
             
             }
+            
+            if let error = auth.error {
+                Text(error).foregroundColor(.red).font(.footnote)
+            }
 
             Button(action: {
                 if isSigningUp {
-                    print("Sign-up requested")
+                    Task { await auth.signUp() }
                 } else {
-                    print("Login requested")
+                    Task { await auth.signIn() }
                 }
             }) {
                 Text(isSigningUp ? "Sign Up" : "Log In")

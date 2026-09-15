@@ -30,7 +30,11 @@ struct a1_s4092047_s4092817App: App {
     
     var body: some Scene {
         WindowGroup {
-            LoginView()
+            if (authVM.isAuthenticated) {
+                HomeView()
+            } else {
+                LoginView()
+            }
         }.environment(authVM)
     }
 }

@@ -18,7 +18,7 @@ import FirebaseAuth
     var isAuthenticated: Bool = Auth.auth().currentUser != nil
     
     var userId: String? { Auth.auth().currentUser?.uid }
-    
+    var userEmail: String? { Auth.auth().currentUser?.email }
     init() {
         Auth.auth().addStateDidChangeListener { [weak self] _, user in
             self?.isAuthenticated = (user != nil)
@@ -38,6 +38,7 @@ import FirebaseAuth
         error = nil
         do {
             _ = try await Auth.auth().signIn(withEmail: email, password: password)
+            
         } catch {
             self.error = error.localizedDescription
         }
@@ -48,9 +49,4 @@ import FirebaseAuth
     }
 }
 
-/*
-        `AuthViewModel` is the piece that manages **user authentication state**.
-        It stores the email/password input, keeps track of whether a user is signed in, and
-        exposes simple methods to sign up, sign in, or sign out using Firebase Auth.
-        It also listens for auth state changes so the UI updates automatically when the user logs in or out.
- */
+

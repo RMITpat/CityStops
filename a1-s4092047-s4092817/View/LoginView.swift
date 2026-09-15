@@ -9,34 +9,30 @@ import SwiftUI
 
 struct LoginView: View {
     @State private var isSigningUp = false
-    @State private var email = ""
-    @State private var password = ""
-    @State private var confirmPassword = ""
+
+    @Environment(AuthViewModel.self) var auth: AuthViewModel
 
     var body: some View {
+        @Bindable var auth = auth
+        
         VStack(spacing: 24) {
             Text(isSigningUp ? "Create Account" : "Welcome Back")
                 .font(.largeTitle)
                 .fontWeight(.bold)
 
             VStack(spacing: 16) {
-                TextField("Email", text: $email)
+                TextField("Email", text: $auth.email)
                     .keyboardType(.emailAddress)
                     .padding()
                     .background(Color(.systemGray6))
                     .cornerRadius(10)
 
-                SecureField("Password", text: $password)
+                SecureField("Password", text: $auth.password)
                     .padding()
                     .background(Color(.systemGray6))
                     .cornerRadius(10)
 
-                if isSigningUp {
-                    SecureField("Confirm Password", text: $confirmPassword)
-                        .padding()
-                        .background(Color(.systemGray6))
-                        .cornerRadius(10)
-                }
+            
             }
 
             Button(action: {
@@ -70,5 +66,5 @@ struct LoginView: View {
 }
 
 #Preview {
-    ContentView()
+    LoginView()
 }

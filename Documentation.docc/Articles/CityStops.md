@@ -1,6 +1,6 @@
-# ``a2_s4092047-s4092817``
+# CityStops
 
-<!--@START_MENU_TOKEN@-->Summary<!--@END_MENU_TOKEN@-->
+App that allows users to create, view and share day trip itineraries in the city!
 
 ## Overview
 
@@ -10,6 +10,8 @@
 ### Model
 
 ### View
+``HomeView``
+``LoginView``
 
 ### ViewModel
 

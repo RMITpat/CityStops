@@ -15,10 +15,17 @@ struct CreateTripView: View {
     @State private var searchRequest: String = ""
     
     @State private var searchResults: [MKMapItem] = []
+    @State private var tripPlaces: [MKMapItem] = []
+    
     var body: some View {
         
-        Map (position: $cameraPosition){
-            UserAnnotation()
+        Map {
+            ForEach(tripPlaces, id: \.self) { place in
+                Marker(item: place)
+                    .mapItemDetailSelectionAccessory(.callout)
+            }
+            
+            
         }
         .frame(height:400)
         .onAppear {
@@ -48,6 +55,9 @@ struct CreateTripView: View {
             VStack {
                 Text(result.name ?? "no name")
                 Text(result.address?.fullAddress ?? "no name")
+                Button("Add") {
+                    tripPlaces.append(result)
+                }
             }
         }
         Spacer()

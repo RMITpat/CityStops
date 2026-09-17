@@ -15,6 +15,8 @@
 		8DB849E830595FA2004206E7 /* Documentation.docc in Sources */ = {isa = PBXBuildFile; fileRef = 8DB849E730595FA2004206E7 /* Documentation.docc */; };
 		8DB849E930595FA2004206E7 /* Documentation.docc in Sources */ = {isa = PBXBuildFile; fileRef = 8DB849E730595FA2004206E7 /* Documentation.docc */; };
 		8DB849EA30595FA2004206E7 /* Documentation.docc in Sources */ = {isa = PBXBuildFile; fileRef = 8DB849E730595FA2004206E7 /* Documentation.docc */; };
+		8DB84A2030598771004206E7 /* .gitignore in Sources */ = {isa = PBXBuildFile; fileRef = 8DB84A1F3059876D004206E7 /* .gitignore */; };
+		8DB84A2130598771004206E7 /* .gitignore in Sources */ = {isa = PBXBuildFile; fileRef = 8DB84A1F3059876D004206E7 /* .gitignore */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -40,6 +42,7 @@
 		8D6264F530528A4D00D842C2 /* a2-s4092047-s4092817UITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "a2-s4092047-s4092817UITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		8DB849AF3059566B004206E7 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		8DB849E730595FA2004206E7 /* Documentation.docc */ = {isa = PBXFileReference; lastKnownFileType = folder.documentationcatalog; path = Documentation.docc; sourceTree = "<group>"; };
+		8DB84A1F3059876D004206E7 /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = .gitignore; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -111,6 +114,7 @@
 		8D6264D530528A4C00D842C2 = {
 			isa = PBXGroup;
 			children = (
+				8DB84A1F3059876D004206E7 /* .gitignore */,
 				8DB849E730595FA2004206E7 /* Documentation.docc */,
 				8D6264E030528A4C00D842C2 /* a2-s4092047-s4092817 */,
 				8D6264EE30528A4D00D842C2 /* a2-s4092047-s4092817Tests */,
@@ -298,6 +302,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8DB84A2030598771004206E7 /* .gitignore in Sources */,
 				8DB849E830595FA2004206E7 /* Documentation.docc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -306,6 +311,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8DB84A2130598771004206E7 /* .gitignore in Sources */,
 				8DB849EA30595FA2004206E7 /* Documentation.docc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

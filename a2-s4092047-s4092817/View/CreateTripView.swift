@@ -20,7 +20,9 @@ struct CreateTripView: View {
     
     var body: some View {
         
-        Map {
+        @Bindable var locationVM = locationVM
+        
+        Map (position: $locationVM.currentLocation) {
             ForEach(tripPlaces, id: \.self) { place in
                 Marker(item: place)
                     .mapItemDetailSelectionAccessory(.callout)
@@ -30,6 +32,7 @@ struct CreateTripView: View {
         .frame(height:400)
         .onAppear {
             locationVM.checkLocationAuthorization()
+            
         }
         
         TextField(

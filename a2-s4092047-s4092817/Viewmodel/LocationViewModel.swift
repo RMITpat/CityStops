@@ -6,15 +6,43 @@
 //
 import Foundation
 import CoreLocation
-
+import Observation
+import MapKit
+import _MapKit_SwiftUI
 ///
 /// ViewModel used for keeping track of the user's current location
 ///
 @Observable
 final class LocationViewModel: NSObject, CLLocationManagerDelegate {
     
-    // Default to Sydney
-    var currentLocation: CLLocationCoordinate2D = CLLocationCoordinate2D(latitude: -33, longitude: 151)
+    private var currentRegion: MKCoordinateRegion {
+        didSet {
+            currentLocation = .region(currentRegion)
+            print(currentRegion.center.latitude)
+            print(currentRegion.center.longitude)
+        }
+    }
+
+    var currentLocation: MapCameraPosition
+
+    override init() {
+        let sydneyRegion = MKCoordinateRegion(
+            center: CLLocationCoordinate2D(
+                latitude: -33.8688,
+                longitude: 151.2093
+            ),
+            span: MKCoordinateSpan(
+                latitudeDelta: 0.1,
+                longitudeDelta: 0.1
+            )
+        )
+
+        currentRegion = sydneyRegion
+        currentLocation = .region(sydneyRegion)
+        
+        super.init()
+    }
+
     var manager = CLLocationManager()
     
     // Sets the current location based off authorisation
@@ -45,9 +73,8 @@ final class LocationViewModel: NSObject, CLLocationManagerDelegate {
     
     // Called when manager.requestLocation() succeeds
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        currentLocation = locations.first?.coordinate ?? currentLocation
-        print(currentLocation.latitude)
-        print(currentLocation.longitude)
+        currentRegion.center = locations.first?.coordinate ?? currentRegion.center
+        
     }
     
     // Called when manager.requestLocation() fails

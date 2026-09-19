@@ -8,18 +8,12 @@
 import SwiftUI
 import FirebaseCore
 
-class AppDelegate: NSObject, UIApplicationDelegate {
-    func application(_ application: UIApplication,
-                     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
-        FirebaseApp.configure()
-        return true
-    }
-}
 
 @main
 struct a2_s4092047_s4092817App: App {
     @State private var authVM: AuthViewModel
-
+    @State private var locationVM: LocationViewModel = LocationViewModel()
+    
     init() {
             FirebaseApp.configure()
 
@@ -35,6 +29,8 @@ struct a2_s4092047_s4092817App: App {
             } else {
                 LoginView()
             }
-        }.environment(authVM)
+        }
+        .environment(authVM)
+        .environment(locationVM)
     }
 }

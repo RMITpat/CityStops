@@ -21,39 +21,41 @@ struct CreateTripView: View {
         
         @Bindable var locationVM = locationVM
         
-        Map (position: $locationVM.currentLocation) {
-            ForEach(tripPlaces, id: \.self) { place in
-                Marker(item: place)
-                    .mapItemDetailSelectionAccessory(.callout)
+        VStack {
+            Map (position: $locationVM.currentLocation) {
+                ForEach(tripPlaces, id: \.self) { place in
+                    Marker(item: place)
+                        .mapItemDetailSelectionAccessory(.callout)
+                }
             }
-        }
-        .frame(height:400)
-        .onAppear {
-            locationVM.checkLocationAuthorization()
-        }
-        
-        TextField(
-            "Search a place",
-            text: $locationVM.searchRequest
-        )
-        
-        Button("Search") {
-            locationVM.searchPlaces()
-        }
-        ScrollView {
-            VStack {
-                ForEach(locationVM.searchResults, id: \.identifier) { result in
-                    VStack {
-                        Text(result.name ?? "no name")
-                        Text(result.address?.fullAddress ?? "no name")
-                        Button("Add") {
-                            tripPlaces.append(result)
+            .frame(height:400)
+            .onAppear {
+                locationVM.checkLocationAuthorization()
+            }
+            
+            TextField(
+                "Search a place",
+                text: $locationVM.searchRequest
+            )
+            
+            Button("Search") {
+                locationVM.searchPlaces()
+            }
+            ScrollView {
+                VStack {
+                    ForEach(locationVM.searchResults, id: \.identifier) { result in
+                        VStack {
+                            Text(result.name ?? "no name")
+                            Text(result.address?.fullAddress ?? "no name")
+                            Button("Add") {
+                                tripPlaces.append(result)
+                            }
                         }
                     }
                 }
             }
+            Spacer()
         }
-        Spacer()
     }
 }
 

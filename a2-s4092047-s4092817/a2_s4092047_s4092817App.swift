@@ -25,7 +25,7 @@ struct a2_s4092047_s4092817App: App {
     var body: some Scene {
         WindowGroup {
             if (authVM.isAuthenticated) {
-                HomeView()
+                ContentView()
             } else {
                 LoginView()
             }

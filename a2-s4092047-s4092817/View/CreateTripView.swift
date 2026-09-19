@@ -8,6 +8,10 @@
 import SwiftUI
 import MapKit
 
+///
+/// View for adding stops to a trip. Contains a Map and search bar through which users can search for locations by name. Results can be added as pins on the map.
+/// - Uses the LocationViewModel vm
+
 struct CreateTripView: View {
     @Environment(LocationViewModel.self) var locationVM: LocationViewModel
     

@@ -9,8 +9,9 @@ import SwiftUI
 import MapKit
 
 struct CreateTripView: View {
+    @Environment(LocationViewModel.self) var locationVM: LocationViewModel
+    
     @State private var cameraPosition: MapCameraPosition = .automatic
-    private let locationManager = CLLocationManager()
     let request = MKLocalSearch.Request()
     @State private var searchRequest: String = ""
     
@@ -25,12 +26,10 @@ struct CreateTripView: View {
                     .mapItemDetailSelectionAccessory(.callout)
             }
             
-            
         }
         .frame(height:400)
         .onAppear {
-          
-            locationManager.requestWhenInUseAuthorization()
+            locationVM.checkLocationAuthorization()
         }
         
         TextField(

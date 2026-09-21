@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+/// View that allows user to log out of the app (and other settings stuff)
 struct SettingsView: View {
     var body: some View {
         VStack {

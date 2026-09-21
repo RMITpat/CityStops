@@ -13,6 +13,7 @@ import FirebaseCore
 struct a2_s4092047_s4092817App: App {
     @State private var authVM: AuthViewModel
     @State private var locationVM: LocationViewModel = LocationViewModel()
+    @State private var appVM: AppViewModel = AppViewModel()
     
     init() {
             FirebaseApp.configure()
@@ -32,5 +33,6 @@ struct a2_s4092047_s4092817App: App {
         }
         .environment(authVM)
         .environment(locationVM)
+        .environment(appVM)
     }
 }

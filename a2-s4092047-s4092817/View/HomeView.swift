@@ -15,20 +15,22 @@ struct HomeView: View {
     var body: some View {
         @Bindable var auth = auth
         
-        NavigationStack {
+        VStack {
             Text(auth.userEmail ?? "no email")
             Button("Sign Out") { auth.signOut() }
             Spacer()
             
-            NavigationLink(destination: CreateTripView()) {
-                
-                Image(systemName: "plus.capsule.fill").font(.largeTitle)
-            }
-            
+        //            NavigationLink(destination: CreateTripView()) {
+        //
+        //                Image(systemName: "plus.capsule.fill").font(.largeTitle)
+        //            }
         }
+            .navigationTitle("Welcome!")
     }
 }
 
 #Preview {
-    HomeView().environment(AuthViewModel())
+    NavigationStack {
+        HomeView().environment(AuthViewModel())
+    }
 }

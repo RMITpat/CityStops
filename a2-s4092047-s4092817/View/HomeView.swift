@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-
+import FirebaseAuth
 ///
 /// Home view for viewing trip feed?
 struct HomeView: View {
@@ -16,7 +16,7 @@ struct HomeView: View {
         @Bindable var auth = auth
         
         VStack {
-            Text(auth.userEmail ?? "no email")
+            Text(auth.signedInUser?.email ?? "no email")
             Button("Sign Out") { auth.signOut() }
             Spacer()
             

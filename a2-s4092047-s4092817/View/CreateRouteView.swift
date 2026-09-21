@@ -12,7 +12,22 @@ struct CreateRouteView: View {
     @Environment(LocationViewModel.self) var locationVM: LocationViewModel
 
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        @Bindable var locationVM = locationVM
+
+        Map (position: $locationVM.currentLocation) {
+            ForEach(locationVM.selectedPlaces, id: \.self) { place in
+                Marker(item: place)
+                    .mapItemDetailSelectionAccessory(.callout)
+            }
+            ForEach(locationVM.routes, id: \.self) { route in
+                MapPolyline(route)
+                    .stroke(.blue, lineWidth: 5)
+            }
+            
+        }.onAppear {
+            locationVM.createRoute()
+            print(locationVM.routes.count)
+        }
     }
 }
 

@@ -40,6 +40,11 @@ final class LocationViewModel: NSObject, CLLocationManagerDelegate {
     // Places selected by the user to be a part of the trip
     var selectedPlaces: [MKMapItem] = []
 
+    // Routes between selectionPlaces
+    var routes: [MKRoute] = []
+    
+    // The current route finding task created by createRoute. Stored here so that it can be cancelled if a new request is made
+    var currentRouteTask: Task<Void, Never>?
     override init() {
         let sydneyRegion = MKCoordinateRegion(
             center: CLLocationCoordinate2D(
@@ -118,4 +123,29 @@ final class LocationViewModel: NSObject, CLLocationManagerDelegate {
         ) {
             print("Failed to get location:", error.localizedDescription)
         }
+    
+    // Creates a route between all the locations currently stored in selectedPlaces, in the order they were added. Begins by checking if there was a previous, ongoing route request occurring and cancelling
+    // it if there was and replacing it with the new one.
+    func createRoute() {
+        currentRouteTask?.cancel()
+        routes.removeAll()
+        
+        let directionsRequest: MKDirections.Request = MKDirections.Request()
+        currentRouteTask = Task {
+            for i in 1...selectedPlaces.endIndex - 1 {
+                directionsRequest.destination = selectedPlaces[i]
+                directionsRequest.source = selectedPlaces[i-1]
+                directionsRequest.transportType = MKDirectionsTransportType.walking
+                
+                let directions = MKDirections(request: directionsRequest)
+                let response = try? await directions.calculate()
+                if let route = response?.routes.first {
+                    routes.append(route)
+                }
+            }
+                  
+        }
+        
+        
+    }
 }

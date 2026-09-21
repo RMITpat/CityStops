@@ -15,7 +15,7 @@ struct CreationChoiceView: View {
             Text("How would you like to create your daytrip?")
                 .bold()
             
-            NavigationLink(destination: CreateTripView()) {
+            NavigationLink(destination: TripPreferenceView()) {
                 Text("Plan it myself")
             }
             .buttonStyle(.glassProminent)

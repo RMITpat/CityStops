@@ -34,7 +34,11 @@ final class LocationViewModel: NSObject, CLLocationManagerDelegate {
     // The results of a place search
     var searchResults: [MKMapItem] = []
     
+    // The current region, represented as MapCameraPosition so it can be displayed by Map
     var currentLocation: MapCameraPosition
+    
+    // Places selected by the user to be a part of the trip
+    var selectedPlaces: [MKMapItem] = []
 
     override init() {
         let sydneyRegion = MKCoordinateRegion(

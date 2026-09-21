@@ -7,16 +7,35 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		8DB8197E30611BD5002D1C4E /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 8DB8197D30611BD5002D1C4E /* GoogleService-Info.plist */; };
-		8DB8197F30611BD5002D1C4E /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 8DB8197D30611BD5002D1C4E /* GoogleService-Info.plist */; };
-		8DB8198030611BD5002D1C4E /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 8DB8197D30611BD5002D1C4E /* GoogleService-Info.plist */; };
+		8DB8197E30611BD5002D1C4E /* (null) in Resources */ = {isa = PBXBuildFile; };
+		8DB8197F30611BD5002D1C4E /* (null) in Resources */ = {isa = PBXBuildFile; };
+		8DB8198030611BD5002D1C4E /* (null) in Resources */ = {isa = PBXBuildFile; };
 		8DB849D730595BA8004206E7 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 8DB849D630595BA8004206E7 /* FirebaseCore */; };
 		8DB849E430595E17004206E7 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 8DB849E330595E17004206E7 /* FirebaseAuth */; };
-		8DB849E830595FA2004206E7 /* Documentation.docc in Sources */ = {isa = PBXBuildFile; fileRef = 8DB849E730595FA2004206E7 /* Documentation.docc */; };
-		8DB849E930595FA2004206E7 /* Documentation.docc in Sources */ = {isa = PBXBuildFile; fileRef = 8DB849E730595FA2004206E7 /* Documentation.docc */; };
-		8DB849EA30595FA2004206E7 /* Documentation.docc in Sources */ = {isa = PBXBuildFile; fileRef = 8DB849E730595FA2004206E7 /* Documentation.docc */; };
-		8DB84A2030598771004206E7 /* .gitignore in Sources */ = {isa = PBXBuildFile; fileRef = 8DB84A1F3059876D004206E7 /* .gitignore */; };
-		8DB84A2130598771004206E7 /* .gitignore in Sources */ = {isa = PBXBuildFile; fileRef = 8DB84A1F3059876D004206E7 /* .gitignore */; };
+		8DB849E830595FA2004206E7 /* (null) in Sources */ = {isa = PBXBuildFile; };
+		8DB84A2030598771004206E7 /* (null) in Sources */ = {isa = PBXBuildFile; };
+		BF50322930613F8A000608EC /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = BF50322830613F8A000608EC /* GoogleService-Info.plist */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		BF50322630613F74000608EC /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8D6264D630528A4C00D842C2 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 8D6264DD30528A4C00D842C2;
+			remoteInfo = "a2-s4092047-s4092817";
+		};
+		BF50322730613F74000608EC /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8D6264D630528A4C00D842C2 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 8D6264DD30528A4C00D842C2;
+			remoteInfo = "a2-s4092047-s4092817";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		BF50322830613F8A000608EC /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -28,14 +47,6 @@
 			);
 			target = 8D6264EA30528A4D00D842C2 /* a2-s4092047-s4092817Tests */;
 		};
-		8DB84A0330596DF5004206E7 /* Exceptions for "a2-s4092047-s4092817" folder in "a2-s4092047-s4092817UITests" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Documentation.docc,
-				View/HomeView.swift,
-			);
-			target = 8D6264F430528A4D00D842C2 /* a2-s4092047-s4092817UITests */;
-		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -43,7 +54,6 @@
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
 				8DB84A0230596DF5004206E7 /* Exceptions for "a2-s4092047-s4092817" folder in "a2-s4092047-s4092817Tests" target */,
-				8DB84A0330596DF5004206E7 /* Exceptions for "a2-s4092047-s4092817" folder in "a2-s4092047-s4092817UITests" target */,
 			);
 			path = "a2-s4092047-s4092817";
 			sourceTree = "<group>";
@@ -93,19 +103,14 @@
 				8D6264E030528A4C00D842C2 /* a2-s4092047-s4092817 */,
 				8D6264EE30528A4D00D842C2 /* a2-s4092047-s4092817Tests */,
 				8D6264DF30528A4C00D842C2 /* Products */,
-				8DB84A1F3059876D004206E7 /* .gitignore */,
 				8DB849D530595BA8004206E7 /* Frameworks */,
 				8D6264F830528A4D00D842C2 /* a2-s4092047-s4092817UITests */,
-				8DB8197D30611BD5002D1C4E /* GoogleService-Info.plist */,
 			);
 			sourceTree = "<group>";
 		};
 		8D6264DF30528A4C00D842C2 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				8D6264DE30528A4C00D842C2 /* a2-s4092047-s4092817.app */,
-				8D6264EB30528A4D00D842C2 /* a2-s4092047-s4092817Tests.xctest */,
-				8D6264F530528A4D00D842C2 /* a2-s4092047-s4092817UITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -113,6 +118,7 @@
 		8DB849D530595BA8004206E7 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				BF50322830613F8A000608EC /* GoogleService-Info.plist */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -141,7 +147,6 @@
 				8DB849E330595E17004206E7 /* FirebaseAuth */,
 			);
 			productName = "a1-s4092047-s4092817";
-			productReference = 8D6264DE30528A4C00D842C2 /* a2-s4092047-s4092817.app */;
 			productType = "com.apple.product-type.application";
 		};
 		8D6264EA30528A4D00D842C2 /* a2-s4092047-s4092817Tests */ = {
@@ -164,14 +169,12 @@
 			packageProductDependencies = (
 			);
 			productName = "a1-s4092047-s4092817Tests";
-			productReference = 8D6264EB30528A4D00D842C2 /* a2-s4092047-s4092817Tests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
 		8D6264F430528A4D00D842C2 /* a2-s4092047-s4092817UITests */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 8D62650530528A4D00D842C2 /* Build configuration list for PBXNativeTarget "a2-s4092047-s4092817UITests" */;
 			buildPhases = (
-				8D6264F130528A4D00D842C2 /* Sources */,
 				8D6264F230528A4D00D842C2 /* Frameworks */,
 				8D6264F330528A4D00D842C2 /* Resources */,
 			);
@@ -187,7 +190,6 @@
 			packageProductDependencies = (
 			);
 			productName = "a1-s4092047-s4092817UITests";
-			productReference = 8D6264F530528A4D00D842C2 /* a2-s4092047-s4092817UITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
 /* End PBXNativeTarget section */
@@ -242,7 +244,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8DB8197F30611BD5002D1C4E /* GoogleService-Info.plist in Resources */,
+				8DB8197F30611BD5002D1C4E /* (null) in Resources */,
+				BF50322930613F8A000608EC /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -250,7 +253,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8DB8198030611BD5002D1C4E /* GoogleService-Info.plist in Resources */,
+				8DB8198030611BD5002D1C4E /* (null) in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -258,7 +261,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8DB8197E30611BD5002D1C4E /* GoogleService-Info.plist in Resources */,
+				8DB8197E30611BD5002D1C4E /* (null) in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -276,8 +279,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8DB84A2030598771004206E7 /* .gitignore in Sources */,
-				8DB849E830595FA2004206E7 /* Documentation.docc in Sources */,
+				8DB84A2030598771004206E7 /* (null) in Sources */,
+				8DB849E830595FA2004206E7 /* (null) in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -287,12 +290,12 @@
 		8D6264ED30528A4D00D842C2 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 8D6264DD30528A4C00D842C2 /* a2-s4092047-s4092817 */;
-			targetProxy = 8D6264EC30528A4D00D842C2 /* PBXContainerItemProxy */;
+			targetProxy = BF50322630613F74000608EC /* PBXContainerItemProxy */;
 		};
 		8D6264F730528A4D00D842C2 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 8D6264DD30528A4C00D842C2 /* a2-s4092047-s4092817 */;
-			targetProxy = 8D6264F630528A4D00D842C2 /* PBXContainerItemProxy */;
+			targetProxy = BF50322730613F74000608EC /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 

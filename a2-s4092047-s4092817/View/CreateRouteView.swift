@@ -24,7 +24,9 @@ struct CreateRouteView: View {
                     .stroke(.blue, lineWidth: 5)
             }
             
-        }.onAppear {
+        }
+        .frame(height:400)
+        .onAppear {
             locationVM.createRoute()
             print(locationVM.routes.count)
         }

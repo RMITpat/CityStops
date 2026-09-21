@@ -132,9 +132,9 @@ final class LocationViewModel: NSObject, CLLocationManagerDelegate {
         
         let directionsRequest: MKDirections.Request = MKDirections.Request()
         currentRouteTask = Task {
-            for i in 1...selectedPlaces.endIndex - 1 {
-                directionsRequest.destination = selectedPlaces[i]
-                directionsRequest.source = selectedPlaces[i-1]
+            for (source, dest) in zip(selectedPlaces, selectedPlaces.dropFirst()) {
+                directionsRequest.source = source
+                directionsRequest.destination = dest
                 directionsRequest.transportType = MKDirectionsTransportType.walking
                 
                 let directions = MKDirections(request: directionsRequest)

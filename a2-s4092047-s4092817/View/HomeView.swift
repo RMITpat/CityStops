@@ -11,7 +11,7 @@ import SwiftUI
 /// Home view for viewing trip feed?
 struct HomeView: View {
     @Environment(AuthViewModel.self) var auth: AuthViewModel
-
+    
     var body: some View {
         @Bindable var auth = auth
         

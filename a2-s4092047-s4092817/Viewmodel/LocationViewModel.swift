@@ -34,8 +34,17 @@ final class LocationViewModel: NSObject, CLLocationManagerDelegate {
     // The results of a place search
     var searchResults: [MKMapItem] = []
     
+    // The current region, represented as MapCameraPosition so it can be displayed by Map
     var currentLocation: MapCameraPosition
+    
+    // Places selected by the user to be a part of the trip
+    var selectedPlaces: [MKMapItem] = []
 
+    // Routes between selectionPlaces
+    var routes: [MKRoute] = []
+    
+    // The current route finding task created by createRoute. Stored here so that it can be cancelled if a new request is made
+    var currentRouteTask: Task<Void, Never>?
     override init() {
         let sydneyRegion = MKCoordinateRegion(
             center: CLLocationCoordinate2D(
@@ -114,4 +123,29 @@ final class LocationViewModel: NSObject, CLLocationManagerDelegate {
         ) {
             print("Failed to get location:", error.localizedDescription)
         }
+    
+    // Creates a route between all the locations currently stored in selectedPlaces, in the order they were added. Begins by checking if there was a previous, ongoing route request occurring and cancelling
+    // it if there was and replacing it with the new one.
+    func createRoute() {
+        currentRouteTask?.cancel()
+        routes.removeAll()
+        
+        let directionsRequest: MKDirections.Request = MKDirections.Request()
+        currentRouteTask = Task {
+            for (source, dest) in zip(selectedPlaces, selectedPlaces.dropFirst()) {
+                directionsRequest.source = source
+                directionsRequest.destination = dest
+                directionsRequest.transportType = MKDirectionsTransportType.walking
+                
+                let directions = MKDirections(request: directionsRequest)
+                let response = try? await directions.calculate()
+                if let route = response?.routes.first {
+                    routes.append(route)
+                }
+            }
+                  
+        }
+        
+        
+    }
 }

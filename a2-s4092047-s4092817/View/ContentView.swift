@@ -28,6 +28,8 @@ struct ContentView: View {
     }
 }
 
-//#Preview {
-//    ContentView()
-//}
+#Preview {
+    ContentView()
+        .environment(AuthViewModel())
+        .environment(LocationViewModel())
+}

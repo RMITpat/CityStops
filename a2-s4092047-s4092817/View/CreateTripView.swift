@@ -15,50 +15,54 @@ import MapKit
 struct CreateTripView: View {
     @Environment(LocationViewModel.self) var locationVM: LocationViewModel
     
-    @State private var tripPlaces: [MKMapItem] = []
     
     var body: some View {
         
         @Bindable var locationVM = locationVM
-        
-        VStack {
-            Map (position: $locationVM.currentLocation) {
-                ForEach(tripPlaces, id: \.self) { place in
-                    Marker(item: place)
-                        .mapItemDetailSelectionAccessory(.callout)
+        NavigationStack {
+            VStack {
+                Map (position: $locationVM.currentLocation) {
+                    ForEach(locationVM.selectedPlaces, id: \.self) { place in
+                        Marker(item: place)
+                            .mapItemDetailSelectionAccessory(.callout)
+                    }
                 }
-            }
-            .frame(height:400)
-            .onAppear {
-                locationVM.checkLocationAuthorization()
-            }
-            
-            TextField(
-                "Search a place",
-                text: $locationVM.searchRequest
-            )
-            
-            Button("Search") {
-                locationVM.searchPlaces()
-            }
-            ScrollView {
-                VStack {
-                    ForEach(locationVM.searchResults, id: \.identifier) { result in
-                        VStack {
-                            Text(result.name ?? "no name")
-                            Text(result.address?.fullAddress ?? "no name")
-                            Button("Add") {
-                                tripPlaces.append(result)
+                .frame(height:400)
+                .onAppear {
+                    locationVM.checkLocationAuthorization()
+                }
+                
+                TextField(
+                    "Search a place",
+                    text: $locationVM.searchRequest
+                )
+                
+                Button("Search") {
+                    locationVM.searchPlaces()
+                }
+                ScrollView {
+                    VStack {
+                        ForEach(locationVM.searchResults, id: \.identifier) { result in
+                            VStack {
+                                Text(result.name ?? "no name")
+                                Text(result.address?.fullAddress ?? "no name")
+                                Button("Add") {
+                                    locationVM.selectedPlaces.append(result)
+                                }
                             }
                         }
                     }
                 }
+                Spacer()
+                NavigationLink (destination: CreateRouteView()) {
+                    Text("Next")
+                    
+                }
             }
-            Spacer()
         }
     }
 }
 
 #Preview {
-    CreateTripView()
+    CreateTripView().environment(LocationViewModel())
 }

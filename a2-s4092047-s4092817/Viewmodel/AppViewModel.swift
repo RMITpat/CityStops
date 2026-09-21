@@ -6,9 +6,13 @@
 //
 
 import Foundation
-import CoreLocation
+
+enum Route {
+    case createTrip
+    case createRoute
+}
 
 @Observable class AppViewModel {
     
-    
+    var path: [Route] = [Route]()
 }

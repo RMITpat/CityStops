@@ -43,9 +43,9 @@ struct LoginView: View {
 
             Button(action: {
                 if isSigningUp {
-                    Task { await auth.signUp() }
+                    auth.signUp()
                 } else {
-                    Task { await auth.signIn() }
+                    auth.signIn()
                 }
             }) {
                 Text(isSigningUp ? "Sign Up" : "Log In")

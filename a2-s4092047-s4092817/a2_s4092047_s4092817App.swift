@@ -7,6 +7,7 @@
 
 import SwiftUI
 import FirebaseCore
+import GoogleSignIn
 
 
 @main
@@ -25,10 +26,14 @@ struct a2_s4092047_s4092817App: App {
     
     var body: some Scene {
         WindowGroup {
-            if (authVM.isAuthenticated) {
+            if (authVM.signedInUser != nil) {
                 ContentView()
             } else {
                 LoginView()
+                    .onOpenURL { url in
+                    // Handles the redirect back from Google Sign-In.
+                    GIDSignIn.sharedInstance.handle(url)
+                }
             }
         }
         .environment(authVM)

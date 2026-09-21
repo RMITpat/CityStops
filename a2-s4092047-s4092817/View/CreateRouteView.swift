@@ -30,6 +30,23 @@ struct CreateRouteView: View {
             locationVM.createRoute()
             print(locationVM.routes.count)
         }
+        ScrollView {
+             VStack {
+                 ForEach(locationVM.selectedPlaces, id: \.identifier) { result in
+                     VStack {
+                         // and any other details such as place type
+                         Text(result.name ?? "no name")
+                         Text(result.address?.fullAddress ?? "no name")
+                        
+                     }
+                 }
+             }
+         }
+        Spacer()
+        Button("Finish") {
+            
+        }
+        
     }
 }
 

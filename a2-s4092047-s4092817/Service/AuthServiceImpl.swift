@@ -29,8 +29,6 @@ final class AuthServiceImpl: AuthService {
         Auth.auth().currentUser
     }
     
-    var isAuthenticated: Bool = Auth.auth().currentUser != nil
-
     // Starts Google Sign-In, then exchanges the Google token for a Firebase credential.
     func signInWithGoogle() async throws -> User {
         guard FirebaseApp.app() != nil else {

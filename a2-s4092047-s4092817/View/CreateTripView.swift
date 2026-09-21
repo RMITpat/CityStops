@@ -19,7 +19,6 @@ struct CreateTripView: View {
     var body: some View {
         
         @Bindable var locationVM = locationVM
-        NavigationStack {
             VStack {
                 // Map interface
                 Map (position: $locationVM.currentLocation) {
@@ -63,8 +62,9 @@ struct CreateTripView: View {
                     
                 }
             }
+            .navigationTitle(Text("Select Stops"))
+            .navigationSubtitle(Text("Add stops to your trip!"))
         }
-    }
 }
 
 #Preview {

@@ -10,8 +10,9 @@ import FirebaseCore
 import GoogleSignIn
 import UIKit
 
+// Protocol for AuthService
 @MainActor
-protocol AuthServicing {
+protocol AuthService {
     var currentUser: User? { get }
     func signInWithGoogle() async throws -> User
     func signOut() throws
@@ -20,17 +21,15 @@ protocol AuthServicing {
 
 }
 
+// Real implementation of AuthService which handles google sign in, sign in and up with email and sign out
 @MainActor
-final class AuthService: AuthServicing {
+final class AuthServiceImpl: AuthService {
 
     var currentUser: User? {
         Auth.auth().currentUser
     }
     
     var isAuthenticated: Bool = Auth.auth().currentUser != nil
-//    Auth.auth().addStateDidChangeListener { [weak self] _, user in
-//        self?.isAuthenticated = (user != nil)
-//    }
 
     // Starts Google Sign-In, then exchanges the Google token for a Firebase credential.
     func signInWithGoogle() async throws -> User {

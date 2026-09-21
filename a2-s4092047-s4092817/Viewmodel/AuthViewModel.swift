@@ -17,13 +17,19 @@ import FirebaseAuth
     var error: String?
     var isLoading: Bool = false
     
-    private let authService: AuthServicing
+    private let authService: AuthService
 
     var signedInUser: User?
 
-    
+    // Real init
     init() {
-        let service = AuthService()
+        let service = AuthServiceImpl()
+        self.authService = service
+        self.signedInUser = service.currentUser
+    }
+    
+    // Init used by mocks
+    init(service: AuthService) {
         self.authService = service
         self.signedInUser = service.currentUser
     }

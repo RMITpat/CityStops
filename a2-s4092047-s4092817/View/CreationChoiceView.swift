@@ -1,0 +1,20 @@
+//
+//  CreationChoiceView.swift
+//  a2-s4092047-s4092817
+//
+//  Created by Riley Tran on 21/9/2026.
+//
+
+import SwiftUI
+
+/// View that allows user to choose between manually planning a daytrip, or
+/// use ML features to plan a daytrip for them.
+struct CreationChoiceView: View {
+    var body: some View {
+        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+    }
+}
+
+#Preview {
+    CreationChoiceView()
+}

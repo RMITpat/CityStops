@@ -12,44 +12,11 @@
 		8DB8198030611BD5002D1C4E /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 8DB8197D30611BD5002D1C4E /* GoogleService-Info.plist */; };
 		8DB849D730595BA8004206E7 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 8DB849D630595BA8004206E7 /* FirebaseCore */; };
 		8DB849E430595E17004206E7 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 8DB849E330595E17004206E7 /* FirebaseAuth */; };
-<<<<<<< Updated upstream
 		8DB849E830595FA2004206E7 /* Documentation.docc in Sources */ = {isa = PBXBuildFile; fileRef = 8DB849E730595FA2004206E7 /* Documentation.docc */; };
 		8DB849E930595FA2004206E7 /* Documentation.docc in Sources */ = {isa = PBXBuildFile; fileRef = 8DB849E730595FA2004206E7 /* Documentation.docc */; };
 		8DB849EA30595FA2004206E7 /* Documentation.docc in Sources */ = {isa = PBXBuildFile; fileRef = 8DB849E730595FA2004206E7 /* Documentation.docc */; };
 		8DB84A2030598771004206E7 /* .gitignore in Sources */ = {isa = PBXBuildFile; fileRef = 8DB84A1F3059876D004206E7 /* .gitignore */; };
 		8DB84A2130598771004206E7 /* .gitignore in Sources */ = {isa = PBXBuildFile; fileRef = 8DB84A1F3059876D004206E7 /* .gitignore */; };
-=======
->>>>>>> Stashed changes
-/* End PBXBuildFile section */
-
-/* Begin PBXContainerItemProxy section */
-		8D6264EC30528A4D00D842C2 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 8D6264D630528A4C00D842C2 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 8D6264DD30528A4C00D842C2;
-			remoteInfo = "a1-s4092047-s4092817";
-		};
-		8D6264F630528A4D00D842C2 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 8D6264D630528A4C00D842C2 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 8D6264DD30528A4C00D842C2;
-			remoteInfo = "a1-s4092047-s4092817";
-		};
-/* End PBXContainerItemProxy section */
-
-/* Begin PBXFileReference section */
-		8D6264DE30528A4C00D842C2 /* a2-s4092047-s4092817.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "a2-s4092047-s4092817.app"; sourceTree = BUILT_PRODUCTS_DIR; };
-		8D6264EB30528A4D00D842C2 /* a2-s4092047-s4092817Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "a2-s4092047-s4092817Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
-		8D6264F530528A4D00D842C2 /* a2-s4092047-s4092817UITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "a2-s4092047-s4092817UITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
-<<<<<<< Updated upstream
-		8DB8197D30611BD5002D1C4E /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
-		8DB849E730595FA2004206E7 /* Documentation.docc */ = {isa = PBXFileReference; lastKnownFileType = folder.documentationcatalog; path = Documentation.docc; sourceTree = "<group>"; };
-		8DB84A1F3059876D004206E7 /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
-=======
-		8DB849AF3059566B004206E7 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
->>>>>>> Stashed changes
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -309,23 +276,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-<<<<<<< Updated upstream
 				8DB84A2030598771004206E7 /* .gitignore in Sources */,
 				8DB849E830595FA2004206E7 /* Documentation.docc in Sources */,
-=======
->>>>>>> Stashed changes
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		8D6264F130528A4D00D842C2 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-<<<<<<< Updated upstream
-				8DB84A2130598771004206E7 /* .gitignore in Sources */,
-				8DB849EA30595FA2004206E7 /* Documentation.docc in Sources */,
-=======
->>>>>>> Stashed changes
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

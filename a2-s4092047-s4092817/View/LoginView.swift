@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import GoogleSignInSwift
 ///
 /// LoginView allows users to sign in or sign up through Firebase authentication
 ///  - Uses  AuthViewModel methods for signing in and out
@@ -40,7 +41,7 @@ struct LoginView: View {
             if let error = auth.error {
                 Text(error).foregroundColor(.red).font(.footnote)
             }
-
+            
             Button(action: {
                 if isSigningUp {
                     auth.signUp()
@@ -55,6 +56,13 @@ struct LoginView: View {
                     .background(Color.blue)
                     .cornerRadius(10)
             }
+            GoogleSignInButton {
+                auth.signInWithGoogle()
+            }
+            .frame(height: 50)
+            .disabled(auth.isLoading)
+            .opacity(auth.isLoading ? 0.6 : 1)
+
 
             Button(action: {
                 isSigningUp.toggle()

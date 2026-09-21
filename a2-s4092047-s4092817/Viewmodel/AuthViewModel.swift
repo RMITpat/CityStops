@@ -15,6 +15,7 @@ import FirebaseAuth
     var email: String = ""
     var password: String = ""
     var error: String?
+    var isLoading: Bool = false
     
     private let authService: AuthServicing
 
@@ -54,7 +55,7 @@ import FirebaseAuth
     
     /// Signs the user in with Google through AuthService.
     func signInWithGoogle() {
-       // isLoading = true
+        isLoading = true
 
         Task {
             do {
@@ -63,7 +64,7 @@ import FirebaseAuth
                 self.error = error.localizedDescription
             }
 
-            //self.isLoading = false
+            self.isLoading = false
         }
     }
     

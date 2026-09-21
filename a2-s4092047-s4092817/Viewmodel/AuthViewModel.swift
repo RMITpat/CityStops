@@ -9,7 +9,8 @@ import Foundation
 import FirebaseAuth
 
 ///
-/// Viewmodel for signing in, signing up and keeping track of signed in user. Taken from Week 8 lectorial code archive.
+/// ViewModel for signing in to the app, signing up, and keeping track of signed in user.
+/// Taken from Week 8 lectorial code archive.
 ///
 @Observable class AuthViewModel {
     var email: String = ""
@@ -25,7 +26,7 @@ import FirebaseAuth
         }
     }
     
-    /// Sign up with email and password
+    /// Sign up by creating a new account with email and password.
     func signUp() async {
         error = nil
         do {
@@ -35,7 +36,7 @@ import FirebaseAuth
         }
     }
     
-    /// Sign in with email and password
+    /// Log in to the app with email and password.
     func signIn() async {
         error = nil
         do {
@@ -46,7 +47,7 @@ import FirebaseAuth
         }
     }
     
-    /// Sign out of account
+    /// Sign out of account.
     func signOut() {
         do { try Auth.auth().signOut() } catch { self.error = error.localizedDescription }
     }

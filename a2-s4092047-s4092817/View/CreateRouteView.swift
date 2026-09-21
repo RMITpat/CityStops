@@ -8,6 +8,7 @@
 import SwiftUI
 import MapKit
 
+/// View that 
 struct CreateRouteView: View {
     @Environment(LocationViewModel.self) var locationVM: LocationViewModel
 

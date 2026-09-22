@@ -16,40 +16,73 @@ import FirebaseAuth
     var email: String = ""
     var password: String = ""
     var error: String?
-    var isAuthenticated: Bool = Auth.auth().currentUser != nil
+    var isLoading: Bool = false
     
-    var userId: String? { Auth.auth().currentUser?.uid }
-    var userEmail: String? { Auth.auth().currentUser?.email }
+    private let authService: AuthService
+
+    var signedInUser: User?
+
+    // Real init
     init() {
-        Auth.auth().addStateDidChangeListener { [weak self] _, user in
-            self?.isAuthenticated = (user != nil)
+        let service = AuthServiceImpl()
+        self.authService = service
+        self.signedInUser = service.currentUser
+    }
+    
+    // Init used by mocks
+    init(service: AuthService) {
+        self.authService = service
+        self.signedInUser = service.currentUser
+    }
+    
+    /// Sign up with email and password
+    func signUp()  {
+        error = nil
+        Task {
+            do {
+                signedInUser = try await authService.signUpWithEmail(email: email, password: password)
+            } catch {
+                self.error = error.localizedDescription
+            }
         }
     }
     
-    /// Sign up by creating a new account with email and password.
-    func signUp() async {
+    /// Sign in with email and password
+    func signIn() {
         error = nil
-        do {
-            _ = try await Auth.auth().createUser(withEmail: email, password: password)
-        } catch {
-            self.error = error.localizedDescription
+        Task {
+            do {
+                signedInUser = try await authService.signInWithEmail(email: email, password: password)
+            } catch {
+                self.error = error.localizedDescription
+            }
         }
     }
     
-    /// Log in to the app with email and password.
-    func signIn() async {
-        error = nil
-        do {
-            _ = try await Auth.auth().signIn(withEmail: email, password: password)
-            
-        } catch {
-            self.error = error.localizedDescription
+    
+    /// Signs the user in with Google through AuthService.
+    func signInWithGoogle() {
+        isLoading = true
+
+        Task {
+            do {
+                signedInUser = try await authService.signInWithGoogle()
+            } catch {
+                self.error = error.localizedDescription
+            }
+
+            self.isLoading = false
         }
     }
     
     /// Sign out of account.
     func signOut() {
-        do { try Auth.auth().signOut() } catch { self.error = error.localizedDescription }
+        do {
+            try authService.signOut()
+            signedInUser = nil
+        } catch {
+            self.error = error.localizedDescription
+        }
     }
 }
 

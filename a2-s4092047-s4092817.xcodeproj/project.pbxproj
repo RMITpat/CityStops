@@ -44,6 +44,13 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		8DB819C43061377B002D1C4E /* Exceptions for "a2-s4092047-s4092817" folder in "a2-s4092047-s4092817" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 8D6264DD30528A4C00D842C2 /* a2-s4092047-s4092817 */;
+		};
 		8DB84A0230596DF5004206E7 /* Exceptions for "a2-s4092047-s4092817" folder in "a2-s4092047-s4092817Tests" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (

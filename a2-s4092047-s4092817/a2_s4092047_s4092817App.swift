@@ -9,7 +9,7 @@ import SwiftUI
 import FirebaseCore
 import GoogleSignIn
 
-
+/// App entry point.
 @main
 struct a2_s4092047_s4092817App: App {
     @State private var authVM: AuthViewModel
@@ -32,6 +32,7 @@ struct a2_s4092047_s4092817App: App {
         }
     
     var body: some Scene {
+        // MARK: Login Entry point
         WindowGroup {
             if (authVM.signedInUser != nil) {
                 ContentView()

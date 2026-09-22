@@ -10,7 +10,8 @@ import Observation
 import MapKit
 import _MapKit_SwiftUI
 ///
-/// ViewModel used for keeping track of the user's current location
+/// ViewModel used for keeping track of the user's current location,
+/// and managing a trip's route based on the stops chosen.
 ///
 @Observable
 final class LocationViewModel: NSObject, CLLocationManagerDelegate {
@@ -105,7 +106,7 @@ final class LocationViewModel: NSObject, CLLocationManagerDelegate {
         }
     }
     
-    // Trigged every time authorization status changes
+    // Triggered every time authorization status changes
     func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
         checkLocationAuthorization()
     }
@@ -124,8 +125,9 @@ final class LocationViewModel: NSObject, CLLocationManagerDelegate {
             print("Failed to get location:", error.localizedDescription)
         }
     
-    // Creates a route between all the locations currently stored in selectedPlaces, in the order they were added. Begins by checking if there was a previous, ongoing route request occurring and cancelling
-    // it if there was and replacing it with the new one.
+    // Creates a route between all the locations currently stored in selectedPlaces, in the order they were added.
+    // Begins by checking if there was a previous, ongoing route request occurring and
+    // cancelling it if there was and replacing it with the new one.
     func createRoute() {
         currentRouteTask?.cancel()
         routes.removeAll()

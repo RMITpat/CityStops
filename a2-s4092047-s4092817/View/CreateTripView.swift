@@ -10,7 +10,7 @@ import MapKit
 
 ///
 /// View for adding stops to a trip. Contains a Map and search bar through which users can search for locations by name. Results can be added as pins on the map.
-/// - Uses the LocationViewModel vm
+/// - Uses ``LocationViewModel`` to pass stops to ``CreateRouteView``
 
 struct CreateTripView: View {
     @Environment(LocationViewModel.self) var locationVM: LocationViewModel
@@ -21,6 +21,7 @@ struct CreateTripView: View {
         @Bindable var locationVM = locationVM
         NavigationStack {
             VStack {
+                // Map interface
                 Map (position: $locationVM.currentLocation) {
                     ForEach(locationVM.selectedPlaces, id: \.self) { place in
                         Marker(item: place)
@@ -32,6 +33,7 @@ struct CreateTripView: View {
                     locationVM.checkLocationAuthorization()
                 }
                 
+                // Location Search field
                 TextField(
                     "Search a place",
                     text: $locationVM.searchRequest
@@ -40,6 +42,8 @@ struct CreateTripView: View {
                 Button("Search") {
                     locationVM.searchPlaces()
                 }
+                
+                // Search options
                 ScrollView {
                     VStack {
                         ForEach(locationVM.searchResults, id: \.identifier) { result in

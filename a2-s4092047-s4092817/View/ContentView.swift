@@ -7,19 +7,22 @@
 
 import SwiftUI
 
+// View that handles Navigation of the app.
 struct ContentView: View {
     var body: some View {
+        // Bottom nav. bar
         TabView {
+            // Home
             HomeView()
                 .tabItem {
                     Label("Home", systemImage: "house")
                 }
-        
+            // Create Trip
             CreateTripView()
                 .tabItem {
                     Label("Create Trip", systemImage: "plus")
                 }
-
+            // Settings
             SettingsView()
                 .tabItem {
                     Label("Settings", systemImage: "gear")

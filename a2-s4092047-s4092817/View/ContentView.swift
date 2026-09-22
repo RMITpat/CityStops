@@ -17,11 +17,15 @@ struct ContentView: View {
                 .tabItem {
                     Label("Home", systemImage: "house")
                 }
+            
             // Create Trip
-            CreateTripView()
-                .tabItem {
-                    Label("Create Trip", systemImage: "plus")
-                }
+            NavigationStack {
+                CreationChoiceView()
+            }
+            .tabItem {
+                Label("Create Trip", systemImage: "plus")
+            }
+            
             // Settings
             SettingsView()
                 .tabItem {

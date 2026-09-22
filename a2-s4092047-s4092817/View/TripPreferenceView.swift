@@ -13,7 +13,12 @@ struct TripPreferenceView: View {
     @State private var tripPreferences = preferences
 
     var body: some View {
-        VStack {
+        VStack (alignment: .leading) {
+            Text("What is the purpose of your daytrip?")
+                .font(.footnote)
+                .padding(.horizontal, 16)
+
+            // List of Preference options
             List {
                 ForEach($tripPreferences, id: \.preference) { $item in
                     HStack {
@@ -27,25 +32,21 @@ struct TripPreferenceView: View {
                     }
                 }
             }
-            NavigationLink(destination: CreateTripView()) {
-                Text("Next")
+            .listStyle(.plain)
+            .safeAreaInset(edge: .bottom) {
+                NavigationLink(destination: CreateTripView()) {
+                    Text("Next")
+                }
+                .frame(maxWidth: .infinity)
+                .controlSize(.large)
+                .buttonStyle(.glassProminent)
+                .padding(.vertical, 16)
             }
-            .buttonStyle(.glassProminent)
-            .controlSize(.large)
-            
             .navigationTitle(Text("Trip Preferences"))
-            .navigationSubtitle(Text("What is the purpose of your daytrip?"))
+            .navigationBarTitleDisplayMode(.large)
         }
     }
 }
-
-// TODO: PLACEHOLDER FOR CHECKING FUNCTIONALITY
-struct ChecklistItem: Identifiable {
-    let id = UUID()
-    let title: String
-    var isChecked: Bool = false
-}
-
 
 //
 //

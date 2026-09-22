@@ -40,30 +40,25 @@ struct CreateTripView: View {
             // Search options
             ScrollView {
                 VStack {
+                    // Generate location detail cards
                     ForEach(locationVM.searchResults, id: \.identifier) { result in
-                        VStack {
-                            Text(result.name ?? "no name")
-                            Text(result.address?.shortAddress ?? "no name")
-                            Button("Add") {
-                                locationVM.selectedPlaces.append(result)
-                            }
-                        }
+                        LocationCardView(location: result, locationVM: locationVM)
                     }
                 }
             }
-            
-                .safeAreaInset(edge: .bottom) {
-                    NavigationLink(destination: CreateRouteView()) {
-                        Text("Next")
-                            .frame(maxWidth: .infinity)
-                    }
-                    .controlSize(.large)
-                    .buttonStyle(.glassProminent)
-                    .padding(.horizontal, 16)
-                    .padding(.bottom, 24)
-                    .background(.bar)
-                }
+        }
+        
+        .safeAreaInset(edge: .bottom) {
+            NavigationLink(destination: CreateRouteView()) {
+                Text("Next")
+                    .frame(maxWidth: .infinity)
             }
+            .controlSize(.large)
+            .buttonStyle(.glassProminent)
+            .padding(.horizontal, 16)
+            .padding(.bottom, 24)
+            .background(.bar)
+        }
             .navigationTitle(Text("Select Stops"))
             .navigationSubtitle(Text("Add stops to your trip!"))
         

@@ -15,7 +15,7 @@ struct LocationCardView: View {
     var body: some View {
         HStack(spacing: 16) {
             
-            // Place icon
+            // Location pin SF Symbol icon
             Image(systemName: "mappin.circle.fill")
                 .font(.title2)
                 .foregroundStyle(.gray)
@@ -29,20 +29,20 @@ struct LocationCardView: View {
                 Text(location.address?.shortAddress ?? "No address")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
-                    .lineLimit(2)
+                    .lineLimit(1) // address should not be extremely long
             }
             
             Spacer()
             
-            // Add button
+            // "Add" button
             Button {
                 locationVM.selectedPlaces.append(location)
             } label: {
                 Image(systemName: "plus")
-                    .font(.headline)
+                    .bold()
                     .foregroundStyle(.white)
                     .frame(width: 36, height: 36)
-                    .background(Color.blue)
+                    .background(Color.accentColor)
                     .clipShape(Circle())
             }
         }
@@ -51,11 +51,11 @@ struct LocationCardView: View {
             RoundedRectangle(cornerRadius: 16)
                 .fill(Color(.systemBackground))
         )
+        // Card border
         .overlay(
             RoundedRectangle(cornerRadius: 16)
-                .stroke(Color(.systemGray5), lineWidth: 1)
+                .stroke(Color(.systemGray4), lineWidth: 1)
         )
-        .padding(.horizontal)
     }
 }
 

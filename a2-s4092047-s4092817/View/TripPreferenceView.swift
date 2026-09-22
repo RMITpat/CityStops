@@ -10,24 +10,19 @@ import SwiftUI
 /// Lets user choose the purpose of the daytrip / preferences of locations that they intend to visit in the planned daytrip.
 
 struct TripPreferenceView: View {
-    // TODO: THIS IS PLACEHOLDER DATA; PROPER IMPLEMENTATION WILL BE A LIST OF "PREFERENCES" THAT IS STORED AS PART OF "DAYTRIP" MODEL
-    @State private var items: [ChecklistItem] = [
-        ChecklistItem(title: "Choose locations for a daytrip plan"),
-        ChecklistItem(title: "Add stops to a route"),
-        ChecklistItem(title: "Share itinerary with friends")
-    ]
+    @State private var tripPreferences = preferences
 
     var body: some View {
         VStack {
             List {
-                ForEach($items) { $item in
+                ForEach($tripPreferences, id: \.preference) { $item in
                     HStack {
-                        Image(systemName: item.isChecked ? "checkmark.square.fill" : "square")
+                        Image(systemName: item.isChecked ? "checkmark.circle.fill" : "circle")
                             .foregroundColor(item.isChecked ? .blue : .gray)
                             .onTapGesture {
                                 item.isChecked.toggle()
                             }
-                        Text(item.title)
+                        Text(item.preference)
                             .strikethrough(item.isChecked)
                     }
                 }

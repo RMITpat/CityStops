@@ -13,44 +13,57 @@ struct TripPreferenceView: View {
     @State private var tripPreferences = preferences
 
     var body: some View {
-        VStack (alignment: .leading) {
-            Text("What is the purpose of your daytrip?")
-                .font(.footnote)
-                .padding(.horizontal, 16)
+        // MARK: - Preference List
+        // TODO: - Create ViewModel for this View to store preferences for Trip model
+        List {
+            ForEach($tripPreferences, id: \.preference) { $item in
+                HStack {
+                    // SF symbol
+                    Image(systemName: item.icon)
+                        .foregroundColor(item.isChecked ?
+                                        .accentColor : .secondary)
+                        .frame(width: 24)
 
-            // List of Preference options
-            List {
-                ForEach($tripPreferences, id: \.preference) { $item in
-                    HStack {
-                        Image(systemName: item.isChecked ? "checkmark.circle.fill" : "circle")
-                            .foregroundColor(item.isChecked ? .blue : .gray)
-                            .onTapGesture {
-                                item.isChecked.toggle()
-                            }
-                        Text(item.preference)
-                            .strikethrough(item.isChecked)
-                    }
+                    // Preference name
+                    Text(item.preference)
+                    
+                    Spacer()
+                    
+                    // Check circle
+                    Image(systemName: item.isChecked ?
+                          "checkmark.circle.fill" : "circle")
+                        .foregroundColor(item.isChecked ?
+                                        .accentColor : .gray)
+                }
+                // Change tap boolean when tapped
+                .onTapGesture {
+                    item.isChecked.toggle()
                 }
             }
-            .listStyle(.plain)
-            .safeAreaInset(edge: .bottom) {
-                NavigationLink(destination: CreateTripView()) {
-                    Text("Next")
-                }
-                .frame(maxWidth: .infinity)
-                .controlSize(.large)
-                .buttonStyle(.glassProminent)
-                .padding(.vertical, 16)
-            }
-            .navigationTitle(Text("Trip Preferences"))
-            .navigationBarTitleDisplayMode(.large)
         }
+        .listStyle(.plain)
+        
+        // MARK: - "Next" Button
+        // TODO: - Create wrapper for all bottom buttons (reusable view / wrapper)
+        .safeAreaInset(edge: .bottom) {
+            NavigationLink(destination: CreateTripView()) {
+                Text("Next")
+                    .frame(maxWidth: .infinity)
+            }
+            .controlSize(.large)
+            .buttonStyle(.glassProminent)
+            .padding(.horizontal, 16)
+            .padding(.bottom, 24)
+            .background(.bar)
+        }
+            // MARK: View Title
+            .navigationTitle(Text("Trip Preferences"))
+        // FIXME: NAV SUBTITLE BUGS THE DISPLAY MODE; MAKES IT DEFAULT TO INLINE RATHER THAN LARGE
+            //.navigationSubtitle("What will be the purpose of your daytrip?")
+            .navigationBarTitleDisplayMode(.large)
     }
 }
 
-//
-//
-//
 #Preview {
     NavigationStack {
         TripPreferenceView()

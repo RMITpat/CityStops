@@ -31,9 +31,11 @@ struct CreateTripView: View {
             //                    locationVM.checkLocationAuthorization()
             //                }
             
+            // "Search" Button
             Button("Search") {
                 locationVM.searchPlaces()
             }
+            .buttonStyle(.glassProminent)
             
             // Search options
             ScrollView {
@@ -41,7 +43,7 @@ struct CreateTripView: View {
                     ForEach(locationVM.searchResults, id: \.identifier) { result in
                         VStack {
                             Text(result.name ?? "no name")
-                            Text(result.address?.fullAddress ?? "no name")
+                            Text(result.address?.shortAddress ?? "no name")
                             Button("Add") {
                                 locationVM.selectedPlaces.append(result)
                             }
@@ -49,7 +51,6 @@ struct CreateTripView: View {
                     }
                 }
             }
-            Spacer()
             
                 .safeAreaInset(edge: .bottom) {
                     NavigationLink(destination: CreateRouteView()) {

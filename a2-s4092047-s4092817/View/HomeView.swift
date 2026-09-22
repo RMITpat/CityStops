@@ -8,7 +8,9 @@
 import SwiftUI
 import FirebaseAuth
 ///
-/// Home view for viewing trip feed?
+/// Home view for viewing trip feed.
+/// Implements ``AuthViewModel`` to allow sign out (needs to be moved into settings)
+// TODO: MOVE SIGN OUT TO SETTINGS PAGE
 struct HomeView: View {
     @Environment(AuthViewModel.self) var auth: AuthViewModel
     
@@ -19,11 +21,7 @@ struct HomeView: View {
             Text(auth.signedInUser?.email ?? "no email")
             Button("Sign Out") { auth.signOut() }
             Spacer()
-            
-        //            NavigationLink(destination: CreateTripView()) {
-        //
-        //                Image(systemName: "plus.capsule.fill").font(.largeTitle)
-        //            }
+
         }
             .navigationTitle("Welcome!")
     }

@@ -14,9 +14,6 @@
 		8DB81AD730613FA3002D1C4E /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 8DB81AD630613FA3002D1C4E /* GoogleSignInSwift */; };
 		8DB849D730595BA8004206E7 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 8DB849D630595BA8004206E7 /* FirebaseCore */; };
 		8DB849E430595E17004206E7 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 8DB849E330595E17004206E7 /* FirebaseAuth */; };
-		8DB849E830595FA2004206E7 /* Documentation.docc in Sources */ = {isa = PBXBuildFile; fileRef = 8DB849E730595FA2004206E7 /* Documentation.docc */; };
-		8DB849E930595FA2004206E7 /* Documentation.docc in Sources */ = {isa = PBXBuildFile; fileRef = 8DB849E730595FA2004206E7 /* Documentation.docc */; };
-		8DB849EA30595FA2004206E7 /* Documentation.docc in Sources */ = {isa = PBXBuildFile; fileRef = 8DB849E730595FA2004206E7 /* Documentation.docc */; };
 		8DB84A2030598771004206E7 /* .gitignore in Sources */ = {isa = PBXBuildFile; fileRef = 8DB84A1F3059876D004206E7 /* .gitignore */; };
 		8DB84A2130598771004206E7 /* .gitignore in Sources */ = {isa = PBXBuildFile; fileRef = 8DB84A1F3059876D004206E7 /* .gitignore */; };
 /* End PBXBuildFile section */
@@ -43,7 +40,6 @@
 		8D6264EB30528A4D00D842C2 /* a2-s4092047-s4092817Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "a2-s4092047-s4092817Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		8D6264F530528A4D00D842C2 /* a2-s4092047-s4092817UITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "a2-s4092047-s4092817UITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		8DB8197D30611BD5002D1C4E /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
-		8DB849E730595FA2004206E7 /* Documentation.docc */ = {isa = PBXFileReference; lastKnownFileType = folder.documentationcatalog; path = Documentation.docc; sourceTree = "<group>"; };
 		8DB84A1F3059876D004206E7 /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -69,13 +65,20 @@
 			);
 			target = 8D6264F430528A4D00D842C2 /* a2-s4092047-s4092817UITests */;
 		};
+		BFF5282F30625E0F0004D631 /* Exceptions for "a2-s4092047-s4092817" folder in "a2-s4092047-s4092817" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 8D6264DD30528A4C00D842C2 /* a2-s4092047-s4092817 */;
+		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		8D6264E030528A4C00D842C2 /* a2-s4092047-s4092817 */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				8DB819C43061377B002D1C4E /* Exceptions for "a2-s4092047-s4092817" folder in "a2-s4092047-s4092817" target */,
+				BFF5282F30625E0F0004D631 /* Exceptions for "a2-s4092047-s4092817" folder in "a2-s4092047-s4092817" target */,
 				8DB84A0230596DF5004206E7 /* Exceptions for "a2-s4092047-s4092817" folder in "a2-s4092047-s4092817Tests" target */,
 				8DB84A0330596DF5004206E7 /* Exceptions for "a2-s4092047-s4092817" folder in "a2-s4092047-s4092817UITests" target */,
 			);
@@ -126,7 +129,6 @@
 		8D6264D530528A4C00D842C2 = {
 			isa = PBXGroup;
 			children = (
-				8DB849E730595FA2004206E7 /* Documentation.docc */,
 				8D6264E030528A4C00D842C2 /* a2-s4092047-s4092817 */,
 				8D6264EE30528A4D00D842C2 /* a2-s4092047-s4092817Tests */,
 				8D6264DF30528A4C00D842C2 /* Products */,
@@ -309,7 +311,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8DB849E930595FA2004206E7 /* Documentation.docc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -318,7 +319,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				8DB84A2030598771004206E7 /* .gitignore in Sources */,
-				8DB849E830595FA2004206E7 /* Documentation.docc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -327,7 +327,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				8DB84A2130598771004206E7 /* .gitignore in Sources */,
-				8DB849EA30595FA2004206E7 /* Documentation.docc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

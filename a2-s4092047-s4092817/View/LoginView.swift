@@ -8,21 +8,24 @@
 import SwiftUI
 import GoogleSignInSwift
 ///
-/// LoginView allows users to sign in or sign up through Firebase authentication
-///  - Uses  AuthViewModel methods for signing in and out
+/// View that allows users to log in to the app, or sign up through Firebase authentication.
+/// Uses  ``AuthViewModel`` methods for signing in and out.
 struct LoginView: View {
-    @State private var isSigningUp = false
-
     @Environment(AuthViewModel.self) var auth: AuthViewModel
+    
+    /// Handles Logging In vs. Signing Up user state.
+    @State private var isSigningUp = false
 
     var body: some View {
         @Bindable var auth = auth
         
         VStack(spacing: 24) {
+            // Heading
             Text(isSigningUp ? "Create Account" : "Welcome Back")
                 .font(.largeTitle)
                 .fontWeight(.bold)
-
+            
+            // User input fields
             VStack(spacing: 16) {
                 TextField("Email", text: $auth.email)
                     .keyboardType(.emailAddress)
@@ -34,14 +37,13 @@ struct LoginView: View {
                     .padding()
                     .background(Color(.systemGray6))
                     .cornerRadius(10)
-
-            
             }
             
             if let error = auth.error {
                 Text(error).foregroundColor(.red).font(.footnote)
             }
             
+            // Log In / Sign Up button
             Button(action: {
                 if isSigningUp {
                     auth.signUp()
@@ -56,6 +58,8 @@ struct LoginView: View {
                     .background(Color.blue)
                     .cornerRadius(10)
             }
+            
+            // Log In via Google 
             GoogleSignInButton {
                 auth.signInWithGoogle()
             }
@@ -63,7 +67,7 @@ struct LoginView: View {
             .disabled(auth.isLoading)
             .opacity(auth.isLoading ? 0.6 : 1)
 
-
+            // Log In / Sign Up state Toggle button
             Button(action: {
                 isSigningUp.toggle()
             }) {

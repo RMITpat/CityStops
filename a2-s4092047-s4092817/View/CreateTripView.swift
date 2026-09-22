@@ -17,26 +17,39 @@ struct CreateTripView: View {
     
     
     var body: some View {
-        
         @Bindable var locationVM = locationVM
             VStack {
                 // Map interface
-                Map (position: $locationVM.currentLocation) {
-                    ForEach(locationVM.selectedPlaces, id: \.self) { place in
-                        Marker(item: place)
-                            .mapItemDetailSelectionAccessory(.callout)
-                    }
-                }
-                .frame(height:400)
-                .onAppear {
-                    locationVM.checkLocationAuthorization()
-                }
+//                Map (position: $locationVM.currentLocation) {
+//                    ForEach(locationVM.selectedPlaces, id: \.self) { place in
+//                        Marker(item: place)
+//                            .mapItemDetailSelectionAccessory(.callout)
+//                    }
+//                }
+//                .frame(height:400)
+//                .onAppear {
+//                    locationVM.checkLocationAuthorization()
+//                }
                 
                 // Location Search field
-                TextField(
-                    "Search a place",
-                    text: $locationVM.searchRequest
-                )
+                HStack {
+                    Image(systemName: "magnifyingglass")
+                        .foregroundStyle(.secondary)
+                    
+                    TextField(
+                        "Search a place",
+                        text: $locationVM.searchRequest
+                    )
+                    if !locationVM.searchRequest.isEmpty {
+                        Button {
+                            locationVM.searchRequest = ""
+                        } label: {
+                            Image(systemName: "xmark.circle.fill")
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                }
+                .padding(.horizontal, 24)
                 
                 Button("Search") {
                     locationVM.searchPlaces()
@@ -57,16 +70,25 @@ struct CreateTripView: View {
                     }
                 }
                 Spacer()
-                NavigationLink (destination: CreateRouteView()) {
-                    Text("Next")
-                    
-                }
-            }
+
+                .safeAreaInset(edge: .bottom) {
+                    NavigationLink(destination: CreateRouteView()) {
+                        Text("Next")
+                            .frame(maxWidth: .infinity)
+                    }
+                    .controlSize(.large)
+                    .buttonStyle(.glassProminent)
+                    .padding(.horizontal, 16)
+                    .padding(.bottom, 24)
+                    .background(.bar)
+                }}
             .navigationTitle(Text("Select Stops"))
             .navigationSubtitle(Text("Add stops to your trip!"))
         }
 }
 
 #Preview {
-    CreateTripView().environment(LocationViewModel())
+    NavigationStack {
+        CreateTripView().environment(LocationViewModel())
+    }
 }

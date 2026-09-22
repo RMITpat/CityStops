@@ -18,59 +18,39 @@ struct CreateTripView: View {
     
     var body: some View {
         @Bindable var locationVM = locationVM
-            VStack {
-                // Map interface
-//                Map (position: $locationVM.currentLocation) {
-//                    ForEach(locationVM.selectedPlaces, id: \.self) { place in
-//                        Marker(item: place)
-//                            .mapItemDetailSelectionAccessory(.callout)
-//                    }
-//                }
-//                .frame(height:400)
-//                .onAppear {
-//                    locationVM.checkLocationAuthorization()
-//                }
-                
-                // Location Search field
-                HStack {
-                    Image(systemName: "magnifyingglass")
-                        .foregroundStyle(.secondary)
-                    
-                    TextField(
-                        "Search a place",
-                        text: $locationVM.searchRequest
-                    )
-                    if !locationVM.searchRequest.isEmpty {
-                        Button {
-                            locationVM.searchRequest = ""
-                        } label: {
-                            Image(systemName: "xmark.circle.fill")
-                                .foregroundStyle(.secondary)
-                        }
-                    }
-                }
-                .padding(.horizontal, 24)
-                
-                Button("Search") {
-                    locationVM.searchPlaces()
-                }
-                
-                // Search options
-                ScrollView {
-                    VStack {
-                        ForEach(locationVM.searchResults, id: \.identifier) { result in
-                            VStack {
-                                Text(result.name ?? "no name")
-                                Text(result.address?.fullAddress ?? "no name")
-                                Button("Add") {
-                                    locationVM.selectedPlaces.append(result)
-                                }
+        VStack {
+            // Map interface
+            //                Map (position: $locationVM.currentLocation) {
+            //                    ForEach(locationVM.selectedPlaces, id: \.self) { place in
+            //                        Marker(item: place)
+            //                            .mapItemDetailSelectionAccessory(.callout)
+            //                    }
+            //                }
+            //                .frame(height:400)
+            //                .onAppear {
+            //                    locationVM.checkLocationAuthorization()
+            //                }
+            
+            Button("Search") {
+                locationVM.searchPlaces()
+            }
+            
+            // Search options
+            ScrollView {
+                VStack {
+                    ForEach(locationVM.searchResults, id: \.identifier) { result in
+                        VStack {
+                            Text(result.name ?? "no name")
+                            Text(result.address?.fullAddress ?? "no name")
+                            Button("Add") {
+                                locationVM.selectedPlaces.append(result)
                             }
                         }
                     }
                 }
-                Spacer()
-
+            }
+            Spacer()
+            
                 .safeAreaInset(edge: .bottom) {
                     NavigationLink(destination: CreateRouteView()) {
                         Text("Next")
@@ -81,9 +61,26 @@ struct CreateTripView: View {
                     .padding(.horizontal, 16)
                     .padding(.bottom, 24)
                     .background(.bar)
-                }}
+                }
+            }
             .navigationTitle(Text("Select Stops"))
             .navigationSubtitle(Text("Add stops to your trip!"))
+        
+            // MARK: Location Search Bar
+            .searchable(
+                text: $locationVM.searchRequest,
+                placement: .navigationBarDrawer(displayMode: .always),
+                prompt: "Search for a place",
+            )
+            
+            if !locationVM.searchRequest.isEmpty {
+                Button {
+                    locationVM.searchRequest = ""
+                } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .foregroundStyle(.secondary)
+                }
+            }
         }
 }
 

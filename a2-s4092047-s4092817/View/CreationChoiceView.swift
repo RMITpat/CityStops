@@ -32,6 +32,7 @@ struct CreationChoiceView: View {
             .controlSize(.large)
         }
         .navigationTitle(Text("Create a Daytrip"))
+        .navigationBarTitleDisplayMode(.large)
     }
         
 }

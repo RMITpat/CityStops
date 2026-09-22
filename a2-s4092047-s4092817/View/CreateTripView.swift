@@ -19,6 +19,7 @@ struct CreateTripView: View {
     var body: some View {
         @Bindable var locationVM = locationVM
         VStack {
+            // TODO: Need to figure out if displaying map is suitable for interface, or take another approach
             // Map interface
             //                Map (position: $locationVM.currentLocation) {
             //                    ForEach(locationVM.selectedPlaces, id: \.self) { place in
@@ -31,13 +32,13 @@ struct CreateTripView: View {
             //                    locationVM.checkLocationAuthorization()
             //                }
             
-            // "Search" Button
+            // MARK: "Search" Button
             Button("Search") {
                 locationVM.searchPlaces()
             }
             .buttonStyle(.glassProminent)
             
-            // Search options
+            // MARK: Location search results
             ScrollView {
                 VStack {
                     // Generate location detail cards
@@ -46,8 +47,10 @@ struct CreateTripView: View {
                     }
                 }
             }
+            .padding(.horizontal, 16)
         }
         
+        // MARK: "Next" Button
         .safeAreaInset(edge: .bottom) {
             NavigationLink(destination: CreateRouteView()) {
                 Text("Next")

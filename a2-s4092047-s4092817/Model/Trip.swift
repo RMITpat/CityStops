@@ -48,4 +48,28 @@ struct Trip: Identifiable {
                 "preferences" : preferences
             ]
     }
+    
+    // Converts a Firestore document back into Project.
+    init?(snapshot: QueryDocumentSnapshot) {
+        
+        let data = snapshot.data()
+        
+        guard
+            let ownerId = data["ownerId"] as? String,
+            let name = data["name"] as? String,
+            let places = data["places"] as? [String],
+            let preferences = data["preferences"] as? [String],
+            let timestamp = data["createdAt"] as? Timestamp
+            
+        else {
+            return nil
+        }
+        
+        id = snapshot.documentID
+        self.ownerId = ownerId
+        self.name = name
+        self.places = places.compactMap { MKMapItem.Identifier(rawValue: $0) }
+        self.preferences = preferences
+        createdAt = timestamp.dateValue()
+    }
 }

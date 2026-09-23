@@ -22,17 +22,17 @@ struct HomeView: View {
                 ForEach(appVM.tripFeed, id: \.id) { trip in
                     Text(trip.name)
                     Map {
-                        ForEach(trip.places, id: \.self) { identifier in
-                            if let item: MKMapItem = appVM.loadedItems[identifier.rawValue] {
-                                Marker(item: item)
+                        ForEach(trip.mkMapItemPlaces, id: \.self) { place in
+                                Marker(item: place)
                                     .mapItemDetailSelectionAccessory(.callout)
-                            }
                             
                         }
                         
                     }.frame(height: 400)
                 }
-                
+                if (appVM.isLoading) {
+                    ProgressView()
+                }
                 Spacer()
                 
             }

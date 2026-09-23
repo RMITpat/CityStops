@@ -27,7 +27,7 @@ enum Route {
     
     var tripFeed: [Trip] = []
     
-    var loadedItems: [String: MKMapItem] = [:]
+//    var loadedItems: [String: MKMapItem] = [:]
     
     // Real init
     init(user: AppUser) {
@@ -42,6 +42,7 @@ enum Route {
         self.user = user
     }
     
+    // Saves a trip to Firestore
     func saveTrip(trip: Trip) {
         isLoading = true
         Task {
@@ -55,20 +56,22 @@ enum Route {
         }
     }
     
+    
+    /// Function to start reading all trips from Firestore
     func loadAllTrips() {
         isLoading = true
         Task {
-//            var loadedTrips: [Trip] = []
-            
             do {
-                tripFeed = try await tripService.loadAllTrips()
+                // Call the service
+                let loadedTrips = try await tripService.loadAllTrips()
                 
-                for trip in tripFeed {
+                // For each trip,
+                for trip in loadedTrips {
+                    // Convert its stops, stored as MKMapItem.Identifier's, to MKMapItems so they can be displayed
+                    let updatedTrip = try await getMKMapItemsForTrip(trip: trip)
                     
-                    for identifier in trip.places {
-                        let place = try await getMKMapItemFromId(identifier: identifier)
-                        loadedItems[identifier.rawValue] = place
-                    }
+                    // Only once all stops have been converted do we add the trip to the tripFeed, causing the fully loaded trip to appear in HomeView
+                    tripFeed.append(updatedTrip)
                 }
              
             } catch {
@@ -81,8 +84,19 @@ enum Route {
         }
     }
     
-    func getMKMapItemFromId(identifier: MKMapItem.Identifier) async throws -> MKMapItem {
+    /// Function for converting a trip's place Identifiers to MKMapItems
+    func getMKMapItemsForTrip(trip: Trip) async throws -> Trip {
+        var trip = trip
+        for identifier in trip.places {
+            let place = try await getMKMapItemFromId(identifier: identifier)
+            trip.mkMapItemPlaces.append(place)
+
+        }
+        return trip
+    }
     
+    /// Function for converting a singular Identifier to an MKMapItem
+    func getMKMapItemFromId(identifier: MKMapItem.Identifier) async throws -> MKMapItem {
         
         let request = MKMapItemRequest(mapItemIdentifier: identifier)
     

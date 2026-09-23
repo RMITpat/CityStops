@@ -13,33 +13,43 @@ import MapKit
 /// - id: String identifier for the trip, created by Firebase
 /// - name: String name of the trip
 /// - places: [GeoPoint] the list of stops in the trip, stored as Firebase's GeoPoint which represents a lat and long pair
-struct Trip: Identifiable, Codable {
+struct Trip: Identifiable {
     
-    let id: String
+    var id: String
     let ownerId: String
     let name: String
-    let places: [GeoPoint]
+    let places: [MKMapItem]
     let createdAt: Date
+    let preferences: [String]
     
-    init(id: String, ownerId: String, name: String, places: [MKMapItem], createdAt: Date = Date()) {
+    init(id: String = "", ownerId: String, name: String, places: [MKMapItem], createdAt: Date = Date(), preferences: [String]) {
         self.id = id
         self.ownerId = ownerId
         self.name = name
-        self.places = places.map { (place: MKMapItem) -> GeoPoint in
-            return GeoPoint(
-                latitude: place.location.coordinate.latitude,
-                longitude: place.location.coordinate.longitude)
-        }
+        self.places = places
         self.createdAt = createdAt
+        self.preferences = preferences
 
     }
     
+    mutating func setId(id: String) {
+        self.id = id
+    }
+    
     var asDictionary: [String: Any] {
-        [
-            "id": id,
-            "ownerId": ownerId,
-            "name": name,
-            "places": places
-        ]
+        let geoPointPlaces: [GeoPoint] = places.map { (place: MKMapItem) -> GeoPoint in
+            return GeoPoint(
+                latitude: place.location.coordinate.latitude,
+                longitude: place.location.coordinate.longitude)
+            }
+        
+        return [
+                "id": id,
+                "ownerId": ownerId,
+                "name": name,
+                "places": geoPointPlaces,
+                "createdAt" : createdAt,
+                "preferences" : preferences
+            ]
     }
 }

@@ -84,8 +84,8 @@ final class LocationViewModel: NSObject, CLLocationManagerDelegate {
                 print("Error: \(error?.localizedDescription ?? "Unknown error").")
                 return
             }
-
-            self.searchResults = response.mapItems
+            // Only take map items without nil identifiers, since we rely on identifiers for retrieving a place's details
+            self.searchResults = response.mapItems.filter { $0.identifier != nil}
         }
     }
 
@@ -155,7 +155,11 @@ final class LocationViewModel: NSObject, CLLocationManagerDelegate {
         }
     }
     
+    // Creates and returns the currently created trip
     func getTrip() -> Trip {
-        return Trip(ownerId: user.id, name: name, places: selectedPlaces, preferences: preferences)
+        // compact removes any selected places that do not have identifiers. There shouldn't be any anyways because locations without identifiers
+        // will not show up in search results
+        let placeIdentifiers = selectedPlaces.compactMap { $0.identifier }
+        return Trip(ownerId: user.id, name: name, places: placeIdentifiers, preferences: preferences)
     }
 }

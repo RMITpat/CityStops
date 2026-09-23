@@ -9,11 +9,15 @@ import Foundation
 import FirebaseFirestore
 import MapKit
 
+///
+/// Trip service that handles reading and writing trips to the firebase store
 @MainActor
 protocol TripService {
     func saveTrip(trip: Trip) async throws
 }
 
+///
+/// Real implementation of TripService used in the app
 @MainActor
 final class TripServiceImpl: TripService {
     private let db = Firestore.firestore()

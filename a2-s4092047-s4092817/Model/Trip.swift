@@ -15,7 +15,7 @@ import MapKit
 /// - places: [GeoPoint] the list of stops in the trip, stored as Firebase's GeoPoint which represents a lat and long pair
 struct Trip: Identifiable {
     
-    var id: String
+    let id: String
     let ownerId: String
     let name: String
     let places: [MKMapItem]
@@ -32,9 +32,7 @@ struct Trip: Identifiable {
 
     }
     
-    mutating func setId(id: String) {
-        self.id = id
-    }
+
     
     var asDictionary: [String: Any] {
         let geoPointPlaces: [GeoPoint] = places.map { (place: MKMapItem) -> GeoPoint in

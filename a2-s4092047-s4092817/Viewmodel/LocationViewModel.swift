@@ -9,6 +9,8 @@ import CoreLocation
 import Observation
 import MapKit
 import _MapKit_SwiftUI
+import FirebaseAuth
+
 ///
 /// ViewModel used for keeping track of the user's current location,
 /// and managing a trip's route based on the stops chosen.
@@ -22,13 +24,9 @@ final class LocationViewModel: NSObject, CLLocationManagerDelegate {
     private var currentRegion: MKCoordinateRegion {
         didSet {
             currentLocation = .region(currentRegion)
-            request.region = currentRegion
         }
     }
-    
-    // The request used when making location search requests
-    private let request: MKLocalSearch.Request
-    
+        
     // The place search request inputted by the user
     var searchRequest: String = ""
     
@@ -45,8 +43,16 @@ final class LocationViewModel: NSObject, CLLocationManagerDelegate {
     var routes: [MKRoute] = []
     
     // The current route finding task created by createRoute. Stored here so that it can be cancelled if a new request is made
-    var currentRouteTask: Task<Void, Never>?
-    override init() {
+    private var currentRouteTask: Task<Void, Never>?
+    
+    // The logged in user
+    private let user: User
+    
+    var name: String = ""
+    
+    var preferences: [String] = []
+    
+    init(user: User) {
         let sydneyRegion = MKCoordinateRegion(
             center: CLLocationCoordinate2D(
                 latitude: -33.8688,
@@ -61,16 +67,17 @@ final class LocationViewModel: NSObject, CLLocationManagerDelegate {
         currentRegion = sydneyRegion
         currentLocation = .region(sydneyRegion)
         
-        // Default the search results to Sydney
-        request = MKLocalSearch.Request()
-        request.region = sydneyRegion
+        self.user = user
         
         super.init()
     }
     
     // Conduct a search of places the currently set request
     func searchPlaces() {
+        let request: MKLocalSearch.Request
+        request.region = currentRegion
         request.naturalLanguageQuery = searchRequest
+        
         let search = MKLocalSearch(request: request)
         
         search.start { response, error in
@@ -147,7 +154,9 @@ final class LocationViewModel: NSObject, CLLocationManagerDelegate {
             }
                   
         }
-        
-        
+    }
+    
+    func getTrip() -> Trip {
+        return Trip(ownerId: user.uid, name: name, places: selectedPlaces, preferences: preferences)
     }
 }

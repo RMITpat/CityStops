@@ -7,7 +7,6 @@
 
 import Foundation
 import FirebaseFirestore
-import MapKit
 
 ///
 /// Trip service that handles reading and writing trips to the firebase store

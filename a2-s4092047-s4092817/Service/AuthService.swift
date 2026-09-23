@@ -8,7 +8,6 @@
 import FirebaseAuth
 import FirebaseCore
 import GoogleSignIn
-import UIKit
 
 // Protocol for AuthService
 @MainActor

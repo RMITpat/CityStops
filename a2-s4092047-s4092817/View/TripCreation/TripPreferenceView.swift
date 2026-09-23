@@ -54,7 +54,6 @@ struct TripPreferenceView: View {
             .buttonStyle(.glassProminent)
             .padding(.horizontal, 16)
             .padding(.bottom, 24)
-            .background(.bar)
         }
             // MARK: View Title
             .navigationTitle(Text("Trip Preferences"))

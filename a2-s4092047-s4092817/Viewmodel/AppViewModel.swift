@@ -17,19 +17,31 @@ enum Route {
     var path: [Route] = [Route]()
     
     private let tripService: TripService
+    
+    private let user: AppUser
 
     // Real init
-    init() {
+    init(user: AppUser) {
         let service = TripServiceImpl()
         self.tripService = service
+        self.user = user
     }
     
     // Init used by mock
-    init(service: TripService) {
+    init(service: TripService, user: AppUser) {
         self.tripService = service
+        self.user = user
     }
     
-    
+    func saveTrip(trip: Trip) {
+        Task {
+            do {
+                try await tripService.saveTrip(trip: trip)
+            } catch {
+                print("failed")
+            }
+        }
+    }
     
     
     

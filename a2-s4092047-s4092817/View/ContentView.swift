@@ -9,6 +9,16 @@ import SwiftUI
 
 // View that handles Navigation of the app.
 struct ContentView: View {
+    let signedInUser: AppUser
+    @State private var locationVM: LocationViewModel
+    @State private var appVM: AppViewModel
+    
+    init(signedInUser: AppUser) {
+        self.signedInUser = signedInUser
+        locationVM = LocationViewModel(user: signedInUser)
+        appVM = AppViewModel(user: signedInUser)
+    }
+    
     var body: some View {
         // Bottom nav. bar
         TabView {
@@ -28,11 +38,13 @@ struct ContentView: View {
                     Label("Settings", systemImage: "gear")
                 }
         }
+        .environment(locationVM)
+        .environment(appVM)
     }
 }
 
 #Preview {
-    ContentView()
-        .environment(AuthViewModel())
-        .environment(LocationViewModel())
+    let user = AppUser(id: "Test", email: "test@email.com")
+    ContentView(signedInUser: user)
+        
 }

@@ -7,10 +7,11 @@
 
 import Foundation
 import FirebaseFirestore
+import MapKit
 
 @MainActor
 protocol TripService {
-    func saveTrip(userId: String, trip: Trip) async throws
+    func saveTrip(trip: Trip) async throws
 }
 
 @MainActor
@@ -19,11 +20,11 @@ final class TripServiceImpl: TripService {
     
     
     // Save a trip to firestore
-    func saveTrip(userId: String, trip: Trip) async throws {
+    func saveTrip(trip: Trip) async throws {
         let ref = db.collection("trips").document()
         
-        trip.setId(id: ref.documentID)
-    
-        try await ref.setData(trip.asDictionary)
+        let tripWithId = Trip(id: ref.documentID, ownerId: trip.ownerId, name: trip.name, places: trip.places, createdAt: trip.createdAt, preferences: trip.preferences)
+        print(trip.ownerId)
+        try await ref.setData(tripWithId.asDictionary)
     }
 }

@@ -19,6 +19,8 @@ enum Route {
     private let tripService: TripService
     
     private let user: AppUser
+    
+    var error: String?
 
     // Real init
     init(user: AppUser) {
@@ -38,7 +40,7 @@ enum Route {
             do {
                 try await tripService.saveTrip(trip: trip)
             } catch {
-                print("failed")
+                self.error = error.localizedDescription
             }
         }
     }

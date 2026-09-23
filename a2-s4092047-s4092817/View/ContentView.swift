@@ -13,6 +13,7 @@ struct ContentView: View {
     @State private var locationVM: LocationViewModel
     @State private var appVM: AppViewModel
     
+    // Initialise the vm's with the signedInUser's information for their internal use
     init(signedInUser: AppUser) {
         self.signedInUser = signedInUser
         locationVM = LocationViewModel(user: signedInUser)

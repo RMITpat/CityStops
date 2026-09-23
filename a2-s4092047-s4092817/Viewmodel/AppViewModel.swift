@@ -21,7 +21,11 @@ enum Route {
     private let user: AppUser
     
     var error: String?
-
+    
+    var isLoading: Bool = false
+    
+    var tripFeed: [Trip] = []
+    
     // Real init
     init(user: AppUser) {
         let service = TripServiceImpl()
@@ -36,15 +40,29 @@ enum Route {
     }
     
     func saveTrip(trip: Trip) {
+        isLoading = true
         Task {
             do {
                 try await tripService.saveTrip(trip: trip)
             } catch {
                 self.error = error.localizedDescription
             }
+            
+            isLoading = false
         }
     }
     
+    func loadAllTrips() {
+        isLoading = true
+        Task {
+            do {
+                tripFeed = try await tripService.loadAllTrips()
+            } catch {
+                self.error = error.localizedDescription
+            }
+            isLoading = false
+        }
+    }
     
     
 }

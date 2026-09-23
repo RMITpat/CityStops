@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import MapKit
 
 enum Route {
     case createTrip
@@ -25,6 +26,8 @@ enum Route {
     var isLoading: Bool = false
     
     var tripFeed: [Trip] = []
+    
+    var loadedItems: [String: MKMapItem] = [:]
     
     // Real init
     init(user: AppUser) {
@@ -55,13 +58,37 @@ enum Route {
     func loadAllTrips() {
         isLoading = true
         Task {
+//            var loadedTrips: [Trip] = []
+            
             do {
                 tripFeed = try await tripService.loadAllTrips()
+                
+                for trip in tripFeed {
+                    
+                    for identifier in trip.places {
+                        let place = try await getMKMapItemFromId(identifier: identifier)
+                        loadedItems[identifier.rawValue] = place
+                    }
+                }
+             
             } catch {
                 self.error = error.localizedDescription
+                
             }
             isLoading = false
+            
+            
         }
+    }
+    
+    func getMKMapItemFromId(identifier: MKMapItem.Identifier) async throws -> MKMapItem {
+    
+        
+        let request = MKMapItemRequest(mapItemIdentifier: identifier)
+    
+        return try await request.mapItem
+      
+        
     }
     
     

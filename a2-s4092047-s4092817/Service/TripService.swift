@@ -24,7 +24,6 @@ final class TripServiceImpl: TripService {
         let ref = db.collection("trips").document()
         
         let tripWithId = Trip(id: ref.documentID, ownerId: trip.ownerId, name: trip.name, places: trip.places, createdAt: trip.createdAt, preferences: trip.preferences)
-        print(trip.ownerId)
         try await ref.setData(tripWithId.asDictionary)
     }
 }

@@ -11,8 +11,11 @@ import MapKit
 
 /// A created trip
 /// - id: String identifier for the trip, created by Firebase
+/// - ownerId: String The id of the user who created this trip
 /// - name: String name of the trip
-/// - places: [GeoPoint] the list of stops in the trip, stored as Firebase's GeoPoint which represents a lat and long pair
+/// - places: [MKMapItem] the list of stops in the trip, stored as MKMapItems
+/// - createdAt: Date the date the trip was created
+/// - preferences: [String] a list of preferences that hold the trip's categories
 struct Trip: Identifiable {
     
     let id: String

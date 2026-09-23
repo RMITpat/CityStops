@@ -10,17 +10,19 @@ import SwiftUI
 /// Lets user choose the purpose of the daytrip / preferences of locations that they intend to visit in the planned daytrip.
 
 struct TripPreferenceView: View {
-    @State private var tripPreferences = preferences
+    @State var preferenceVM = PreferenceViewModel()
 
     var body: some View {
         // MARK: - Preference List
         // TODO: - Create ViewModel for this View to store preferences for Trip model
         List {
-            ForEach($tripPreferences, id: \.preference) { $item in
+            ForEach(preferenceVM.preferences, id: \.preference) { item in
+                let isSelected = preferenceVM.isSelected(item)
+
                 HStack {
                     // SF symbol
                     Image(systemName: item.icon)
-                        .foregroundColor(item.isChecked ?
+                        .foregroundColor(isSelected ?
                                         .accentColor : .secondary)
                         .frame(width: 24)
 
@@ -30,14 +32,17 @@ struct TripPreferenceView: View {
                     Spacer()
                     
                     // Check circle
-                    Image(systemName: item.isChecked ?
+                    Image(systemName: isSelected ?
                           "checkmark.circle.fill" : "circle")
-                        .foregroundColor(item.isChecked ?
+                        .foregroundColor(isSelected ?
                                         .accentColor : .gray)
                 }
+                // allows Spacer() content to register a tap
+                .contentShape(Rectangle())
+                
                 // Change tap boolean when tapped
                 .onTapGesture {
-                    item.isChecked.toggle()
+                    preferenceVM.toggle(item)
                 }
             }
         }

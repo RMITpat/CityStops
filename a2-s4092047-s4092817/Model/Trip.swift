@@ -13,19 +13,33 @@ import MapKit
 /// - id: String identifier for the trip, created by Firebase
 /// - name: String name of the trip
 /// - places: [GeoPoint] the list of stops in the trip, stored as Firebase's GeoPoint which represents a lat and long pair
-struct Trip: Identifiable {
+struct Trip: Identifiable, Codable {
     
     let id: String
+    let ownerId: String
     let name: String
     let places: [GeoPoint]
+    let createdAt: Date
     
-    init(id: String, name: String, places: [MKMapItem]) {
+    init(id: String, ownerId: String, name: String, places: [MKMapItem], createdAt: Date = Date()) {
         self.id = id
+        self.ownerId = ownerId
         self.name = name
         self.places = places.map { (place: MKMapItem) -> GeoPoint in
             return GeoPoint(
                 latitude: place.location.coordinate.latitude,
                 longitude: place.location.coordinate.longitude)
         }
+        self.createdAt = createdAt
+
+    }
+    
+    var asDictionary: [String: Any] {
+        [
+            "id": id,
+            "ownerId": ownerId,
+            "name": name,
+            "places": places
+        ]
     }
 }

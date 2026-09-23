@@ -9,7 +9,6 @@ import CoreLocation
 import Observation
 import MapKit
 import _MapKit_SwiftUI
-import FirebaseAuth
 
 ///
 /// ViewModel used for keeping track of the user's current location,
@@ -46,13 +45,13 @@ final class LocationViewModel: NSObject, CLLocationManagerDelegate {
     private var currentRouteTask: Task<Void, Never>?
     
     // The logged in user
-    private let user: User
+    private let user: AppUser
     
     var name: String = ""
     
     var preferences: [String] = []
     
-    init(user: User) {
+    init(user: AppUser) {
         let sydneyRegion = MKCoordinateRegion(
             center: CLLocationCoordinate2D(
                 latitude: -33.8688,
@@ -74,7 +73,7 @@ final class LocationViewModel: NSObject, CLLocationManagerDelegate {
     
     // Conduct a search of places the currently set request
     func searchPlaces() {
-        let request: MKLocalSearch.Request
+        let request: MKLocalSearch.Request = MKLocalSearch.Request()
         request.region = currentRegion
         request.naturalLanguageQuery = searchRequest
         
@@ -157,6 +156,6 @@ final class LocationViewModel: NSObject, CLLocationManagerDelegate {
     }
     
     func getTrip() -> Trip {
-        return Trip(ownerId: user.uid, name: name, places: selectedPlaces, preferences: preferences)
+        return Trip(ownerId: user.id, name: name, places: selectedPlaces, preferences: preferences)
     }
 }

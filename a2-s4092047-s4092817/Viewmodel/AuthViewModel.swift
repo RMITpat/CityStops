@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import FirebaseAuth
 
 ///
 /// ViewModel for signing in to the app, signing up, and keeping track of signed in user.
@@ -20,7 +19,7 @@ import FirebaseAuth
     
     private let authService: AuthService
 
-    var signedInUser: User?
+    var signedInUser: AppUser?
 
     // Real init
     init() {

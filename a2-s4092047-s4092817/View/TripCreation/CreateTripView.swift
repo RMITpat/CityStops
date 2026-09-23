@@ -60,7 +60,6 @@ struct CreateTripView: View {
             .buttonStyle(.glassProminent)
             .padding(.horizontal, 16)
             .padding(.bottom, 24)
-            .background(.bar)
         }
             .navigationTitle(Text("Select Stops"))
             .navigationSubtitle(Text("Add stops to your trip!"))

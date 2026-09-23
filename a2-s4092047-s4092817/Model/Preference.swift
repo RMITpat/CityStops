@@ -9,7 +9,6 @@
 struct Preference {
     var preference : String
     let icon: String
-    var isChecked : Bool = false
 }
 
 

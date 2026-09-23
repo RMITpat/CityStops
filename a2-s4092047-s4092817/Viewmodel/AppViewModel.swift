@@ -15,4 +15,22 @@ enum Route {
 @Observable class AppViewModel {
     
     var path: [Route] = [Route]()
+    
+    private let tripService: TripService
+
+    // Real init
+    init() {
+        let service = TripServiceImpl()
+        self.tripService = service
+    }
+    
+    // Init used by mock
+    init(service: TripService) {
+        self.tripService = service
+    }
+    
+    
+    
+    
+    
 }

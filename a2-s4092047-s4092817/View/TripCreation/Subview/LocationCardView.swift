@@ -69,12 +69,12 @@ struct LocationCardView: View {
 /// Test MKMapItem used for testing ``LocationCardView``.
 private enum LocationCardPreviewData {
     static let testLocation: MKMapItem = {
-        let coordinate = CLLocationCoordinate2D(
+        let location = CLLocation(
             latitude: -37.8136,
             longitude: 144.9631
         )
-        let placemark = MKPlacemark(coordinate: coordinate)
-        let mapItem = MKMapItem(placemark: placemark)
+
+        let mapItem = MKMapItem(location: location, address: nil)
         mapItem.name = "Federation Square"
         return mapItem
     }()

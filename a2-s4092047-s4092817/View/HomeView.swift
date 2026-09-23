@@ -6,21 +6,38 @@
 //
 
 import SwiftUI
+import MapKit
 ///
 /// Home view for viewing trip feed.
 /// Implements ``AuthViewModel`` to allow sign out (needs to be moved into settings)
 // TODO: MOVE SIGN OUT TO SETTINGS PAGE
 struct HomeView: View {
-    @Environment(AuthViewModel.self) var auth: AuthViewModel
-    
+    @Environment(AppViewModel.self) var appVM: AppViewModel
+    @Environment(LocationViewModel.self) var locationVM: LocationViewModel
     var body: some View {
-        @Bindable var auth = auth
-        
-        VStack {
-            Text(auth.signedInUser?.email ?? "no email")
-            Button("Sign Out") { auth.signOut() }
-            Spacer()
-
+        @Bindable var appVM = appVM
+        ScrollView {
+            VStack {
+                
+                ForEach(appVM.tripFeed, id: \.id) { trip in
+                    Text(trip.name)
+                    Map {
+                        ForEach(trip.places, id: \.self) { identifier in
+                            if let item: MKMapItem = appVM.loadedItems[identifier.rawValue] {
+                                Marker(item: item)
+                                    .mapItemDetailSelectionAccessory(.callout)
+                            }
+                            
+                        }
+                        
+                    }.frame(height: 400)
+                }
+                
+                Spacer()
+                
+            }
+        }.onAppear {
+            appVM.loadAllTrips()
         }
             .navigationTitle("Welcome!")
     }
@@ -28,6 +45,6 @@ struct HomeView: View {
 
 #Preview {
     NavigationStack {
-        HomeView().environment(AuthViewModel())
+        HomeView()
     }
 }

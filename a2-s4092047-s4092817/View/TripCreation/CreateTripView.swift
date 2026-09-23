@@ -71,15 +71,6 @@ struct CreateTripView: View {
                 placement: .navigationBarDrawer(displayMode: .always),
                 prompt: "Search for a place",
             )
-            
-            if !locationVM.searchRequest.isEmpty {
-                Button {
-                    locationVM.searchRequest = ""
-                } label: {
-                    Image(systemName: "xmark.circle.fill")
-                        .foregroundStyle(.secondary)
-                }
-            }
         }
 }
 

@@ -21,11 +21,11 @@ struct Trip: Identifiable {
     let id: String
     let ownerId: String
     let name: String
-    let places: [MKMapItem]
+    let places: [MKMapItem.Identifier]
     let createdAt: Date
     let preferences: [String]
     
-    init(id: String = "", ownerId: String, name: String, places: [MKMapItem], createdAt: Date = Date(), preferences: [String]) {
+    init(id: String = "", ownerId: String, name: String, places: [MKMapItem.Identifier], createdAt: Date = Date(), preferences: [String]) {
         self.id = id
         self.ownerId = ownerId
         self.name = name
@@ -34,21 +34,16 @@ struct Trip: Identifiable {
         self.preferences = preferences
 
     }
-    
-
+  
     
     var asDictionary: [String: Any] {
-        let geoPointPlaces: [GeoPoint] = places.map { (place: MKMapItem) -> GeoPoint in
-            return GeoPoint(
-                latitude: place.location.coordinate.latitude,
-                longitude: place.location.coordinate.longitude)
-            }
+        let rawValueIdentifiers: [String] = places.map { $0.rawValue }
         
         return [
                 "id": id,
                 "ownerId": ownerId,
                 "name": name,
-                "places": geoPointPlaces,
+                "places": rawValueIdentifiers,
                 "createdAt" : createdAt,
                 "preferences" : preferences
             ]

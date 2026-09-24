@@ -7,8 +7,8 @@
 
 import SwiftUI
 
-/// View that allows user to choose between manually planning a daytrip, or
-/// use ML features to plan a daytrip for them.
+/// View that allows user to choose between manually creating a ``Trip``, or
+/// use ML features to plan a ``Trip``for them.
 struct CreationChoiceView: View {
     var body: some View {
         VStack {

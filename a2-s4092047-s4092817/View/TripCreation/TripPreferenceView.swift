@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-/// Lets user choose the purpose of the daytrip / preferences of locations that they intend to visit in the planned daytrip.
+/// Lets user choose the purpose of the ``Trip``; the preferences of locations that they intend to visit in the planned daytrip.
 
 struct TripPreferenceView: View {
     @Environment(LocationViewModel.self) var locationVM: LocationViewModel

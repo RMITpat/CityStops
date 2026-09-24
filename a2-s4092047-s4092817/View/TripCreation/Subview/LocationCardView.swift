@@ -60,9 +60,10 @@ struct LocationCardView: View {
 }
 
 #Preview {
+    let user = AppUser(id: "Test", email: "test@email.com")
     LocationCardView(
         location: LocationCardPreviewData.testLocation,
-        locationVM: LocationViewModel()
+        locationVM: LocationViewModel(user: user)
     )
 }
 

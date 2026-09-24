@@ -73,8 +73,10 @@ struct CreateTripView: View {
         }
 }
 
+
 #Preview {
+    let user = AppUser(id: "Test", email: "test@email.com")
     NavigationStack {
-        CreateTripView().environment(LocationViewModel())
+        CreateTripView().environment(LocationViewModel(user: user))
     }
 }

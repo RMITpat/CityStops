@@ -15,4 +15,36 @@ enum Route {
 @Observable class AppViewModel {
     
     var path: [Route] = [Route]()
+    
+    private let tripService: TripService
+    
+    private let user: AppUser
+    
+    var error: String?
+
+    // Real init
+    init(user: AppUser) {
+        let service = TripServiceImpl()
+        self.tripService = service
+        self.user = user
+    }
+    
+    // Init used by mock
+    init(service: TripService, user: AppUser) {
+        self.tripService = service
+        self.user = user
+    }
+    
+    func saveTrip(trip: Trip) {
+        Task {
+            do {
+                try await tripService.saveTrip(trip: trip)
+            } catch {
+                self.error = error.localizedDescription
+            }
+        }
+    }
+    
+    
+    
 }

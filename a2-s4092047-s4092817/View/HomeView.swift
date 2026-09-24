@@ -18,28 +18,17 @@ struct HomeView: View {
         @Bindable var appVM = appVM
         ScrollView {
             VStack {
-                
                 ForEach(appVM.tripFeed, id: \.id) { trip in
-                    Text(trip.name)
-                    Map {
-                        ForEach(trip.mkMapItemPlaces, id: \.self) { place in
-                                Marker(item: place)
-                                    .mapItemDetailSelectionAccessory(.callout)
-                            
-                        }
-                        
-                    }.frame(height: 400)
+                    TripCard(trip: trip)
                 }
                 if (appVM.isLoading) {
                     ProgressView()
                 }
                 Spacer()
-                
             }
         }.onAppear {
             appVM.loadAllTrips()
         }
-            .navigationTitle("Welcome!")
     }
 }
 

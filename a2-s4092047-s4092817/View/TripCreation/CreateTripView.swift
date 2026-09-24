@@ -45,7 +45,7 @@ struct CreateTripView: View {
                     do {
                         searchResults = try await locationVM.searchPlaces(searchRequest: searchRequest)
                     } catch {
-                        
+                        // TODO: display errors somewhere
                     }
                 }
             }

@@ -41,7 +41,7 @@ struct CreateRouteView: View {
             do {
                 routes = try await locationVM.createRoute(selectedPlaces: selectedPlaces)
             } catch {
-                
+                // TODO: display error somewhere
             }
             
         }

@@ -43,11 +43,13 @@ enum Route {
     }
     
     // Saves a trip to Firestore
-    func saveTrip(trip: Trip) {
+    func saveTrip(name: String, selectedPlaces: [MKMapItem], preferences: [String]) {
         isLoading = true
         Task {
             do {
-                try await tripService.saveTrip(trip: trip)
+                let placeIdentifiers = selectedPlaces.compactMap { $0.identifier }
+                let newTrip = Trip(ownerId: user.id, name: name, places: placeIdentifiers, preferences: preferences)
+                try await tripService.saveTrip(trip: newTrip)
             } catch {
                 self.error = error.localizedDescription
             }

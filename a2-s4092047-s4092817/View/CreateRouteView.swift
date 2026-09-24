@@ -12,6 +12,7 @@ import MapKit
 /// Uses ``LocationViewModel`` to calculate route.
 struct CreateRouteView: View {
     @Environment(LocationViewModel.self) var locationVM: LocationViewModel
+    @Environment(AppViewModel.self) var appVM: AppViewModel
 
     var body: some View {
         @Bindable var locationVM = locationVM
@@ -49,13 +50,15 @@ struct CreateRouteView: View {
          }
         Spacer()
         Button("Finish") {
-            
+            appVM.saveTrip(trip: locationVM.getTrip())
         }
         
     }
 }
 
 #Preview {
+    let user = AppUser(id: "Test", email: "test@email.com")
+
     CreateRouteView()
-        .environment(LocationViewModel())
+        .environment(LocationViewModel(user: user))
 }

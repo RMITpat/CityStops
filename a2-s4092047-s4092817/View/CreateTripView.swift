@@ -68,5 +68,7 @@ struct CreateTripView: View {
 }
 
 #Preview {
-    CreateTripView().environment(LocationViewModel())
+    let user = AppUser(id: "Test", email: "test@email.com")
+
+    CreateTripView().environment(LocationViewModel(user: user))
 }

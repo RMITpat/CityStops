@@ -49,6 +49,8 @@ struct CreateRouteView: View {
              }
          }
         Spacer()
+        // FIXME: TESTING PURPOSES ONLY, REMOVE THIS
+        Text(locationVM.getTrip().toString())
         Button("Finish") {
             appVM.saveTrip(trip: locationVM.getTrip())
         }

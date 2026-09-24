@@ -48,4 +48,9 @@ struct Trip: Identifiable {
                 "preferences" : preferences
             ]
     }
+    
+    //FIXME: FOR TESTING PURPOSES ONLY (FOR NOW)
+    func toString() -> String {
+        return "\(id) \(ownerId) \(name) \(places) \(createdAt) \(preferences)"
+    }
 }

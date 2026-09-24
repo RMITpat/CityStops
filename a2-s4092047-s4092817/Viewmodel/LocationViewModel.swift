@@ -58,23 +58,16 @@ final class LocationViewModel: NSObject, CLLocationManagerDelegate {
     }
     
     // Conduct a search of places the currently set request
-    func searchPlaces(searchRequest: String) -> [MKMapItem] {
-        let request: MKLocalSearch.Request = MKLocalSearch.Request()
-        request.region = currentRegion
-        request.naturalLanguageQuery = searchRequest
-        
-        let search = MKLocalSearch(request: request)
-        
-        var result: [MKMapItem] = []
-        search.start { response, error in
-            guard let response = response else {
-                print("Error: \(error?.localizedDescription ?? "Unknown error").")
-                return
+    func searchPlaces(searchRequest: String) async throws -> [MKMapItem] {
+        let request = MKLocalSearch.Request()
+            request.naturalLanguageQuery = searchRequest
+            request.region = currentRegion
+
+            let response = try await MKLocalSearch(request: request).start()
+
+            return response.mapItems.filter {
+                $0.identifier != nil
             }
-            // Only take map items without nil identifiers, since we rely on identifiers for retrieving a place's details
-            result = response.mapItems.filter { $0.identifier != nil}
-        }
-        return result
     }
 
     var manager = CLLocationManager()

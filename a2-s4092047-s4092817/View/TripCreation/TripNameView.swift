@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+/// Allows user to choose a name for the ``Trip``.
 struct TripNameView: View {
     @Environment(LocationViewModel.self) var locationVM: LocationViewModel
     var body: some View {

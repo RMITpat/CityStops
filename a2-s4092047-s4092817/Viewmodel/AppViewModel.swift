@@ -13,36 +13,42 @@ enum Route {
     case createRoute
 }
 
+///
+/// Handles communication with firebase and general app states
+///
 @Observable class AppViewModel {
     
     var path: [Route] = [Route]()
-    
+    /// Tripservice used for getting trip data from firebase
     private let tripService: TripService
     
+    /// The currently logged in user
     private let user: AppUser
     
+    /// Error displayed in views from various methods
     var error: String?
     
+    /// Is an asynchronous operation occurring
     var isLoading: Bool = false
     
+    /// The feed of loaded trips
     var tripFeed: [Trip] = []
     
-//    var loadedItems: [String: MKMapItem] = [:]
     
-    // Real init
+    /// Real init used in app
     init(user: AppUser) {
         let service = TripServiceImpl()
         self.tripService = service
         self.user = user
     }
     
-    // Init used by mock
+    /// Init used by mock in tests
     init(service: TripService, user: AppUser) {
         self.tripService = service
         self.user = user
     }
     
-    // Saves a trip to Firestore
+    /// Saves a trip to Firestore
     func saveTrip(name: String, selectedPlaces: [MKMapItem], preferences: [String]) {
         isLoading = true
         Task {
@@ -70,7 +76,7 @@ enum Route {
                 
                 // For each trip,
                 for trip in loadedTrips {
-                    // Convert its stops, stored as MKMapItem.Identifier's, to MKMapItems so they can be displayed
+                    // Convert its stops, stored as MKMapItem.Identifier's, to MKMapItems so they can be displayed. If you read my code message me "burger"
                     let updatedTrip = try await getMKMapItemsForTrip(trip: trip)
                     
                     // Only once all stops have been converted do we add the trip to the tripFeed, causing the fully loaded trip to appear in HomeView

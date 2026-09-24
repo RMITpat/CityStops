@@ -8,9 +8,13 @@
 import SwiftUI
 import _MapKit_SwiftUI
 
+
+///
+/// The card view for each trip in the trip feed
+/// 
 struct TripCard: View {
     @Environment(LocationViewModel.self) var locationVM: LocationViewModel
-
+    /// The trip this card displays information for
     let trip: Trip
     
     @State var routes: [MKRoute] = []
@@ -33,7 +37,7 @@ struct TripCard: View {
             do {
                 routes = try await locationVM.createRoute(selectedPlaces: trip.mkMapItemPlaces)
             } catch {
-                
+                // TODO: display error somewhere
             }
             
         }

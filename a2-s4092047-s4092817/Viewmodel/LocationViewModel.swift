@@ -17,20 +17,21 @@ import _MapKit_SwiftUI
 @Observable
 final class LocationViewModel: NSObject, CLLocationManagerDelegate {
     
-    // When currentRegion updates:
-    // - update currentLocation so that the map in CreateTripView updates
-    // - update request so that search results are relevant
+    /// The region of the user.
+    /// When currentRegion updates:
+    /// - update currentLocation so that the map in CreateTripView updates
+    /// - update request so that search results are relevant
     var currentRegion: MKCoordinateRegion {
         didSet {
             currentLocation = .region(currentRegion)
         }
     }
         
-    // The current region, represented as MapCameraPosition so it can be displayed by Map
+    /// The current region, represented as MapCameraPosition so it can be displayed by Map
     var currentLocation: MapCameraPosition
     
     
-    // The logged in user
+    /// The logged in user
     private let user: AppUser
     
     var name: String = ""
@@ -57,7 +58,7 @@ final class LocationViewModel: NSObject, CLLocationManagerDelegate {
         super.init()
     }
     
-    // Conduct a search of places the currently set request
+    /// Conduct a search of places the currently set request
     func searchPlaces(searchRequest: String) async throws -> [MKMapItem] {
         let request = MKLocalSearch.Request()
             request.naturalLanguageQuery = searchRequest
@@ -72,7 +73,7 @@ final class LocationViewModel: NSObject, CLLocationManagerDelegate {
 
     var manager = CLLocationManager()
     
-    // Sets the current location based off authorisation
+    /// Sets the current location based off authorisation
     func checkLocationAuthorization() {
         
         // Sets delegate so that locationManagerDidChangeAuthorization and locationManager(didUpdateLocations) functions are called automatically
@@ -93,18 +94,18 @@ final class LocationViewModel: NSObject, CLLocationManagerDelegate {
         }
     }
     
-    // Triggered every time authorization status changes
+    /// Triggered every time authorization status changes
     func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
         checkLocationAuthorization()
     }
     
-    // Called when manager.requestLocation() succeeds
+    /// Called when manager.requestLocation() succeeds
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         currentRegion.center = locations.first?.coordinate ?? currentRegion.center
         
     }
     
-    // Called when manager.requestLocation() fails
+    /// Called when manager.requestLocation() fails
     func locationManager(
             _ manager: CLLocationManager,
             didFailWithError error: Error
@@ -112,9 +113,9 @@ final class LocationViewModel: NSObject, CLLocationManagerDelegate {
             print("Failed to get location:", error.localizedDescription)
         }
     
-    // Creates a route between all the locations currently stored in selectedPlaces, in the order they were added.
-    // Begins by checking if there was a previous, ongoing route request occurring and
-    // cancelling it if there was and replacing it with the new one.
+    /// Creates a route between all the locations currently stored in selectedPlaces, in the order they were added.
+    /// Begins by checking if there was a previous, ongoing route request occurring and
+    /// cancelling it if there was and replacing it with the new one.
     func createRoute(selectedPlaces: [MKMapItem]) async throws -> [MKRoute] {
         var routes: [MKRoute] = []
         

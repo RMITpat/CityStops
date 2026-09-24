@@ -58,7 +58,9 @@ struct CreateRouteView: View {
 
 #Preview {
     let user = AppUser(id: "Test", email: "test@email.com")
-
-    CreateRouteView()
-        .environment(LocationViewModel(user: user))
+    NavigationStack {
+        CreateRouteView()
+            .environment(LocationViewModel(user: user))
+            .environment(AppViewModel(user: user))
+    }
 }

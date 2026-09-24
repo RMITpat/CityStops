@@ -8,16 +8,15 @@
 import FirebaseAuth
 import FirebaseCore
 import GoogleSignIn
-import UIKit
 
 // Protocol for AuthService
 @MainActor
 protocol AuthService {
-    var currentUser: User? { get }
-    func signInWithGoogle() async throws -> User
+    var currentUser: AppUser? { get }
+    func signInWithGoogle() async throws -> AppUser
     func signOut() throws
-    func signInWithEmail(email: String, password: String) async throws -> User
-    func signUpWithEmail(email: String, password: String) async throws -> User
+    func signInWithEmail(email: String, password: String) async throws -> AppUser
+    func signUpWithEmail(email: String, password: String) async throws -> AppUser
 
 }
 
@@ -25,12 +24,13 @@ protocol AuthService {
 @MainActor
 final class AuthServiceImpl: AuthService {
 
-    var currentUser: User? {
-        Auth.auth().currentUser
+    var currentUser: AppUser? {
+        guard let user = Auth.auth().currentUser else { return nil }
+        return AppUser.fromFirebaseUser(user)
     }
     
     // Starts Google Sign-In, then exchanges the Google token for a Firebase credential.
-    func signInWithGoogle() async throws -> User {
+    func signInWithGoogle() async throws -> AppUser {
         guard FirebaseApp.app() != nil else {
             throw AuthError.misconfigured("Firebase is not configured. Add GoogleService-Info.plist first.")
         }
@@ -52,7 +52,7 @@ final class AuthServiceImpl: AuthService {
         )
 
         let authResult = try await Auth.auth().signIn(with: credential)
-        return authResult.user
+        return AppUser.fromFirebaseUser(authResult.user)
     }
 
     func signOut() throws {
@@ -61,15 +61,15 @@ final class AuthServiceImpl: AuthService {
     }
     
     // Starts a sign up with email
-    func signUpWithEmail(email: String, password: String) async throws -> User {
+    func signUpWithEmail(email: String, password: String) async throws -> AppUser {
         let authResult = try await Auth.auth().createUser(withEmail: email, password: password)
-        return authResult.user
+        return AppUser.fromFirebaseUser(authResult.user)
     }
     
     // Starts a sign in with email
-    func signInWithEmail(email: String, password: String) async throws -> User {
+    func signInWithEmail(email: String, password: String) async throws -> AppUser {
         let authResult = try await Auth.auth().signIn(withEmail: email, password: password)
-        return authResult.user
+        return AppUser.fromFirebaseUser(authResult.user)
     }
 
     private static var presentingViewController: UIViewController? {

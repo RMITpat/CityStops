@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import FirebaseAuth
 ///
 /// Home view for viewing trip feed.
 /// Implements ``AuthViewModel`` to allow sign out (needs to be moved into settings)

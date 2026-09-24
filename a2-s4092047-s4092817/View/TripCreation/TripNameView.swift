@@ -10,7 +10,31 @@ import SwiftUI
 struct TripNameView: View {
     @Environment(LocationViewModel.self) var locationVM: LocationViewModel
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        @Bindable var locationVM = locationVM
+        
+        // MARK: Name input field
+        VStack {
+            TextField("e.g. Asian Street Food Tour", text: $locationVM.name)
+                .textFieldStyle(RoundedBorderTextFieldStyle())
+        }
+        .padding(.horizontal, 16)
+        
+        Spacer()
+        
+        // MARK: "Confirm" button
+        .safeAreaInset(edge: .bottom) {
+            NavigationLink(destination: TripPreferenceView()) {
+                Text("Confirm")
+                    .frame(maxWidth: .infinity)
+            }
+            .controlSize(.large)
+            .buttonStyle(.glassProminent)
+            .padding(.horizontal, 16)
+            .padding(.bottom, 24)
+        }
+        
+        .navigationTitle(Text("Name your Trip"))
+        .navigationSubtitle(Text("What would you like your trip to be called?"))
     }
 }
 

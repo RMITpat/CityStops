@@ -20,29 +20,15 @@ final class LocationViewModel: NSObject, CLLocationManagerDelegate {
     // When currentRegion updates:
     // - update currentLocation so that the map in CreateTripView updates
     // - update request so that search results are relevant
-    private var currentRegion: MKCoordinateRegion {
+    var currentRegion: MKCoordinateRegion {
         didSet {
             currentLocation = .region(currentRegion)
         }
     }
         
-    // The place search request inputted by the user
-    var searchRequest: String = ""
-    
-    // The results of a place search
-    var searchResults: [MKMapItem] = []
-    
     // The current region, represented as MapCameraPosition so it can be displayed by Map
     var currentLocation: MapCameraPosition
     
-    // Places selected by the user to be a part of the trip
-    var selectedPlaces: [MKMapItem] = []
-
-    // Routes between selectionPlaces
-    var routes: [MKRoute] = []
-    
-    // The current route finding task created by createRoute. Stored here so that it can be cancelled if a new request is made
-    private var currentRouteTask: Task<Void, Never>?
     
     // The logged in user
     private let user: AppUser
@@ -72,21 +58,23 @@ final class LocationViewModel: NSObject, CLLocationManagerDelegate {
     }
     
     // Conduct a search of places the currently set request
-    func searchPlaces() {
+    func searchPlaces(searchRequest: String) -> [MKMapItem] {
         let request: MKLocalSearch.Request = MKLocalSearch.Request()
         request.region = currentRegion
         request.naturalLanguageQuery = searchRequest
         
         let search = MKLocalSearch(request: request)
         
+        var result: [MKMapItem] = []
         search.start { response, error in
             guard let response = response else {
                 print("Error: \(error?.localizedDescription ?? "Unknown error").")
                 return
             }
             // Only take map items without nil identifiers, since we rely on identifiers for retrieving a place's details
-            self.searchResults = response.mapItems.filter { $0.identifier != nil}
+            result = response.mapItems.filter { $0.identifier != nil}
         }
+        return result
     }
 
     var manager = CLLocationManager()
@@ -134,32 +122,28 @@ final class LocationViewModel: NSObject, CLLocationManagerDelegate {
     // Creates a route between all the locations currently stored in selectedPlaces, in the order they were added.
     // Begins by checking if there was a previous, ongoing route request occurring and
     // cancelling it if there was and replacing it with the new one.
-    func createRoute() {
-        currentRouteTask?.cancel()
-        routes.removeAll()
+    func createRoute(selectedPlaces: [MKMapItem]) async throws -> [MKRoute] {
+        var routes: [MKRoute] = []
         
-        let directionsRequest: MKDirections.Request = MKDirections.Request()
-        currentRouteTask = Task {
-            for (source, dest) in zip(selectedPlaces, selectedPlaces.dropFirst()) {
-                directionsRequest.source = source
-                directionsRequest.destination = dest
-                directionsRequest.transportType = MKDirectionsTransportType.walking
-                
-                let directions = MKDirections(request: directionsRequest)
-                let response = try? await directions.calculate()
-                if let route = response?.routes.first {
-                    routes.append(route)
-                }
+        for (source, dest) in zip(selectedPlaces, selectedPlaces.dropFirst()) {
+            // If the user has closed the view cancel this task. Will still finish calculating the last directions however.
+            if Task.isCancelled {
+                break
             }
-                  
+            let directionsRequest: MKDirections.Request = MKDirections.Request()
+            directionsRequest.source = source
+            directionsRequest.destination = dest
+            directionsRequest.transportType = MKDirectionsTransportType.walking
+            
+            let directions = MKDirections(request: directionsRequest)
+            let response = try? await directions.calculate()
+            if let route = response?.routes.first {
+                routes.append(route)
+            }
         }
+        return routes
+        
     }
     
-    // Creates and returns the currently created trip
-    func getTrip() -> Trip {
-        // compact removes any selected places that do not have identifiers. There shouldn't be any anyways because locations without identifiers
-        // will not show up in search results
-        let placeIdentifiers = selectedPlaces.compactMap { $0.identifier }
-        return Trip(ownerId: user.id, name: name, places: placeIdentifiers, preferences: preferences)
-    }
+    
 }

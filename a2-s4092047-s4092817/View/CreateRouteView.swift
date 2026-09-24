@@ -14,16 +14,22 @@ struct CreateRouteView: View {
     @Environment(LocationViewModel.self) var locationVM: LocationViewModel
     @Environment(AppViewModel.self) var appVM: AppViewModel
 
+    // Routes between selectionPlaces
+    @State var routes: [MKRoute] = []
+    
+    // Places selected by the user to be a part of the trip
+    let selectedPlaces: [MKMapItem]
+    
     var body: some View {
         @Bindable var locationVM = locationVM
 
         // Map interface
         Map (position: $locationVM.currentLocation) {
-            ForEach(locationVM.selectedPlaces, id: \.self) { place in
+            ForEach(selectedPlaces, id: \.self) { place in
                 Marker(item: place)
                     .mapItemDetailSelectionAccessory(.callout)
             }
-            ForEach(locationVM.routes, id: \.self) { route in
+            ForEach(routes, id: \.self) { route in
                 MapPolyline(route)
                     .stroke(.blue, lineWidth: 5)
             }
@@ -31,14 +37,18 @@ struct CreateRouteView: View {
         }
         .frame(height:400)
         // Route between stops
-        .onAppear {
-            locationVM.createRoute()
-            print(locationVM.routes.count)
+        .task {
+            do {
+                routes = try await locationVM.createRoute(selectedPlaces: selectedPlaces)
+            } catch {
+                
+            }
+            
         }
         // Scroll View of chosen locations
         ScrollView {
              VStack {
-                 ForEach(locationVM.selectedPlaces, id: \.identifier) { result in
+                 ForEach(selectedPlaces, id: \.identifier) { result in
                      VStack {
                          // and any other details such as place type
                          Text(result.name ?? "no name")
@@ -50,7 +60,7 @@ struct CreateRouteView: View {
          }
         Spacer()
         Button("Finish") {
-            appVM.saveTrip(trip: locationVM.getTrip())
+            appVM.saveTrip(name: locationVM.name, selectedPlaces: selectedPlaces, preferences: locationVM.preferences)
         }
         
     }
@@ -58,7 +68,7 @@ struct CreateRouteView: View {
 
 #Preview {
     let user = AppUser(id: "Test", email: "test@email.com")
-
-    CreateRouteView()
+    
+    CreateRouteView(selectedPlaces: [])
         .environment(LocationViewModel(user: user))
 }

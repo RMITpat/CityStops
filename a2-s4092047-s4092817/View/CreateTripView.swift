@@ -14,7 +14,14 @@ import MapKit
 
 struct CreateTripView: View {
     @Environment(LocationViewModel.self) var locationVM: LocationViewModel
+    // The place search request inputted by the user
+    @State var searchRequest: String = ""
     
+    // The results of a place search
+    @State var searchResults: [MKMapItem] = []
+    
+    // Places selected by the user to be a part of the trip
+    @State var selectedPlaces: [MKMapItem] = []
     
     var body: some View {
         
@@ -23,7 +30,7 @@ struct CreateTripView: View {
             VStack {
                 // Map interface
                 Map (position: $locationVM.currentLocation) {
-                    ForEach(locationVM.selectedPlaces, id: \.self) { place in
+                    ForEach(selectedPlaces, id: \.self) { place in
                         Marker(item: place)
                             .mapItemDetailSelectionAccessory(.callout)
                     }
@@ -36,29 +43,29 @@ struct CreateTripView: View {
                 // Location Search field
                 TextField(
                     "Search a place",
-                    text: $locationVM.searchRequest
+                    text: $searchRequest
                 )
                 
                 Button("Search") {
-                    locationVM.searchPlaces()
+                    searchResults = locationVM.searchPlaces(searchRequest: searchRequest)
                 }
                 
                 // Search options
                 ScrollView {
                     VStack {
-                        ForEach(locationVM.searchResults, id: \.identifier) { result in
+                        ForEach(searchResults, id: \.identifier) { result in
                             VStack {
                                 Text(result.name ?? "no name")
                                 Text(result.address?.fullAddress ?? "no name")
                                 Button("Add") {
-                                    locationVM.selectedPlaces.append(result)
+                                    selectedPlaces.append(result)
                                 }
                             }
                         }
                     }
                 }
                 Spacer()
-                NavigationLink (destination: CreateRouteView()) {
+                NavigationLink (destination: CreateRouteView(selectedPlaces: selectedPlaces)) {
                     Text("Next")
                     
                 }

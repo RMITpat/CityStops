@@ -61,6 +61,7 @@ enum Route {
     
     /// Function to start reading all trips from Firestore
     func loadAllTrips() {
+        tripFeed.removeAll()
         isLoading = true
         Task {
             do {

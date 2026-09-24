@@ -41,7 +41,13 @@ struct CreateTripView: View {
             
             // MARK: "Search" Button
             Button("Search") {
-                searchResults = locationVM.searchPlaces(searchRequest: searchRequest)
+                Task {
+                    do {
+                        searchResults = try await locationVM.searchPlaces(searchRequest: searchRequest)
+                    } catch {
+                        
+                    }
+                }
             }
             .buttonStyle(.glassProminent)
             
@@ -54,6 +60,7 @@ struct CreateTripView: View {
                     }
                 }
             }
+            
             .padding(.horizontal, 16)
         }
         

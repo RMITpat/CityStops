@@ -38,10 +38,6 @@ struct CreationChoiceView: View {
         .navigationTitle(Text("Create a Daytrip"))
         .navigationBarTitleDisplayMode(.large)
         
-        // when beginning the Trip creation user flow, reset the VM fields
-        .onAppear {
-            locationVM.resetFields()
-        }
     }
         
 }

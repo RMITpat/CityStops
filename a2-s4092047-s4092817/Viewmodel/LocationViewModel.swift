@@ -163,14 +163,5 @@ final class LocationViewModel: NSObject, CLLocationManagerDelegate {
         return Trip(ownerId: user.id, name: name, places: placeIdentifiers, preferences: preferences)
     }
     
-    /// Reset fields when user restarts the ``Trip`` creation process.
-    func resetFields() {
-        searchRequest = ""
-        searchResults.removeAll()
-        selectedPlaces.removeAll()
-        routes.removeAll()
-        name = ""
-        preferences.removeAll()
-    }
 
 }

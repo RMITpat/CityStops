@@ -12,10 +12,10 @@ import SwiftUI
 struct TripPreferenceView: View {
     @Environment(LocationViewModel.self) var locationVM: LocationViewModel
     @State var preferenceVM = PreferenceViewModel()
+    let name: String
 
     var body: some View {
         @Bindable var locationVM = locationVM
-        
         // MARK: - Preference List
         // TODO: - Create ViewModel for this View to store preferences for Trip model
         List {
@@ -79,6 +79,6 @@ struct TripPreferenceView: View {
 #Preview {
     let user = AppUser(id: "Test", email: "test@email.com")
     NavigationStack {
-        TripPreferenceView().environment(LocationViewModel(user: user))
+        TripPreferenceView(name: "name").environment(LocationViewModel(user: user))
     }
 }

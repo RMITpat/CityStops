@@ -12,6 +12,7 @@ import SwiftUI
 struct TripPreferenceView: View {
     @Environment(LocationViewModel.self) var locationVM: LocationViewModel
     @Environment(TripCreationViewModel.self) var tripCreationVM: TripCreationViewModel
+    @Environment(Router.self) var router: Router
 
     var body: some View {
         @Bindable var locationVM = locationVM
@@ -55,9 +56,9 @@ struct TripPreferenceView: View {
         // MARK: - "Next" Button
         // TODO: - Create wrapper for all bottom buttons (reusable view / wrapper)
         .safeAreaInset(edge: .bottom) {
-            NavigationLink(destination: CreateTripView()) {
-                Text("Next")
-                    .frame(maxWidth: .infinity)
+         
+            Button("Next") {
+                router.tripCreationRoute.append(TripCreationRoute.createTrip)
             }
             .controlSize(.large)
             .buttonStyle(.glassProminent)

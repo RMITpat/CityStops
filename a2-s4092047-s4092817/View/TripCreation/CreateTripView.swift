@@ -15,6 +15,7 @@ import MapKit
 struct CreateTripView: View {
     @Environment(LocationViewModel.self) var locationVM: LocationViewModel
     @Environment(TripCreationViewModel.self) var tripCreationVM: TripCreationViewModel
+    @Environment(Router.self) var router: Router
 
     // The place search request inputted by the user
     @State var searchRequest: String = ""
@@ -69,9 +70,9 @@ struct CreateTripView: View {
         
         // MARK: "Next" Button
         .safeAreaInset(edge: .bottom) {
-            NavigationLink(destination: CreateRouteView()) {
-                Text("Next")
-                    .frame(maxWidth: .infinity)
+           
+            Button("Next") {
+                router.tripCreationRoute.append(TripCreationRoute.createRoute)
             }
             .controlSize(.large)
             .buttonStyle(.glassProminent)

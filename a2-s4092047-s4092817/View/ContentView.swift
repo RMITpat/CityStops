@@ -12,7 +12,9 @@ struct ContentView: View {
     let signedInUser: AppUser
     @State private var locationVM: LocationViewModel
     @State private var appVM: AppViewModel
-    
+    @State private var router: Router = Router()
+    @State var tripCreationVM: TripCreationViewModel = TripCreationViewModel()
+
     // Initialise the vm's with the signedInUser's information for their internal use
     init(signedInUser: AppUser) {
         self.signedInUser = signedInUser
@@ -22,28 +24,44 @@ struct ContentView: View {
     
     var body: some View {
         // Bottom nav. bar
-        TabView {
+        TabView(selection: $router.selectedTab) {
             // Home
             HomeView()
                 .tabItem {
                     Label("Home", systemImage: "house")
                 }
+                .tag(AppTab.home)
             
             // Create Trip
-            CreationChoiceView()
-            
+            NavigationStack(path: $router.tripCreationRoute) {
+                CreationChoiceView()
+                    .navigationDestination(for: TripCreationRoute.self) { route in
+                    switch route {
+                        case .name: TripNameView()
+                        case .preferences: TripPreferenceView()
+                        case .createTrip: CreateTripView()
+                        case .createRoute: CreateRouteView()
+                    }
+                }
+            }
+            .environment(tripCreationVM)
             .tabItem {
                 Label("Create Trip", systemImage: "plus")
             }
+            .tag(AppTab.create)
+
             
             // Settings
             SettingsView()
                 .tabItem {
                     Label("Settings", systemImage: "gear")
                 }
+                .tag(AppTab.settings)
+
         }
         .environment(locationVM)
         .environment(appVM)
+        .environment(router)
     }
 }
 

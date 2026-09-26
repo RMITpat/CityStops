@@ -9,22 +9,25 @@ import SwiftUI
 import MapKit
 
 ///
-/// View for adding stops to a trip. Contains a Map and search bar through which users can search for locations by name. Results can be added as pins on the map.
+/// View for adding stops to a ``Trip``. Contains a Map and search bar through which users can search for locations by name. Results can be added as pins on the map.
 /// - Uses ``LocationViewModel`` to pass stops to ``CreateRouteView``
 
 struct CreateTripView: View {
     @Environment(LocationViewModel.self) var locationVM: LocationViewModel
+    @Environment(TripCreationViewModel.self) var tripCreationVM: TripCreationViewModel
+
     // The place search request inputted by the user
     @State var searchRequest: String = ""
     
     // The results of a place search
     @State var searchResults: [MKMapItem] = []
     
-    // Places selected by the user to be a part of the trip
-    @State var selectedPlaces: [MKMapItem] = []
+   
     
     var body: some View {
         @Bindable var locationVM = locationVM
+        @Bindable var tripCreationVM = tripCreationVM
+
         VStack {
             // TODO: Need to figure out if displaying map is suitable for interface, or take another approach
             // Map interface
@@ -56,7 +59,7 @@ struct CreateTripView: View {
                 VStack {
                     // Generate location detail cards
                     ForEach(searchResults, id: \.identifier) { result in
-                        LocationCardView(location: result, selectedPlaces: $selectedPlaces)
+                        LocationCardView(location: result, selectedPlaces: $tripCreationVM.selectedPlaces)
                     }
                 }
             }
@@ -66,7 +69,7 @@ struct CreateTripView: View {
         
         // MARK: "Next" Button
         .safeAreaInset(edge: .bottom) {
-            NavigationLink(destination: CreateRouteView(selectedPlaces: selectedPlaces)) {
+            NavigationLink(destination: CreateRouteView()) {
                 Text("Next")
                     .frame(maxWidth: .infinity)
             }
@@ -91,6 +94,9 @@ struct CreateTripView: View {
 #Preview {
     let user = AppUser(id: "Test", email: "test@email.com")
     NavigationStack {
-        CreateTripView().environment(LocationViewModel(user: user))
+        CreateTripView()
+            .environment(LocationViewModel(user: user))
+            .environment(TripCreationViewModel())
+
     }
 }

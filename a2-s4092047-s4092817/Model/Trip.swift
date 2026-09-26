@@ -34,21 +34,21 @@ struct Trip: Identifiable {
         self.places = places
         self.createdAt = createdAt
         self.preferences = preferences
-
+        
     }
-  
+    
     
     var asDictionary: [String: Any] {
         let rawValueIdentifiers: [String] = places.map { $0.rawValue }
         
         return [
-                "id": id,
-                "ownerId": ownerId,
-                "name": name,
-                "places": rawValueIdentifiers,
-                "createdAt" : createdAt,
-                "preferences" : preferences
-            ]
+            "id": id,
+            "ownerId": ownerId,
+            "name": name,
+            "places": rawValueIdentifiers,
+            "createdAt" : createdAt,
+            "preferences" : preferences
+        ]
     }
     
     // Converts a Firestore document back into Project.
@@ -62,7 +62,7 @@ struct Trip: Identifiable {
             let places = data["places"] as? [String],
             let preferences = data["preferences"] as? [String],
             let timestamp = data["createdAt"] as? Timestamp
-            
+                
         else {
             return nil
         }
@@ -74,4 +74,9 @@ struct Trip: Identifiable {
         self.preferences = preferences
         createdAt = timestamp.dateValue()
     }
+    //FIXME: FOR TESTING PURPOSES ONLY (FOR NOW)
+    func toString() -> String {
+        return "\(id) \(ownerId) \(name) \(places) \(createdAt) \(preferences)"
+    }
+    
 }

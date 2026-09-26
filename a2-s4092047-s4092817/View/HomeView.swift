@@ -13,7 +13,6 @@ import MapKit
 // TODO: MOVE SIGN OUT TO SETTINGS PAGE
 struct HomeView: View {
     @Environment(AppViewModel.self) var appVM: AppViewModel
-    @Environment(LocationViewModel.self) var locationVM: LocationViewModel
     var body: some View {
         @Bindable var appVM = appVM
         ScrollView {

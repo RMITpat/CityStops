@@ -30,6 +30,8 @@ import MapKit
     /// The feed of loaded trips
     var tripFeed: [Trip] = []
     
+    /// The feed of user's created trips
+    var yourTrips: [Trip] = []
     
     /// Real init used in app
     init(user: AppUser) {
@@ -74,6 +76,34 @@ import MapKit
                     
                     // Only once all stops have been converted do we add the trip to the tripFeed, causing the fully loaded trip to appear in HomeView
                     tripFeed.append(updatedTrip)
+                }
+             
+            } catch {
+                self.error = error.localizedDescription
+                
+            }
+            isLoading = false
+            
+            
+        }
+    }
+    
+    /// Function to start reading user's trips from Firestore
+    func loadYourTrips() {
+        yourTrips.removeAll()
+        isLoading = true
+        Task {
+            do {
+                // Call the service
+                let loadedTrips = try await tripService.loadUserTrips(ownerId: user.id )
+                
+                // For each trip,
+                for trip in loadedTrips {
+                    // Convert its stops, stored as MKMapItem.Identifier's, to MKMapItems so they can be displayed. If you read my code message me "burger"
+                    let updatedTrip = try await getMKMapItemsForTrip(trip: trip)
+                    
+                    // Only once all stops have been converted do we add the trip to the tripFeed, causing the fully loaded trip to appear in HomeView
+                    yourTrips.append(updatedTrip)
                 }
              
             } catch {

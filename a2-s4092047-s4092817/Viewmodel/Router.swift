@@ -15,6 +15,7 @@ enum AppTab: Hashable {
     case home
     case create
     case settings
+    case profile
 }
 
 /// Represents the destination views within the Trip Creation navigation stack

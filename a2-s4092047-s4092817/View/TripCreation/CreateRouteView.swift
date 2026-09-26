@@ -19,7 +19,7 @@ struct CreateRouteView: View {
     // Routes between selectionPlaces
     @State var routes: [MKRoute] = []
     
- 
+    @State var error: String?
     
     var body: some View {
         @Bindable var locationVM = locationVM
@@ -43,7 +43,7 @@ struct CreateRouteView: View {
             do {
                 routes = try await locationVM.createRoute(selectedPlaces: tripCreationVM.selectedPlaces)
             } catch {
-                // TODO: display error somewhere
+                self.error = error.localizedDescription
             }
             
         }
@@ -63,9 +63,21 @@ struct CreateRouteView: View {
         Spacer()
       
         Button("Finish") {
-            appVM.saveTrip(name: tripCreationVM.name, selectedPlaces: tripCreationVM.selectedPlaces, preferences: tripCreationVM.preferences.map {$0.preference })
-            router.tripCreationRoute.removeLast(router.tripCreationRoute.count)
-            router.selectedTab = .home
+            Task {
+                do {
+                    try await appVM.saveTrip(name: tripCreationVM.name, selectedPlaces: tripCreationVM.selectedPlaces, preferences: tripCreationVM.preferences.map {$0.preference })
+                    router.tripCreationRoute.removeLast(router.tripCreationRoute.count)
+                    router.selectedTab = .home
+                } catch {
+                    self.error = error.localizedDescription
+                }
+            }
+        }
+        if let error {
+            Text(error)
+                .font(.footnote)
+                .foregroundStyle(.red)
+                .multilineTextAlignment(.center)
         }
         
     }

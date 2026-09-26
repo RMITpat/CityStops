@@ -47,6 +47,13 @@ struct ContentView: View {
                     Label("Settings", systemImage: "gear")
                 }
                 .tag(AppTab.settings)
+            
+            // Profile
+            ProfileView()
+                .tabItem {
+                    Label("Profile", systemImage: "person.crop.circle")
+                }
+                .tag(AppTab.profile)
 
         }
         .environment(locationVM)

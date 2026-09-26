@@ -118,6 +118,7 @@ final class LocationViewModel: NSObject, CLLocationManagerDelegate {
         for (source, dest) in zip(selectedPlaces, selectedPlaces.dropFirst()) {
             // If the user has closed the view cancel this task. Will still finish calculating the last directions however.
             if Task.isCancelled {
+                print("cancelling route task")
                 break
             }
             let directionsRequest: MKDirections.Request = MKDirections.Request()
@@ -126,8 +127,8 @@ final class LocationViewModel: NSObject, CLLocationManagerDelegate {
             directionsRequest.transportType = MKDirectionsTransportType.walking
             
             let directions = MKDirections(request: directionsRequest)
-            let response = try? await directions.calculate()
-            if let route = response?.routes.first {
+            let response = try await directions.calculate()
+            if let route = response.routes.first {
                 routes.append(route)
             }
         }

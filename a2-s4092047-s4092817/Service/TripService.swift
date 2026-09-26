@@ -44,7 +44,7 @@ final class TripServiceImpl: TripService {
     }
     
     
-    // Loads the signed-in user's Project documents.
+    // Loads the signed-in user's trips.
     func loadUserTrips(ownerId: String) async throws -> [Trip] {
         let snapshot = try await db.collection("trips")
             .whereField("ownerId", isEqualTo: ownerId)

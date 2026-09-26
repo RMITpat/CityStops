@@ -15,7 +15,7 @@ struct ProfileView: View {
 
         ScrollView {
             VStack {
-                ForEach(appVM.tripFeed, id: \.id) { trip in
+                ForEach(appVM.yourTrips, id: \.id) { trip in
                     TripCard(trip: trip)
                 }
                 if (appVM.isLoading) {

@@ -9,9 +9,13 @@ import SwiftUI
 
 /// View that allows user to log out of the app (and other settings stuff)
 struct SettingsView: View {
+    @Environment(AuthViewModel.self) var auth: AuthViewModel
+
     var body: some View {
         VStack {
-            Text("Settings")
+            Button("Sign out") {
+                auth.signOut()
+            }
         }
     }
 }

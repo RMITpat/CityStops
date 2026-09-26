@@ -45,19 +45,16 @@ import MapKit
     }
     
     /// Saves a trip to Firestore
-    func saveTrip(name: String, selectedPlaces: [MKMapItem], preferences: [String]) {
+    func saveTrip(name: String, selectedPlaces: [MKMapItem], preferences: [String]) async throws {
         isLoading = true
-        Task {
-            do {
-                let placeIdentifiers = selectedPlaces.compactMap { $0.identifier }
-                let newTrip = Trip(ownerId: user.id, name: name, places: placeIdentifiers, preferences: preferences)
-                try await tripService.saveTrip(trip: newTrip)
-            } catch {
-                self.error = error.localizedDescription
-            }
+       
+        let placeIdentifiers = selectedPlaces.compactMap { $0.identifier }
+        let newTrip = Trip(ownerId: user.id, name: name, places: placeIdentifiers, preferences: preferences)
+        try await tripService.saveTrip(trip: newTrip)
             
-            isLoading = false
-        }
+        
+        isLoading = false
+        
     }
     
     

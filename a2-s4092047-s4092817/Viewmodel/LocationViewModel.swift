@@ -33,6 +33,8 @@ final class LocationViewModel: NSObject, CLLocationManagerDelegate {
     /// The logged in user
     private let user: AppUser
     
+    private var cachedRoutes: [String : [MKRoute]] = [:]
+    
     
     init(user: AppUser) {
         let sydneyRegion = MKCoordinateRegion(
@@ -112,9 +114,12 @@ final class LocationViewModel: NSObject, CLLocationManagerDelegate {
     /// Creates a route between all the locations currently stored in selectedPlaces, in the order they were added.
     /// Begins by checking if there was a previous, ongoing route request occurring and
     /// cancelling it if there was and replacing it with the new one.
-    func createRoute(selectedPlaces: [MKMapItem]) async throws -> [MKRoute] {
+    func createRoute(selectedPlaces: [MKMapItem], tripID: String = "") async throws -> [MKRoute] {
         var routes: [MKRoute] = []
         
+        if let cachedRoute = cachedRoutes[tripID] {
+            return cachedRoute
+        }
         for (source, dest) in zip(selectedPlaces, selectedPlaces.dropFirst()) {
             // If the user has closed the view cancel this task. Will still finish calculating the last directions however.
             if Task.isCancelled {
@@ -131,6 +136,11 @@ final class LocationViewModel: NSObject, CLLocationManagerDelegate {
             if let route = response.routes.first {
                 routes.append(route)
             }
+        }
+        
+        // Cache the route for this trip so we can get it next time
+        if (!tripID.isEmpty) {
+            cachedRoutes[tripID] = routes
         }
         return routes
         

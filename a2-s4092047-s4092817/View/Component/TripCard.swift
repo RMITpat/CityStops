@@ -35,7 +35,7 @@ struct TripCard: View {
         .frame(height: 400)
         .task {
             do {
-                routes = try await locationVM.createRoute(selectedPlaces: trip.mkMapItemPlaces)
+                routes = try await locationVM.createRoute(selectedPlaces: trip.mkMapItemPlaces, tripID: trip.id)
             } catch {
                 // TODO: display error somewhere
             }

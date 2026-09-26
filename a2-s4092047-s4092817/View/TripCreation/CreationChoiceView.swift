@@ -7,38 +7,55 @@
 
 import SwiftUI
 
-/// View that allows user to choose between manually planning a daytrip, or
-/// use ML features to plan a daytrip for them.
+/// View that allows user to choose between manually creating a ``Trip``, or
+/// use ML features to plan a ``Trip``for them.
 struct CreationChoiceView: View {
+    @Environment(LocationViewModel.self) var locationVM: LocationViewModel
+    @State var tripCreationVM: TripCreationViewModel = TripCreationViewModel()
+
     var body: some View {
-        VStack {
-            Text("How would you like to create your daytrip?")
-                .bold()
-            
-            NavigationLink(destination: TripPreferenceView()) {
-                Text("Plan it myself")
+        @Bindable var locationVM = locationVM
+        NavigationStack {
+            VStack {
+                Text("How would you like to create your daytrip?")
+                    .bold()
+                
+                NavigationLink(destination: TripNameView()
+                ) {
+                    Text("Plan it myself")
+                }
+                .buttonStyle(.glassProminent)
+                .controlSize(.large)
+                
+                
+                Text("or")
+                    .fontWeight(.light)
+                
+                //TODO: Implement AI / ML daytrip creation feature
+                NavigationLink(destination: CreateTripView()
+                ) {
+                    Text("Let AI decide for me")
+                }
+                .buttonStyle(.glassProminent)
+                .controlSize(.large)
+                
             }
-            .buttonStyle(.glassProminent)
-            .controlSize(.large)
+            .navigationTitle(Text("Create a Daytrip"))
+            .navigationBarTitleDisplayMode(.large)
             
-            Text("or")
-                .fontWeight(.light)
-            
-            //TODO: Implement AI / ML daytrip creation feature
-            NavigationLink(destination: CreateTripView()) {
-                Text("Let AI decide for me")
-            }
-            .buttonStyle(.glassProminent)
-            .controlSize(.large)
         }
-        .navigationTitle(Text("Create a Daytrip"))
-        .navigationBarTitleDisplayMode(.large)
+        .environment(tripCreationVM)
+
     }
+
         
 }
-
 #Preview {
+    let user = AppUser(id: "Test", email: "test@email.com")
     NavigationStack {
         CreationChoiceView()
+            .environment(LocationViewModel(user: user))
+            .environment(TripCreationViewModel())
+
     }
 }

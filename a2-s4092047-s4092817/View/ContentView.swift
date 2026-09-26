@@ -30,9 +30,8 @@ struct ContentView: View {
                 }
             
             // Create Trip
-            NavigationStack {
-                CreationChoiceView()
-            }
+            CreationChoiceView()
+            
             .tabItem {
                 Label("Create Trip", systemImage: "plus")
             }

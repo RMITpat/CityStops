@@ -8,24 +8,25 @@
 import SwiftUI
 import MapKit
 
-/// View that displays the shortest route that visits all chosen daytrip stops.
+/// View that displays the shortest route that visits all chosen ``Trip`` stops.
 /// Uses ``LocationViewModel`` to calculate route.
 struct CreateRouteView: View {
     @Environment(LocationViewModel.self) var locationVM: LocationViewModel
     @Environment(AppViewModel.self) var appVM: AppViewModel
+    @Environment(TripCreationViewModel.self) var tripCreationVM: TripCreationViewModel
 
     // Routes between selectionPlaces
     @State var routes: [MKRoute] = []
     
-    // Places selected by the user to be a part of the trip
-    let selectedPlaces: [MKMapItem]
+ 
     
     var body: some View {
         @Bindable var locationVM = locationVM
+        @Bindable var tripCreationVM = tripCreationVM
 
         // Map interface
         Map (position: $locationVM.currentLocation) {
-            ForEach(selectedPlaces, id: \.self) { place in
+            ForEach(tripCreationVM.selectedPlaces, id: \.self) { place in
                 Marker(item: place)
                     .mapItemDetailSelectionAccessory(.callout)
             }
@@ -39,7 +40,7 @@ struct CreateRouteView: View {
         // Route between stops
         .task {
             do {
-                routes = try await locationVM.createRoute(selectedPlaces: selectedPlaces)
+                routes = try await locationVM.createRoute(selectedPlaces: tripCreationVM.selectedPlaces)
             } catch {
                 // TODO: display error somewhere
             }
@@ -48,7 +49,7 @@ struct CreateRouteView: View {
         // Scroll View of chosen locations
         ScrollView {
              VStack {
-                 ForEach(selectedPlaces, id: \.identifier) { result in
+                 ForEach(tripCreationVM.selectedPlaces, id: \.identifier) { result in
                      VStack {
                          // and any other details such as place type
                          Text(result.name ?? "no name")
@@ -59,8 +60,9 @@ struct CreateRouteView: View {
              }
          }
         Spacer()
+      
         Button("Finish") {
-            appVM.saveTrip(name: locationVM.name, selectedPlaces: selectedPlaces, preferences: locationVM.preferences)
+            appVM.saveTrip(name: tripCreationVM.name, selectedPlaces: tripCreationVM.selectedPlaces, preferences: tripCreationVM.preferences.map {$0.preference })
         }
         
     }
@@ -70,8 +72,10 @@ struct CreateRouteView: View {
     let user = AppUser(id: "Test", email: "test@email.com")
 
     NavigationStack {
-        CreateRouteView(selectedPlaces: [])
+        CreateRouteView()
             .environment(LocationViewModel(user: user))
             .environment(AppViewModel(user: user))
+            .environment(TripCreationViewModel())
+
     }
 }

@@ -66,8 +66,8 @@ struct CreateRouteView: View {
             Task {
                 do {
                     try await appVM.saveTrip(name: tripCreationVM.name, selectedPlaces: tripCreationVM.selectedPlaces, preferences: tripCreationVM.preferences.map {$0.preference })
-                    router.tripCreationRoute.removeLast(router.tripCreationRoute.count)
-                    router.selectedTab = .home
+                    router.tripCreationRoute.removeAll()
+                    router.selectedTab = .create
                 } catch {
                     self.error = error.localizedDescription
                 }

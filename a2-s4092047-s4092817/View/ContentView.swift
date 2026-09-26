@@ -33,17 +33,9 @@ struct ContentView: View {
                 .tag(AppTab.home)
             
             // Create Trip
-            NavigationStack(path: $router.tripCreationRoute) {
                 CreationChoiceView()
-                    .navigationDestination(for: TripCreationRoute.self) { route in
-                    switch route {
-                        case .name: TripNameView()
-                        case .preferences: TripPreferenceView()
-                        case .createTrip: CreateTripView()
-                        case .createRoute: CreateRouteView()
-                    }
-                }
-            }
+                 
+            
             .environment(tripCreationVM)
             .tabItem {
                 Label("Create Trip", systemImage: "plus")

@@ -37,6 +37,6 @@ class Router {
     var selectedTab: AppTab = .home
     
     /// The navigation stack path for the Create Trip flow
-    var tripCreationRoute = NavigationPath()
+    var tripCreationRoute: [TripCreationRoute] = [TripCreationRoute]()
     
 }

@@ -15,6 +15,10 @@ struct CreationChoiceView: View {
 
     var body: some View {
         @Bindable var locationVM = locationVM
+        @Bindable var router = router
+
+        NavigationStack(path: $router.tripCreationRoute) {
+            
             VStack {
                 Text("How would you like to create your daytrip?")
                     .bold()
@@ -24,7 +28,14 @@ struct CreationChoiceView: View {
                 }
                 .buttonStyle(.glassProminent)
                 .controlSize(.large)
-                
+                .navigationDestination(for: TripCreationRoute.self) { route in
+                switch route {
+                    case .name: TripNameView()
+                    case .preferences: TripPreferenceView()
+                    case .createTrip: CreateTripView()
+                    case .createRoute: CreateRouteView()
+                }
+            }
                 
                 Text("or")
                     .fontWeight(.light)
@@ -41,6 +52,7 @@ struct CreationChoiceView: View {
             .navigationTitle(Text("Create a Daytrip"))
             .navigationBarTitleDisplayMode(.large)
             
+        }
        
 
     }

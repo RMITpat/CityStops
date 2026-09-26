@@ -7,12 +7,15 @@
 
 import SwiftUI
 
-/// Lets user choose the purpose of the daytrip / preferences of locations that they intend to visit in the planned daytrip.
+/// Lets user choose the purpose of the ``Trip``; the preferences of locations that they intend to visit in the planned daytrip.
 
 struct TripPreferenceView: View {
+    @Environment(LocationViewModel.self) var locationVM: LocationViewModel
     @State var preferenceVM = PreferenceViewModel()
+    let name: String
 
     var body: some View {
+        @Bindable var locationVM = locationVM
         // MARK: - Preference List
         // TODO: - Create ViewModel for this View to store preferences for Trip model
         List {
@@ -48,6 +51,11 @@ struct TripPreferenceView: View {
         }
         .listStyle(.plain)
         
+        // Transfer preferences from the View's VM to Trip Creation VM
+        .onChange(of: preferenceVM.selectedPreferences.map(\.preference)) {
+            locationVM.preferences = preferenceVM.selectedPreferences.map(\.preference)
+        }
+        
         // MARK: - "Next" Button
         // TODO: - Create wrapper for all bottom buttons (reusable view / wrapper)
         .safeAreaInset(edge: .bottom) {
@@ -69,7 +77,8 @@ struct TripPreferenceView: View {
 }
 
 #Preview {
+    let user = AppUser(id: "Test", email: "test@email.com")
     NavigationStack {
-        TripPreferenceView()
+        TripPreferenceView(name: "name").environment(LocationViewModel(user: user))
     }
 }

@@ -7,15 +7,19 @@
 
 import SwiftUI
 
-/// View that allows user to choose between manually planning a daytrip, or
-/// use ML features to plan a daytrip for them.
+/// View that allows user to choose between manually creating a ``Trip``, or
+/// use ML features to plan a ``Trip``for them.
 struct CreationChoiceView: View {
+    @Environment(LocationViewModel.self) var locationVM: LocationViewModel
+    
     var body: some View {
+        @Bindable var locationVM = locationVM
+        
         VStack {
             Text("How would you like to create your daytrip?")
                 .bold()
             
-            NavigationLink(destination: TripPreferenceView()) {
+            NavigationLink(destination: TripNameView()) {
                 Text("Plan it myself")
             }
             .buttonStyle(.glassProminent)
@@ -33,12 +37,13 @@ struct CreationChoiceView: View {
         }
         .navigationTitle(Text("Create a Daytrip"))
         .navigationBarTitleDisplayMode(.large)
+        
     }
         
 }
-
 #Preview {
+    let user = AppUser(id: "Test", email: "test@email.com")
     NavigationStack {
-        CreationChoiceView()
+        CreationChoiceView().environment(LocationViewModel(user: user))
     }
 }

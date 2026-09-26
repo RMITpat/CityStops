@@ -162,4 +162,6 @@ final class LocationViewModel: NSObject, CLLocationManagerDelegate {
         let placeIdentifiers = selectedPlaces.compactMap { $0.identifier }
         return Trip(ownerId: user.id, name: name, places: placeIdentifiers, preferences: preferences)
     }
+    
+
 }

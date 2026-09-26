@@ -8,7 +8,7 @@
 import SwiftUI
 import MapKit
 
-/// View that displays the shortest route that visits all chosen daytrip stops.
+/// View that displays the shortest route that visits all chosen ``Trip`` stops.
 /// Uses ``LocationViewModel`` to calculate route.
 struct CreateRouteView: View {
     @Environment(LocationViewModel.self) var locationVM: LocationViewModel
@@ -49,6 +49,8 @@ struct CreateRouteView: View {
              }
          }
         Spacer()
+        // FIXME: TESTING PURPOSES ONLY, REMOVE THIS
+        Text(locationVM.getTrip().toString())
         Button("Finish") {
             appVM.saveTrip(trip: locationVM.getTrip())
         }

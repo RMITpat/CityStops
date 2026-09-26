@@ -14,6 +14,7 @@ struct CreateRouteView: View {
     @Environment(LocationViewModel.self) var locationVM: LocationViewModel
     @Environment(AppViewModel.self) var appVM: AppViewModel
     @Environment(TripCreationViewModel.self) var tripCreationVM: TripCreationViewModel
+    @Environment(Router.self) var router: Router
 
     // Routes between selectionPlaces
     @State var routes: [MKRoute] = []
@@ -63,6 +64,8 @@ struct CreateRouteView: View {
       
         Button("Finish") {
             appVM.saveTrip(name: tripCreationVM.name, selectedPlaces: tripCreationVM.selectedPlaces, preferences: tripCreationVM.preferences.map {$0.preference })
+            router.tripCreationRoute.removeLast(router.tripCreationRoute.count)
+            router.selectedTab = .home
         }
         
     }

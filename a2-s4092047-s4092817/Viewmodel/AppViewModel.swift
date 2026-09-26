@@ -8,17 +8,13 @@
 import Foundation
 import MapKit
 
-enum Route {
-    case createTrip
-    case createRoute
-}
+
 
 ///
 /// Handles communication with firebase and general app states
 ///
 @Observable class AppViewModel {
     
-    var path: [Route] = [Route]()
     /// Tripservice used for getting trip data from firebase
     private let tripService: TripService
     

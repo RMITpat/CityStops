@@ -11,18 +11,16 @@ import SwiftUI
 /// use ML features to plan a ``Trip``for them.
 struct CreationChoiceView: View {
     @Environment(LocationViewModel.self) var locationVM: LocationViewModel
-    @State var tripCreationVM: TripCreationViewModel = TripCreationViewModel()
+    @Environment(Router.self) var router: Router
 
     var body: some View {
         @Bindable var locationVM = locationVM
-        NavigationStack {
             VStack {
                 Text("How would you like to create your daytrip?")
                     .bold()
                 
-                NavigationLink(destination: TripNameView()
-                ) {
-                    Text("Plan it myself")
+                Button("Plan it myself") {
+                    router.tripCreationRoute.append(TripCreationRoute.name)
                 }
                 .buttonStyle(.glassProminent)
                 .controlSize(.large)
@@ -43,8 +41,7 @@ struct CreationChoiceView: View {
             .navigationTitle(Text("Create a Daytrip"))
             .navigationBarTitleDisplayMode(.large)
             
-        }
-        .environment(tripCreationVM)
+       
 
     }
 

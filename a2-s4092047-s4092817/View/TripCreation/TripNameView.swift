@@ -10,12 +10,14 @@ import SwiftUI
 /// Allows user to choose a name for the ``Trip``.
 struct TripNameView: View {
     @Environment(LocationViewModel.self) var locationVM: LocationViewModel
+    @State var name: String = ""
+    
     var body: some View {
         @Bindable var locationVM = locationVM
         
         // MARK: Name input field
         VStack {
-            TextField("e.g. Asian Street Food Tour", text: $locationVM.name)
+            TextField("e.g. Asian Street Food Tour", text: $name)
                 .textFieldStyle(RoundedBorderTextFieldStyle())
         }
         .padding(.horizontal, 16)
@@ -24,7 +26,7 @@ struct TripNameView: View {
         
         // MARK: "Confirm" button
         .safeAreaInset(edge: .bottom) {
-            NavigationLink(destination: TripPreferenceView()) {
+            NavigationLink(destination: TripPreferenceView(name: name)) {
                 Text("Confirm")
                     .frame(maxWidth: .infinity)
             }

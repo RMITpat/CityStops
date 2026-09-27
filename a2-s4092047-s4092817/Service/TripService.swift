@@ -13,8 +13,9 @@ import FirebaseFirestore
 @MainActor
 protocol TripService {
     func saveTrip(trip: Trip) async throws
-    func loadAllTrips() async throws -> [Trip]
-    func loadUserTrips(ownerId: String) async throws -> [Trip] 
+    func loadTrips() async throws -> [Trip]
+    func loadUserTrips(ownerId: String) async throws -> [Trip]
+    func clearLastDocument()
 
 }
 
@@ -38,7 +39,7 @@ final class TripServiceImpl: TripService {
     }
     
     // Get all trips from Firebase
-    func loadAllTrips() async throws -> [Trip] {
+    func loadTrips() async throws -> [Trip] {
         if let lastDocument {
             return try await loadNext4Trips(lastDocument: lastDocument)
         } else {
@@ -60,13 +61,13 @@ final class TripServiceImpl: TripService {
     func loadNext4Trips(lastDocument: DocumentSnapshot) async throws -> [Trip] {
         let snapshot = try await db.collection("trips")
             .order(by: "createdAt", descending: true)
-            .start(atDocument: lastDocument)
+            .start(afterDocument: lastDocument)
             .limit(to: 4)
             .getDocuments()
         
+        self.lastDocument = snapshot.documents.last
         return snapshot.documents
             .compactMap { Trip(snapshot: $0) }
-        //.sorted { $0.createdAt > $1.createdAt }
     
     }
     

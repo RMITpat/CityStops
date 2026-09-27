@@ -60,13 +60,17 @@ import MapKit
     }
     
     func refreshFeed() {
-        tripService.clearLastDocument()
+        tripService.clearLastTripFeedDocument()
         tripFeed.removeAll()
+    }
+    
+    func refreshUserTrips() {
+        tripService.clearLastUserTripDocument()
+        yourTrips.removeAll()
     }
     
     /// Function to start reading all trips from Firestore
     func loadTrips() {
-//        tripFeed.removeAll()
         isLoading = true
         Task {
             do {
@@ -96,10 +100,12 @@ import MapKit
     
     /// Function to start reading user's trips from Firestore
     func loadYourTrips() {
-        yourTrips.removeAll()
         isLoading = true
         Task {
             do {
+                // Artificial wait, can be removed but feels nice
+                try await Task.sleep(for: .seconds(1))
+                
                 // Call the service
                 let loadedTrips = try await tripService.loadUserTrips(ownerId: user.id )
                 

@@ -13,17 +13,9 @@ struct ProfileView: View {
     var body: some View {
         @Bindable var appVM = appVM
 
-        ScrollView {
-            VStack {
-                ForEach(appVM.yourTrips, id: \.id) { trip in
-                    TripCard(trip: trip)
-                }
-                if (appVM.isLoading) {
-                    ProgressView()
-                }
-                Spacer()
-            }
-        }.onAppear {
+        TripFeed(trips: appVM.yourTrips, isLoading: appVM.isLoading) {
+            appVM.refreshUserTrips()
+        } loadTrips: {
             appVM.loadYourTrips()
         }
     }

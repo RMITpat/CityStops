@@ -13,9 +13,17 @@ import FirebaseFirestore
 @MainActor
 protocol TripService {
     func saveTrip(trip: Trip) async throws
+    
     func loadTrips() async throws -> [Trip]
+    func loadFirst4Trips() async throws -> [QueryDocumentSnapshot]
+    func loadNext4Trips(lastDocument: DocumentSnapshot) async throws -> [QueryDocumentSnapshot]
+    
     func loadUserTrips(ownerId: String) async throws -> [Trip]
-    func clearLastDocument()
+    func loadFirst4UserTrips(ownerId: String) async throws -> [QueryDocumentSnapshot]
+    func loadNext4UserTrips(lastDocument: DocumentSnapshot, ownerId: String) async throws -> [QueryDocumentSnapshot]
+    
+    func clearLastTripFeedDocument()
+    func clearLastUserTripDocument()
 
 }
 
@@ -25,7 +33,8 @@ protocol TripService {
 final class TripServiceImpl: TripService {
     private let db = Firestore.firestore()
     
-    private var lastDocument: DocumentSnapshot?
+    private var lastTripFeedDocument: DocumentSnapshot?
+    private var lastUserTripDocument: DocumentSnapshot?
     // Save a trip to firestore
     func saveTrip(trip: Trip) async throws {
         let ref = db.collection("trips").document()
@@ -34,51 +43,92 @@ final class TripServiceImpl: TripService {
         try await ref.setData(tripWithId.asDictionary)
     }
     
-    func clearLastDocument() {
-        lastDocument = nil
+    func clearLastTripFeedDocument() {
+        lastTripFeedDocument = nil
     }
     
-    // Get all trips from Firebase
+    func clearLastUserTripDocument() {
+        lastUserTripDocument = nil
+    }
+    
+    // Get trips for trip feed from Firebase
     func loadTrips() async throws -> [Trip] {
-        if let lastDocument {
-            return try await loadNext4Trips(lastDocument: lastDocument)
+        var queryDocuments: [QueryDocumentSnapshot] = []
+        
+        if let lastTripFeedDocument {
+            queryDocuments = try await loadNext4Trips(lastDocument: lastTripFeedDocument)
         } else {
-            return try await loadFirst4Trips()
+            queryDocuments = try await loadFirst4Trips()
         }
+        
+        lastTripFeedDocument = queryDocuments.last
+        
+        return queryDocuments
+            .compactMap { Trip(snapshot: $0) }
+
     }
     
-    func loadFirst4Trips() async throws -> [Trip] {
+    func loadFirst4Trips() async throws -> [QueryDocumentSnapshot] {
         let snapshot = try await db.collection("trips")
             .order(by: "createdAt", descending: true)
             .limit(to: 4)
             .getDocuments()
         
-        lastDocument = snapshot.documents.last
         return snapshot.documents
-            .compactMap { Trip(snapshot: $0) }
+        
+        
     }
     
-    func loadNext4Trips(lastDocument: DocumentSnapshot) async throws -> [Trip] {
+    func loadNext4Trips(lastDocument: DocumentSnapshot) async throws -> [QueryDocumentSnapshot] {
         let snapshot = try await db.collection("trips")
             .order(by: "createdAt", descending: true)
             .start(afterDocument: lastDocument)
             .limit(to: 4)
             .getDocuments()
         
-        self.lastDocument = snapshot.documents.last
         return snapshot.documents
-            .compactMap { Trip(snapshot: $0) }
     
     }
     
-    // Loads the signed-in user's trips.
+    // Get user trips from Firebase
     func loadUserTrips(ownerId: String) async throws -> [Trip] {
+        var queryDocuments: [QueryDocumentSnapshot] = []
+        
+        if let lastUserTripDocument {
+            queryDocuments = try await loadNext4UserTrips(lastDocument: lastUserTripDocument, ownerId: ownerId)
+        } else {
+            queryDocuments = try await loadFirst4UserTrips(ownerId: ownerId)
+        }
+        
+        lastUserTripDocument = queryDocuments.last
+        
+        return queryDocuments
+            .compactMap { Trip(snapshot: $0) }
+
+    }
+    
+    // Loads the signed-in user's trips.
+    func loadFirst4UserTrips(ownerId: String) async throws -> [QueryDocumentSnapshot] {
         let snapshot = try await db.collection("trips")
             .whereField("ownerId", isEqualTo: ownerId)
+            .order(by: "createdAt", descending: true)
+            .limit(to: 4)
             .getDocuments()
 
         return snapshot.documents
-            .compactMap { Trip(snapshot: $0) }
-            .sorted { $0.createdAt > $1.createdAt }
+    }
+    
+    
+    
+    func loadNext4UserTrips(lastDocument: DocumentSnapshot, ownerId: String) async throws -> [QueryDocumentSnapshot] {
+        let snapshot = try await db.collection("trips")
+            .whereField("ownerId", isEqualTo: ownerId)
+            .order(by: "createdAt", descending: true)
+            .start(afterDocument: lastDocument)
+            .limit(to: 4)
+            .getDocuments()
+        
+        return snapshot.documents
+    
     }
 }

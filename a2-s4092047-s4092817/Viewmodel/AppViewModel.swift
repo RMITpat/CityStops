@@ -62,10 +62,11 @@ import MapKit
     
     /// Function to start reading all trips from Firestore
     func loadAllTrips() {
-        tripFeed.removeAll()
+//        tripFeed.removeAll()
         isLoading = true
         Task {
             do {
+                try await Task.sleep(for: .seconds(2))
                 // Call the service
                 let loadedTrips = try await tripService.loadAllTrips()
                 

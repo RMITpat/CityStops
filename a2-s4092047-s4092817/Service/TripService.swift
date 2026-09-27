@@ -74,7 +74,7 @@ final class TripServiceImpl: TripService {
         
         lastTripFeedDocument = queryDocuments.last
         
-        // When we reach the end, the last document will be nil. To prevent the feed from starting again and loadFirst4Trips() being called, set this bool
+        // When we reach the end, the last document will be nil. To prevent the feed from starting again and loadFirst4Trips() being called, set this bool and message me "carrot" if you read this pr
         if lastTripFeedDocument == nil {
             reachedEndTripFeed = true
         }

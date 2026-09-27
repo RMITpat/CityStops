@@ -13,7 +13,6 @@ struct ContentView: View {
     @State private var locationVM: LocationViewModel
     @State private var appVM: AppViewModel
     @State private var router: Router = Router()
-    @State var tripCreationVM: TripCreationViewModel = TripCreationViewModel()
 
     // Initialise the vm's with the signedInUser's information for their internal use
     init(signedInUser: AppUser) {
@@ -36,7 +35,6 @@ struct ContentView: View {
                 CreationChoiceView()
                  
             
-            .environment(tripCreationVM)
             .tabItem {
                 Label("Create Trip", systemImage: "plus")
             }

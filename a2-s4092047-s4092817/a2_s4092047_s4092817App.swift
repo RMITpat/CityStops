@@ -8,6 +8,7 @@
 import SwiftUI
 import FirebaseCore
 import GoogleSignIn
+import SwiftData
 
 /// App entry point.
 @main
@@ -44,6 +45,8 @@ struct a2_s4092047_s4092817App: App {
             }
         }
         .environment(authVM)
+        .modelContainer(for: SearchTerm.self)
+
         
     }
 }

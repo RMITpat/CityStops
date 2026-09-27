@@ -6,13 +6,16 @@
 //
 
 import SwiftUI
+import SwiftData
 
 // View that handles Navigation of the app.
 struct ContentView: View {
     let signedInUser: AppUser
+    @Environment(\.modelContext) private var modelContext
     @State private var locationVM: LocationViewModel
     @State private var appVM: AppViewModel
     @State private var router: Router = Router()
+    @State private var searchTermVM: SearchTermViewModel = SearchTermViewModel()
 
     // Initialise the vm's with the signedInUser's information for their internal use
     init(signedInUser: AppUser) {
@@ -59,6 +62,10 @@ struct ContentView: View {
         .environment(locationVM)
         .environment(appVM)
         .environment(router)
+        .environment(searchTermVM)
+        .task {
+            searchTermVM.attach(modelContext: modelContext)
+        }
         .onChange(of: router.selectedTab) { oldTab, newTab in
             if newTab == .home  {
                 appVM.refreshFeed()

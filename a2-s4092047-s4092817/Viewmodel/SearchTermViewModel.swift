@@ -12,6 +12,8 @@ import SwiftData
 final class SearchTermViewModel {
     private var searchTermService: SearchTermService
     
+    var pastSearches: [SearchTerm] = []
+    
     /// Real init
     init() {
         searchTermService = SearchTermServiceImpl()
@@ -30,14 +32,16 @@ final class SearchTermViewModel {
         let st = SearchTerm(term: searchTerm)
 
         searchTermService.insert(term: st)
+        fetch()
     }
     
     func delete(searchTerm: SearchTerm) {
         searchTermService.delete(term: searchTerm)
+        fetch()
     }
     
-    func fetch() -> [SearchTerm] {
-        return searchTermService.fetch()
+    func fetch() {
+        pastSearches = searchTermService.fetch()
     }
     
 }

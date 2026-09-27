@@ -12,6 +12,7 @@ import SwiftUI
 struct CreationChoiceView: View {
     @Environment(LocationViewModel.self) var locationVM: LocationViewModel
     @Environment(Router.self) var router: Router
+    @State var tripCreationVM: TripCreationViewModel = TripCreationViewModel()
 
     var body: some View {
         @Bindable var locationVM = locationVM
@@ -53,6 +54,8 @@ struct CreationChoiceView: View {
             .navigationBarTitleDisplayMode(.large)
             
         }
+        .environment(tripCreationVM)
+
        
 
     }
@@ -64,7 +67,6 @@ struct CreationChoiceView: View {
     NavigationStack {
         CreationChoiceView()
             .environment(LocationViewModel(user: user))
-            .environment(TripCreationViewModel())
 
     }
 }

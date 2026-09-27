@@ -34,4 +34,9 @@ final class TripCreationViewModel {
     func isSelected(_ preference: Preference) -> Bool {
         selectedPreferences.contains(where: {$0.preference == preference.preference})
     }
+    
+    func clear() {
+        name.removeAll()
+        selectedPlaces.removeAll()
+    }
 }

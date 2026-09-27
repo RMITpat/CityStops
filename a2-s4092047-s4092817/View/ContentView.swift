@@ -60,7 +60,6 @@ struct ContentView: View {
         .environment(appVM)
         .environment(router)
         .onChange(of: router.selectedTab) { oldTab, newTab in
-            print("Changed from \(oldTab) to \(newTab)")
             if newTab == .home  {
                 appVM.refreshFeed()
             } else if newTab == .profile {

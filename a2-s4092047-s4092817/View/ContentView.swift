@@ -59,6 +59,14 @@ struct ContentView: View {
         .environment(locationVM)
         .environment(appVM)
         .environment(router)
+        .onChange(of: router.selectedTab) { oldTab, newTab in
+            if oldTab == .home {
+                appVM.refreshFeed()
+            } else if oldTab == .profile {
+                appVM.refreshUserTrips()
+            }
+            
+        }
     }
 }
 

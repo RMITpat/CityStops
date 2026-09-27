@@ -13,26 +13,14 @@ import MapKit
 // TODO: MOVE SIGN OUT TO SETTINGS PAGE
 struct HomeView: View {
     @Environment(AppViewModel.self) var appVM: AppViewModel
+
     var body: some View {
         @Bindable var appVM = appVM
-        ScrollView {
-            LazyVStack {
-                ForEach(appVM.tripFeed, id: \.id) { trip in
-                    TripCard(trip: trip)
-                }
-                
-                // Invisible element. Since LazyVStacks only load elements when necessary, when this appears it mean the user has scrolled to the bottom of the ScrollView.
-                // Hence, load more trips.
-                Text("")
-                    .onAppear {appVM.loadTrips() }
-                if (appVM.isLoading) {
-                    ProgressView()
-                }
-                Spacer()
-            }
-        }
-        .refreshable {
+
+        TripFeed(trips: appVM.tripFeed, isLoading: appVM.isLoading) {
             appVM.refreshFeed()
+        } loadTrips: {
+            appVM.loadTrips()
         }
     }
 }

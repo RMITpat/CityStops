@@ -39,7 +39,7 @@ final class TripServiceImpl: TripService {
     private var reachedEndTripFeed: Bool = false
     private var reachedEndUserTrips: Bool = false
 
-    // Save a trip to firestore
+    /// Save a trip to firestore
     func saveTrip(trip: Trip) async throws {
         let ref = db.collection("trips").document()
         
@@ -47,17 +47,19 @@ final class TripServiceImpl: TripService {
         try await ref.setData(tripWithId.asDictionary)
     }
     
+    /// Reset the last document so the next LoadTrips() call calls LoadFirst4Trips()
     func clearLastTripFeedDocument() {
         lastTripFeedDocument = nil
         reachedEndTripFeed = false
     }
     
+    /// Reset the last ocument so the next LoadTrips() call calls LoadFirst4UserTrips()
     func clearLastUserTripDocument() {
         lastUserTripDocument = nil
         reachedEndUserTrips = false
     }
     
-    // Get trips for trip feed from Firebase
+    /// Get trips for trip feed from Firebase
     func loadTrips() async throws -> [Trip] {
         if reachedEndTripFeed {
             return []
@@ -72,6 +74,7 @@ final class TripServiceImpl: TripService {
         
         lastTripFeedDocument = queryDocuments.last
         
+        // When we reach the end, the last document will be nil. To prevent the feed from starting again and loadFirst4Trips() being called, set this bool
         if lastTripFeedDocument == nil {
             reachedEndTripFeed = true
         }
@@ -81,6 +84,7 @@ final class TripServiceImpl: TripService {
 
     }
     
+    /// Loads the first 4 trips and sets the lastDocument for the next query to begin at
     func loadFirst4Trips() async throws -> [QueryDocumentSnapshot] {
         let snapshot = try await db.collection("trips")
             .order(by: "createdAt", descending: true)
@@ -92,6 +96,7 @@ final class TripServiceImpl: TripService {
         
     }
     
+    /// Loads the next 4 trips starting at the previous query's end
     func loadNext4Trips(lastDocument: DocumentSnapshot) async throws -> [QueryDocumentSnapshot] {
         let snapshot = try await db.collection("trips")
             .order(by: "createdAt", descending: true)
@@ -103,7 +108,7 @@ final class TripServiceImpl: TripService {
     
     }
     
-    // Get user trips from Firebase
+    /// Get user trips from Firebase
     func loadUserTrips(ownerId: String) async throws -> [Trip] {
         if reachedEndUserTrips {
             return []
@@ -119,6 +124,7 @@ final class TripServiceImpl: TripService {
         
         lastUserTripDocument = queryDocuments.last
         
+        // When we reach the end, the last document will be nil. To prevent the feed from starting again and loadFirst4UserTrips() being called, set this bool
         if lastUserTripDocument == nil {
             reachedEndUserTrips = true
         }
@@ -128,7 +134,7 @@ final class TripServiceImpl: TripService {
 
     }
     
-    // Loads the signed-in user's trips.
+    /// Loads the first 4 user's trips and sets the lastDocument for the next query to begin at
     func loadFirst4UserTrips(ownerId: String) async throws -> [QueryDocumentSnapshot] {
         let snapshot = try await db.collection("trips")
             .whereField("ownerId", isEqualTo: ownerId)
@@ -140,7 +146,7 @@ final class TripServiceImpl: TripService {
     }
     
     
-    
+    /// Loads the next 4 user trips starting at the previous query's end
     func loadNext4UserTrips(lastDocument: DocumentSnapshot, ownerId: String) async throws -> [QueryDocumentSnapshot] {
         let snapshot = try await db.collection("trips")
             .whereField("ownerId", isEqualTo: ownerId)

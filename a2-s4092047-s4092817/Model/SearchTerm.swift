@@ -11,7 +11,7 @@ import SwiftData
 @Model
 final class SearchTerm {
     @Attribute(.unique) var id: UUID
-    var term: String
+    @Attribute(.unique) var term: String
     var searchDate: Date
 
     

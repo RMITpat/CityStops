@@ -16,18 +16,21 @@ struct HomeView: View {
     var body: some View {
         @Bindable var appVM = appVM
         ScrollView {
-            VStack {
+            LazyVStack {
                 ForEach(appVM.tripFeed, id: \.id) { trip in
                     TripCard(trip: trip)
                 }
+                Text("")
+                    .onAppear {appVM.loadAllTrips() }
                 if (appVM.isLoading) {
                     ProgressView()
                 }
                 Spacer()
             }
-        }.onAppear {
-            appVM.loadAllTrips()
         }
+//        .onAppear {
+//            appVM.loadAllTrips()
+//        }
     }
 }
 

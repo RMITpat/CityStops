@@ -24,7 +24,7 @@ protocol TripService {
 final class TripServiceImpl: TripService {
     private let db = Firestore.firestore()
     
-    
+    private var lastDocument: DocumentSnapshot?
     // Save a trip to firestore
     func saveTrip(trip: Trip) async throws {
         let ref = db.collection("trips").document()
@@ -33,16 +33,42 @@ final class TripServiceImpl: TripService {
         try await ref.setData(tripWithId.asDictionary)
     }
     
-    // Get all trips from Firebase
-    func loadAllTrips() async throws -> [Trip] {
-        let snapshot = try await db.collection("trips")
-            .getDocuments()
-
-        return snapshot.documents
-            .compactMap { Trip(snapshot: $0) }
-            .sorted { $0.createdAt > $1.createdAt }
+    func clearLastDocument() {
+        lastDocument = nil
     }
     
+    // Get all trips from Firebase
+    func loadAllTrips() async throws -> [Trip] {
+        if let lastDocument {
+            return try await loadNext4Trips(lastDocument: lastDocument)
+        } else {
+            return try await loadFirst4Trips()
+        }
+    }
+    
+    func loadFirst4Trips() async throws -> [Trip] {
+        let snapshot = try await db.collection("trips")
+            .order(by: "createdAt", descending: true)
+            .limit(to: 4)
+            .getDocuments()
+        
+        lastDocument = snapshot.documents.last
+        return snapshot.documents
+            .compactMap { Trip(snapshot: $0) }
+    }
+    
+    func loadNext4Trips(lastDocument: DocumentSnapshot) async throws -> [Trip] {
+        let snapshot = try await db.collection("trips")
+            .order(by: "createdAt", descending: true)
+            .start(atDocument: lastDocument)
+            .limit(to: 4)
+            .getDocuments()
+        
+        return snapshot.documents
+            .compactMap { Trip(snapshot: $0) }
+        //.sorted { $0.createdAt > $1.createdAt }
+    
+    }
     
     // Loads the signed-in user's trips.
     func loadUserTrips(ownerId: String) async throws -> [Trip] {

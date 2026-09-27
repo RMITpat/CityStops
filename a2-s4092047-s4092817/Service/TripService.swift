@@ -35,6 +35,10 @@ final class TripServiceImpl: TripService {
     
     private var lastTripFeedDocument: DocumentSnapshot?
     private var lastUserTripDocument: DocumentSnapshot?
+    
+    private var reachedEndTripFeed: Bool = false
+    private var reachedEndUserTrips: Bool = false
+
     // Save a trip to firestore
     func saveTrip(trip: Trip) async throws {
         let ref = db.collection("trips").document()
@@ -45,14 +49,19 @@ final class TripServiceImpl: TripService {
     
     func clearLastTripFeedDocument() {
         lastTripFeedDocument = nil
+        reachedEndTripFeed = false
     }
     
     func clearLastUserTripDocument() {
         lastUserTripDocument = nil
+        reachedEndUserTrips = false
     }
     
     // Get trips for trip feed from Firebase
     func loadTrips() async throws -> [Trip] {
+        if reachedEndTripFeed {
+            return []
+        }
         var queryDocuments: [QueryDocumentSnapshot] = []
         
         if let lastTripFeedDocument {
@@ -62,6 +71,10 @@ final class TripServiceImpl: TripService {
         }
         
         lastTripFeedDocument = queryDocuments.last
+        
+        if lastTripFeedDocument == nil {
+            reachedEndTripFeed = true
+        }
         
         return queryDocuments
             .compactMap { Trip(snapshot: $0) }
@@ -92,7 +105,11 @@ final class TripServiceImpl: TripService {
     
     // Get user trips from Firebase
     func loadUserTrips(ownerId: String) async throws -> [Trip] {
+        if reachedEndUserTrips {
+            return []
+        }
         var queryDocuments: [QueryDocumentSnapshot] = []
+        
         
         if let lastUserTripDocument {
             queryDocuments = try await loadNext4UserTrips(lastDocument: lastUserTripDocument, ownerId: ownerId)
@@ -101,6 +118,10 @@ final class TripServiceImpl: TripService {
         }
         
         lastUserTripDocument = queryDocuments.last
+        
+        if lastUserTripDocument == nil {
+            reachedEndUserTrips = true
+        }
         
         return queryDocuments
             .compactMap { Trip(snapshot: $0) }

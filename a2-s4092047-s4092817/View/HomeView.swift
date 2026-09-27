@@ -20,17 +20,20 @@ struct HomeView: View {
                 ForEach(appVM.tripFeed, id: \.id) { trip in
                     TripCard(trip: trip)
                 }
+                
+                // Invisible element. Since LazyVStacks only load elements when necessary, when this appears it mean the user has scrolled to the bottom of the ScrollView.
+                // Hence, load more trips.
                 Text("")
-                    .onAppear {appVM.loadAllTrips() }
+                    .onAppear {appVM.loadTrips() }
                 if (appVM.isLoading) {
                     ProgressView()
                 }
                 Spacer()
             }
         }
-//        .onAppear {
-//            appVM.loadAllTrips()
-//        }
+        .refreshable {
+            appVM.refreshFeed()
+        }
     }
 }
 

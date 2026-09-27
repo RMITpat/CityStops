@@ -21,7 +21,7 @@ struct TripCard: View {
     var body: some View {
         @Bindable var locationVM = locationVM
         Text(trip.name)
-        Map {
+        Map(position: .constant(.automatic), interactionModes: []) {
             ForEach(trip.mkMapItemPlaces, id: \.self) { place in
                     Marker(item: place)
                         .mapItemDetailSelectionAccessory(.callout)

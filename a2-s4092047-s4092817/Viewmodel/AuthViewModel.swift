@@ -16,6 +16,7 @@ import Foundation
     var password: String = ""
     var error: String?
     var isLoading: Bool = false
+    var username: String = ""
     
     private let authService: AuthService
 
@@ -39,7 +40,7 @@ import Foundation
         error = nil
         Task {
             do {
-                signedInUser = try await authService.signUpWithEmail(email: email, password: password)
+                signedInUser = try await authService.signUpWithEmail(email: email, password: password, username: username)
             } catch {
                 self.error = error.localizedDescription
             }

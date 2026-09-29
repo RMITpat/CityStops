@@ -63,7 +63,7 @@ struct CreationChoiceView: View {
         
 }
 #Preview {
-    let user = AppUser(id: "Test", email: "test@email.com")
+    let user = AppUser(id: "Test", username: "test", email: "test@email.com")
     NavigationStack {
         CreationChoiceView()
             .environment(LocationViewModel(user: user))

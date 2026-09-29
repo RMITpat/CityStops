@@ -18,7 +18,7 @@ class OpenTripMapConverter {
     
     func convertResponseToMapItem(
         response: OpenTripLocation,
-        searchRadius: CLLocationDistance = 300
+        searchRadius: CLLocationDistance = 500
     ) async throws -> MKMapItem? {
         let target = CLLocation(latitude: response.lat, longitude: response.lon)
         
@@ -37,17 +37,23 @@ class OpenTripMapConverter {
             $0.location.distance(from: target) <= searchRadius
         }
         
-        // Prefer a result whose name matches (or contains / is contained by) the wanted name
-        let wanted = response.name.lowercased()
+        // Prefer a result whose name matches, ignoring punctuation and spaces
+        let wanted = response.name
+            .lowercased()
+            .filter { $0.isLetter || $0.isNumber }
+
         let match = candidates.first {
-            guard let name = $0.name?.lowercased() else { return false }
-            return name.contains(wanted) || wanted.contains(name)
+            guard let name = $0.name?.lowercased()
+                .filter({ $0.isLetter || $0.isNumber })
+            else {
+                return false
+            }
+
+            return name == wanted
         }
         
-        // Otherwise fall back to the closest result
-        return match ?? candidates.min {
-            $0.location.distance(from: target) < $1.location.distance(from: target)
-        }
+        // Otherwise don't return anything
+        return match ?? nil
     }
 }
 

@@ -28,7 +28,7 @@ class OpenTripMapService {
     }
     
     /// fetches relevant nearby locations to a given point, filtered by the "kind" of location (e.g. Restaurant, Historic building, Shop etc.)
-    func fetchNearbyPointsByCategory(for location: CLLocationCoordinate2D,
+    func fetchNearbyPointsByCategory(location: CLLocationCoordinate2D,
                                      radius: Int,
                                      filter: String,
                                      returnLimit: Int) async throws -> [OpenTripLocation] {

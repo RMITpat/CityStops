@@ -7,25 +7,28 @@
 
 import SwiftUI
 import CoreLocation
+import MapKit
 
-/// Subview for ``CreateTripView`` that shows nearby, top-rated locations based on
+/// Subview for ``CreateTripView`` that shows nearby, relevant locations based on
 /// user's ``Preference`` selections in ``TripPreferenceView``.
 struct NearbyLocations: View {
     // MARK: View Models
     @Environment(LocationViewModel.self) var locationVM: LocationViewModel
     @Environment(TripCreationViewModel.self) var tripCreationVM: TripCreationViewModel
     
-    // Replace with the user's real location when you have it
+    private let converter = OpenTripMapConverter()
+    private let service = OpenTripMapService()
+    
+    // TODO: Replace with the user's real location
         var coordinate = CLLocationCoordinate2D(latitude: -33.8688, longitude: 151.2093)
-        var category = "foods"   // e.g. "foods", "shops", "historic"
-        var radius = 1000
-        var limit = 5
+        var category = "restaurants"
+        var radius = 3000
+        var limit = 20
 
-        @State private var locations: [OpenTripLocation] = []
-        @State private var isLoading = false
-        @State private var errorMessage: String?
-
-        private let service = OpenTripMapService()
+    // States for View
+    @State private var locations: [MKMapItem] = []
+    @State private var isLoading = false
+    @State private var errorMessage: String?
 
         var body: some View {
             @Bindable var locationVM = locationVM
@@ -47,18 +50,17 @@ struct NearbyLocations: View {
                         Text("No places found nearby.")
                             .foregroundStyle(.secondary)
                     } else {
-                        List(locations) { place in
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text(place.name)
-                                    .font(.headline)
-
-                                Text(String(format: "%.4f, %.4f", place.lat, place.lon))
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
+                        ScrollView {
+                            VStack {
+                                ForEach(locations, id: \.identifier) { item in
+                                    LocationCardView(
+                                        location: item,
+                                        selectedPlaces: $tripCreationVM.selectedPlaces
+                                    )
+                                }
                             }
-                            .padding(.vertical, 2)
+                            .padding(.horizontal, 16)
                         }
-                        .listStyle(.plain)
                     }
             }
             .task {
@@ -66,10 +68,12 @@ struct NearbyLocations: View {
             }
         }
 
-        private func loadLocations() async {
+    // TODO: Move to ViewModel
+    private func loadLocations() async {
+        let maxResults = 5
             isLoading = true
             errorMessage = nil
-
+            
             do {
                 let results = try await service.fetchNearbyPointsByCategory(
                     for: coordinate,
@@ -77,12 +81,23 @@ struct NearbyLocations: View {
                     filter: category,
                     returnLimit: limit
                 )
-                // The API sometimes returns unnamed entries; hide them
-                locations = results.filter { !$0.name.isEmpty }
+                
+                var mapItems: [MKMapItem] = []
+                for place in results where !place.name.isEmpty {
+                    // Stop once we have enough
+                    if mapItems.count >= maxResults { break }
+                    
+                    // try? so one failed lookup doesn't discard the others
+                    if let item = try? await converter.convertResponseToMapItem(response: place),
+                       !mapItems.contains(where: { $0.identifier == item.identifier }) {
+                        mapItems.append(item)
+                    }
+                }
+                locations = mapItems
             } catch {
                 errorMessage = "Couldn't load places.\n\(error.localizedDescription)"
             }
-
+            
             isLoading = false
         }
     }

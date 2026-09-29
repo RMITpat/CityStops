@@ -9,55 +9,45 @@
 import SwiftUI
 import MapKit
 
-/// Displays nearby locations for one preference.
+/// Displays nearby locations for one``Preference``.
+/// Uses ``LocationSegmentViewModel`` to facilitate parsing + display
+/// of REST API responses.
 struct NearbyLocationSegment: View {
-
-    let preference: String
+    let preference: Preference
     let coordinate: CLLocationCoordinate2D
-
+    
     @Binding var selectedPlaces: [MKMapItem]
-
-    private let converter = OpenTripMapConverter()
-    private let service = OpenTripMapService()
-
-    private let radius = 5000
-    private let limit = 15
-    private let maxResults = 3
-
-    @State private var locations: [MKMapItem] = []
-    @State private var isLoading = false
-    @State private var errorMessage: String?
+    
+    // MARK: View Models
+    @State private var segmentVM = LocationSegmentViewModel()
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-
-            Text(preference)
+            // Preference title
+            Text(preference.preference)
                 .font(.title2)
                 .bold()
-
-            if isLoading {
+            
+            // Loading interface / error state message
+            if segmentVM.isLoading {
                 ProgressView("Loading nearby places…")
                     .frame(maxWidth: .infinity, alignment: .leading)
-
-            } else if let errorMessage {
+            } else if let errorMessage = segmentVM.errorMessage {
                 VStack(alignment: .leading, spacing: 12) {
                     Text(errorMessage)
                         .foregroundStyle(.secondary)
-
                     Button("Retry") {
-                        Task {
-                            await loadLocations()
-                        }
+                        Task { await load() }
                     }
                 }
-
-            } else if locations.isEmpty {
+            } else if segmentVM.locations.isEmpty {
                 Text("No places found nearby.")
                     .foregroundStyle(.secondary)
-
             } else {
                 VStack(spacing: 12) {
-                    ForEach(locations, id: \.identifier) { item in
+                    
+                    // List of nearby locations
+                    ForEach(segmentVM.locations, id: \.identifier) { item in
                         LocationCardView(
                             location: item,
                             selectedPlaces: $selectedPlaces
@@ -66,53 +56,10 @@ struct NearbyLocationSegment: View {
                 }
             }
         }
-        .task {
-            await loadLocations()
-        }
+        .task { await load() }
     }
 
-    // TODO: Move to ViewModel
-    private func loadLocations() async {
-        isLoading = true
-        errorMessage = nil
-
-        do {
-            // Make a separate API request for this preference
-            let results = try await service.fetchNearbyPointsByCategory(
-                for: coordinate,
-                radius: radius,
-                filter: preference,
-                returnLimit: limit
-            )
-
-            var mapItems: [MKMapItem] = []
-
-            for place in results where !place.name.isEmpty {
-
-                // Stop once we have enough results
-                if mapItems.count >= maxResults {
-                    break
-                }
-
-                // Convert the API result into an MKMapItem
-                if let item = try? await converter
-                    .convertResponseToMapItem(response: place),
-                   !mapItems.contains(where: {
-                       $0.identifier == item.identifier
-                   }) {
-                    mapItems.append(item)
-                }
-            }
-
-            locations = mapItems
-
-        } catch {
-            errorMessage = """
-            Couldn't load places for \(preference).
-            \(error.localizedDescription)
-            """
-        }
-
-        isLoading = false
+    private func load() async {
+        await segmentVM.loadLocations(for: preference, near: coordinate)
     }
 }

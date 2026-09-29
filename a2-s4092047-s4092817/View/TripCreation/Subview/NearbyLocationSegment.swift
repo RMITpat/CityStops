@@ -30,19 +30,28 @@ struct NearbyLocationSegment: View {
             
             // Loading interface / error state message
             if segmentVM.isLoading {
-                ProgressView("Loading nearby places…")
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                HStack(spacing: 8) {
+                    ProgressView()
+                    Text("Loading nearby places…")
+                        .foregroundStyle(.secondary)
+                    
+                    Spacer()
+                }
             } else if let errorMessage = segmentVM.errorMessage {
-                VStack(alignment: .leading, spacing: 12) {
+                HStack(spacing: 8) {
                     Text(errorMessage)
                         .foregroundStyle(.secondary)
                     Button("Retry") {
                         Task { await load() }
                     }
+                    Spacer()
                 }
             } else if segmentVM.locations.isEmpty {
-                Text("No places found nearby.")
-                    .foregroundStyle(.secondary)
+                HStack(spacing: 8) {
+                    Text("No places found nearby.")
+                        .foregroundStyle(.secondary)
+                    Spacer()
+                }
             } else {
                 VStack(spacing: 12) {
                     

@@ -21,7 +21,7 @@ struct TripCard: View {
     var body: some View {
         @Bindable var locationVM = locationVM
         Text(trip.name)
-        Map {
+        Map(position: .constant(.automatic), interactionModes: []) {
             ForEach(trip.mkMapItemPlaces, id: \.self) { place in
                     Marker(item: place)
                         .mapItemDetailSelectionAccessory(.callout)
@@ -35,7 +35,7 @@ struct TripCard: View {
         .frame(height: 400)
         .task {
             do {
-                routes = try await locationVM.createRoute(selectedPlaces: trip.mkMapItemPlaces)
+                routes = try await locationVM.createRoute(selectedPlaces: trip.mkMapItemPlaces, tripID: trip.id)
             } catch {
                 // TODO: display error somewhere
             }

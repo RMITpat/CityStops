@@ -30,6 +30,8 @@ import MapKit
     /// The feed of loaded trips
     var tripFeed: [Trip] = []
     
+    /// The feed of user's created trips
+    var yourTrips: [Trip] = []
     
     /// Real init used in app
     init(user: AppUser) {
@@ -57,15 +59,25 @@ import MapKit
         
     }
     
+    func refreshFeed() {
+        tripService.clearLastTripFeedDocument()
+        tripFeed.removeAll()
+    }
+    
+    func refreshUserTrips() {
+        tripService.clearLastUserTripDocument()
+        yourTrips.removeAll()
+    }
     
     /// Function to start reading all trips from Firestore
-    func loadAllTrips() {
-        tripFeed.removeAll()
+    func loadTrips() {
         isLoading = true
         Task {
             do {
+                // Artificial wait, can be removed but feels nice
+                try await Task.sleep(for: .seconds(1))
                 // Call the service
-                let loadedTrips = try await tripService.loadAllTrips()
+                let loadedTrips = try await tripService.loadTrips()
                 
                 // For each trip,
                 for trip in loadedTrips {
@@ -74,6 +86,36 @@ import MapKit
                     
                     // Only once all stops have been converted do we add the trip to the tripFeed, causing the fully loaded trip to appear in HomeView
                     tripFeed.append(updatedTrip)
+                }
+             
+            } catch {
+                self.error = error.localizedDescription
+                
+            }
+            isLoading = false
+            
+            
+        }
+    }
+    
+    /// Function to start reading user's trips from Firestore
+    func loadYourTrips() {
+        isLoading = true
+        Task {
+            do {
+                // Artificial wait, can be removed but feels nice
+                try await Task.sleep(for: .seconds(1))
+                
+                // Call the service
+                let loadedTrips = try await tripService.loadUserTrips(ownerId: user.id )
+                
+                // For each trip,
+                for trip in loadedTrips {
+                    // Convert its stops, stored as MKMapItem.Identifier's, to MKMapItems so they can be displayed. If you read my code message me "burger"
+                    let updatedTrip = try await getMKMapItemsForTrip(trip: trip)
+                    
+                    // Only once all stops have been converted do we add the trip to the tripFeed, causing the fully loaded trip to appear in HomeView
+                    yourTrips.append(updatedTrip)
                 }
              
             } catch {

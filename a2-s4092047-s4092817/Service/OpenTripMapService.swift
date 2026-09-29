@@ -39,7 +39,6 @@ class OpenTripMapService {
             URLQueryItem(name: "lon", value: String(location.longitude)),
             URLQueryItem(name: "lat", value: String(location.latitude)),
             URLQueryItem(name: "kinds", value: filter),
-            URLQueryItem(name: "rate", value: "3"),
             URLQueryItem(name: "format", value: "json"),
             URLQueryItem(name: "limit", value: String(returnLimit)),
             URLQueryItem(name: "apikey", value: apiKey)

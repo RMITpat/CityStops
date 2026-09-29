@@ -17,6 +17,9 @@
 		8DB849E430595E17004206E7 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 8DB849E330595E17004206E7 /* FirebaseAuth */; };
 		8DB84A2030598771004206E7 /* .gitignore in Sources */ = {isa = PBXBuildFile; fileRef = 8DB84A1F3059876D004206E7 /* .gitignore */; };
 		8DB84A2130598771004206E7 /* .gitignore in Sources */ = {isa = PBXBuildFile; fileRef = 8DB84A1F3059876D004206E7 /* .gitignore */; };
+		BF20D814306B3DE700945DDD /* Secrets.plist in Resources */ = {isa = PBXBuildFile; fileRef = BF20D813306B3DE700945DDD /* Secrets.plist */; };
+		BF20D815306B3DE700945DDD /* Secrets.plist in Resources */ = {isa = PBXBuildFile; fileRef = BF20D813306B3DE700945DDD /* Secrets.plist */; };
+		BF20D816306B3DE700945DDD /* Secrets.plist in Resources */ = {isa = PBXBuildFile; fileRef = BF20D813306B3DE700945DDD /* Secrets.plist */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -42,6 +45,7 @@
 		8D6264F530528A4D00D842C2 /* a2-s4092047-s4092817UITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "a2-s4092047-s4092817UITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		8DB8197D30611BD5002D1C4E /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		8DB84A1F3059876D004206E7 /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
+		BF20D813306B3DE700945DDD /* Secrets.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Secrets.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -131,6 +135,7 @@
 				8DB849D530595BA8004206E7 /* Frameworks */,
 				8D6264F830528A4D00D842C2 /* a2-s4092047-s4092817UITests */,
 				8DB8197D30611BD5002D1C4E /* GoogleService-Info.plist */,
+				BF20D813306B3DE700945DDD /* Secrets.plist */,
 			);
 			sourceTree = "<group>";
 		};
@@ -280,6 +285,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BF20D816306B3DE700945DDD /* Secrets.plist in Resources */,
 				8DB8197F30611BD5002D1C4E /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -288,6 +294,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BF20D815306B3DE700945DDD /* Secrets.plist in Resources */,
 				8DB8198030611BD5002D1C4E /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -296,6 +303,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BF20D814306B3DE700945DDD /* Secrets.plist in Resources */,
 				8DB8197E30611BD5002D1C4E /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

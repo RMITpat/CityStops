@@ -14,7 +14,6 @@ import MapKit
 struct NearbyLocations: View {
 
     // MARK: View Models
-
     @Environment(LocationViewModel.self) var locationVM: LocationViewModel
     @Environment(TripCreationViewModel.self) var tripCreationVM: TripCreationViewModel
 
@@ -23,12 +22,14 @@ struct NearbyLocations: View {
 
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
-
+                
+                // show List of nearby locations for each preference selected from
+                // ``TripPreferenceView``
                 ForEach(
                     tripCreationVM.selectedPreferences,
                     id: \.preference
                 ) { preference in
-
+                    
                     NearbyLocationSegment(
                         preference: preference,
                         coordinate: locationVM.currentRegion.center,

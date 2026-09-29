@@ -14,7 +14,7 @@ import FirebaseFirestore
 protocol TripService {
     func saveTrip(trip: Trip) async throws
     
-    func loadTrips() async throws -> [Trip]
+    func loadTrips(ownerId: String) async throws -> [Trip]
     func loadFirst4Trips() async throws -> [QueryDocumentSnapshot]
     func loadNext4Trips(lastDocument: DocumentSnapshot) async throws -> [QueryDocumentSnapshot]
     
@@ -62,7 +62,7 @@ final class TripServiceImpl: TripService {
     }
     
     /// Get trips for trip feed from Firebase
-    func loadTrips() async throws -> [Trip] {
+    func loadTrips(ownerId: String) async throws -> [Trip] {
         if reachedEndTripFeed {
             return []
         }
@@ -80,9 +80,18 @@ final class TripServiceImpl: TripService {
         if lastTripFeedDocument == nil {
             reachedEndTripFeed = true
         }
-        
-        return queryDocuments
-            .compactMap { Trip(snapshot: $0) }
+        var trips: [Trip] = []
+        for document in queryDocuments {
+                let isSaved = try await checkIfTripIsSaved(
+                    ownerId: ownerId,
+                    tripId: document.documentID
+                )
+
+                if let trip = Trip(snapshot: document, isSaved: isSaved) {
+                    trips.append(trip)
+                }
+            }
+        return trips
 
     }
     
@@ -131,8 +140,18 @@ final class TripServiceImpl: TripService {
             reachedEndUserTrips = true
         }
         
-        return queryDocuments
-            .compactMap { Trip(snapshot: $0) }
+        var trips: [Trip] = []
+        for document in queryDocuments {
+                let isSaved = try await checkIfTripIsSaved(
+                    ownerId: ownerId,
+                    tripId: document.documentID
+                )
+
+                if let trip = Trip(snapshot: document, isSaved: isSaved) {
+                    trips.append(trip)
+                }
+            }
+        return trips
 
     }
     
@@ -183,7 +202,18 @@ final class TripServiceImpl: TripService {
             try await document.reference.delete()
         }
         
-        
-        
     }
+    
+    func checkIfTripIsSaved(ownerId: String, tripId: String) async throws -> Bool {
+        let dbCollection = db.collection("bookmarkedTrips")
+        let snapshot = try await dbCollection
+            .whereField("ownerId", isEqualTo: ownerId)
+            .whereField("tripId", isEqualTo: tripId)
+            .getDocuments()
+        
+        return !snapshot.documents.isEmpty
+    }
+    
 }
+
+

@@ -19,7 +19,7 @@ import MapKit
     private let tripService: TripService
     
     /// The currently logged in user
-    private let user: AppUser
+    let user: AppUser
     
     /// Error displayed in views from various methods
     var error: String?

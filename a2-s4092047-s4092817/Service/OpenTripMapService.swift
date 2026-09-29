@@ -45,9 +45,29 @@ class OpenTripMapService {
             URLQueryItem(name: "apikey", value: apiKey)
         ]
         
-        guard let url = components.url else { throw URLError(.badURL) }
         
-        let (data, _) = try await URLSession.shared.data(from: url)
-        return try JSONDecoder().decode([OpenTripLocation].self, from: data)
+        // The following is API request + decoding with gen-AI print statements for debugging
+        guard let url = components.url else { throw URLError(.badURL) }
+        print("➡️ Request URL:", url.absoluteString)
+
+        let (data, response) = try await URLSession.shared.data(from: url)
+
+        if let http = response as? HTTPURLResponse {
+            print("⬅️ Status code:", http.statusCode)
+        }
+        print("⬅️ Raw body:", String(data: data, encoding: .utf8) ?? "<non-UTF8 data>")
+
+        do {
+            return try JSONDecoder().decode([OpenTripLocation].self, from: data)
+        } catch {
+            print("❌ Decoding error:", error)
+            throw error
+        }
+        
+        // regular API request + decoding
+//        guard let url = components.url else { throw URLError(.badURL) }
+//        
+//        let (data, _) = try await URLSession.shared.data(from: url)
+//        return try JSONDecoder().decode([OpenTripLocation].self, from: data)
     }
 }

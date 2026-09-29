@@ -18,68 +18,75 @@ struct LoginView: View {
 
     var body: some View {
         @Bindable var auth = auth
-        
-        VStack(spacing: 24) {
-            // Heading
-            Text(isSigningUp ? "Create Account" : "Welcome Back")
-                .font(.largeTitle)
-                .fontWeight(.bold)
-            
-            // User input fields
-            VStack(spacing: 16) {
-                TextField("Email", text: $auth.email)
-                    .keyboardType(.emailAddress)
-                    .padding()
-                    .background(Color(.systemGray6))
-                    .cornerRadius(10)
-
-                SecureField("Password", text: $auth.password)
-                    .padding()
-                    .background(Color(.systemGray6))
-                    .cornerRadius(10)
-            }
-            
-            if let error = auth.error {
-                Text(error).foregroundColor(.red).font(.footnote)
-            }
-            
-            // Log In / Sign Up button
-            Button(action: {
-                if isSigningUp {
-                    auth.signUp()
-                } else {
-                    auth.signIn()
+        ScrollView {
+            VStack(spacing: 24) {
+                // Heading
+                Text(isSigningUp ? "Create Account" : "Welcome Back")
+                    .font(.largeTitle)
+                    .fontWeight(.bold)
+                
+                // User input fields
+                VStack(spacing: 16) {
+                    TextField("Email", text: $auth.email)
+                        .keyboardType(.emailAddress)
+                        .padding()
+                        .background(Color(.systemGray6))
+                        .cornerRadius(10)
+                    if isSigningUp {
+                        TextField("Username", text: $auth.username)
+                            .padding()
+                            .background(Color(.systemGray6))
+                            .cornerRadius(10)
+                    }
+                    SecureField("Password", text: $auth.password)
+                        .padding()
+                        .background(Color(.systemGray6))
+                        .cornerRadius(10)
                 }
-            }) {
-                Text(isSigningUp ? "Sign Up" : "Log In")
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(Color.blue)
-                    .cornerRadius(10)
+                
+                if let error = auth.error {
+                    Text(error).foregroundColor(.red).font(.footnote)
+                }
+                
+                // Log In / Sign Up button
+                Button(action: {
+                    if isSigningUp {
+                        auth.signUp()
+                    } else {
+                        auth.signIn()
+                    }
+                }) {
+                    Text(isSigningUp ? "Sign Up" : "Log In")
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(Color.blue)
+                        .cornerRadius(10)
+                }
+                
+                // Log In via Google
+                GoogleSignInButton {
+                    auth.signInWithGoogle()
+                }
+                .frame(height: 50)
+                .disabled(auth.isLoading)
+                .opacity(auth.isLoading ? 0.6 : 1)
+                
+                // Log In / Sign Up state Toggle button
+                Button(action: {
+                    isSigningUp.toggle()
+                    auth.resetError()
+                }) {
+                    Text(
+                        isSigningUp
+                        ? "Already have an account? Log In"
+                        : "Don't have an account? Sign Up"
+                    )
+                    .font(.footnote)
+                }
             }
-            
-            // Log In via Google 
-            GoogleSignInButton {
-                auth.signInWithGoogle()
-            }
-            .frame(height: 50)
-            .disabled(auth.isLoading)
-            .opacity(auth.isLoading ? 0.6 : 1)
-
-            // Log In / Sign Up state Toggle button
-            Button(action: {
-                isSigningUp.toggle()
-            }) {
-                Text(
-                    isSigningUp
-                    ? "Already have an account? Log In"
-                    : "Don't have an account? Sign Up"
-                )
-                .font(.footnote)
-            }
+            .padding(24)
         }
-        .padding(24)
     }
 }
 

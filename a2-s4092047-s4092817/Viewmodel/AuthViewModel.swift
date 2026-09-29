@@ -37,7 +37,10 @@ import Foundation
     
     /// Sign up with email and password
     func signUp()  {
-        error = nil
+        
+        if !validateSignUp(email: email, password: password, username: username) {
+            return
+        }
         Task {
             do {
                 signedInUser = try await authService.signUpWithEmail(email: email, password: password, username: username)
@@ -83,6 +86,34 @@ import Foundation
         } catch {
             self.error = error.localizedDescription
         }
+    }
+    
+    func validateSignUp(email: String, password: String, username: String) -> Bool {
+        var errorString = ""
+        if email.wholeMatch(of: /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/) == nil {
+            errorString += "Email must match x@x.xx\n"
+        }
+        
+        if username.isEmpty {
+            errorString += "Username cannot be empty\n"
+        }
+        
+        if password.wholeMatch(of:/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/) == nil {
+            errorString += "Password must be 8 characters, have at least one uppercase letter, one digit and one special character\n"
+        }
+        
+        if !errorString.isEmpty {
+            error = errorString
+            return false
+        }
+        error = nil
+
+        return true
+        
+    }
+    
+    func resetError() {
+        error = nil
     }
 }
 

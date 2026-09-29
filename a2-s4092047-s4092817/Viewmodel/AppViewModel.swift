@@ -149,5 +149,20 @@ import MapKit
         
     }
     
+    /// Calls service to save a document which contains the user's id and the id of the trip they are bookmarking
+    func bookmarkTrip(tripId: String) {
+        Task {
+            do {
+                try await tripService.bookmarkTrip(ownerId: user.id, tripId: tripId)
+            } catch {
+                self.error = error.localizedDescription
+                
+            }
+            isLoading = false
+            
+            
+        }
+    }
+    
     
 }

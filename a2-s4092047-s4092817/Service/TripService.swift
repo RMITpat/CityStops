@@ -24,6 +24,8 @@ protocol TripService {
     
     func clearLastTripFeedDocument()
     func clearLastUserTripDocument()
+    
+    func bookmarkTrip(ownerId: String, tripId: String) async throws
 
 }
 
@@ -157,5 +159,16 @@ final class TripServiceImpl: TripService {
         
         return snapshot.documents
     
+    }
+    
+    /// Save a document which contains the user's id and the id of the trip they are bookmarking
+    func bookmarkTrip(ownerId: String, tripId: String) async throws {
+        let ref = db.collection("bookmarkedTrips").document()
+        
+        let data = [
+            "ownerId" : ownerId,
+            "tripId" : tripId
+        ]
+        try await ref.setData(data)
     }
 }

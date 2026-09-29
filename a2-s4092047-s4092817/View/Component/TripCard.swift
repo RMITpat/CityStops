@@ -68,13 +68,15 @@ struct TripCard: View {
                 
             }
             HStack(alignment: .center) {
-                Button(trip.savedByUser ? "Save" : "Saved", systemImage: trip.savedByUser ? "bookmark" : "bookmark.fill") {
+                Button(trip.savedByUser ? "Saved" : "Save", systemImage: trip.savedByUser ? "bookmark.fill" : "bookmark") {
                     Task {
                         do {
                             if trip.savedByUser {
-                                try await appVM.bookmarkTrip(tripId: trip.id)
-                            } else {
                                 try await appVM.deleteTripBookmark(tripId: trip.id)
+
+                            } else {
+                                try await appVM.bookmarkTrip(tripId: trip.id)
+
                             }
                         } catch {
                             

@@ -77,7 +77,7 @@ import MapKit
                 // Artificial wait, can be removed but feels nice
                 try await Task.sleep(for: .seconds(1))
                 // Call the service
-                let loadedTrips = try await tripService.loadTrips()
+                let loadedTrips = try await tripService.loadTrips(ownerId: user.id)
                 
                 // For each trip,
                 for trip in loadedTrips {

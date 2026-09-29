@@ -57,7 +57,7 @@ import Foundation
             do {
                 signedInUser = try await authService.signInWithEmail(email: email, password: password)
             } catch {
-                self.error = error.localizedDescription
+                self.error = "Could not find a user with these credentials"
             }
         }
     }

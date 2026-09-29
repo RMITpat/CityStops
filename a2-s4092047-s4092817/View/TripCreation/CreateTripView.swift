@@ -14,44 +14,27 @@ import MapKit
 
 struct CreateTripView: View {
     @Environment(LocationViewModel.self) var locationVM: LocationViewModel
-    @Environment(TripCreationViewModel.self) var tripCreationVM: TripCreationViewModel
-    @Environment(Router.self) var router: Router
-
-    // The place search request inputted by the user
-    @State var searchRequest: String = ""
     
-    // The results of a place search
-    @State var searchResults: [MKMapItem] = []
-    
-   
     
     var body: some View {
         @Bindable var locationVM = locationVM
-        @Bindable var tripCreationVM = tripCreationVM
-
         VStack {
             // TODO: Need to figure out if displaying map is suitable for interface, or take another approach
             // Map interface
-//            Map (position: $locationVM.currentLocation) {
-//                ForEach(selectedPlaces, id: \.self) { place in
-//                    Marker(item: place)
-//                        .mapItemDetailSelectionAccessory(.callout)
-//                }
-//            }
-//            .frame(height:400)
-//            .onAppear {
-//                locationVM.checkLocationAuthorization()
-//            }
+            //                Map (position: $locationVM.currentLocation) {
+            //                    ForEach(locationVM.selectedPlaces, id: \.self) { place in
+            //                        Marker(item: place)
+            //                            .mapItemDetailSelectionAccessory(.callout)
+            //                    }
+            //                }
+            //                .frame(height:400)
+            //                .onAppear {
+            //                    locationVM.checkLocationAuthorization()
+            //                }
             
             // MARK: "Search" Button
             Button("Search") {
-                Task {
-                    do {
-                        searchResults = try await locationVM.searchPlaces(searchRequest: searchRequest)
-                    } catch {
-                        // TODO: display errors somewhere
-                    }
-                }
+                locationVM.searchPlaces()
             }
             .buttonStyle(.glassProminent)
             
@@ -59,20 +42,19 @@ struct CreateTripView: View {
             ScrollView {
                 VStack {
                     // Generate location detail cards
-                    ForEach(searchResults, id: \.identifier) { result in
-                        LocationCardView(location: result, selectedPlaces: $tripCreationVM.selectedPlaces)
+                    ForEach(locationVM.searchResults, id: \.identifier) { result in
+                        LocationCardView(location: result, locationVM: locationVM)
                     }
                 }
             }
-            
             .padding(.horizontal, 16)
         }
         
         // MARK: "Next" Button
         .safeAreaInset(edge: .bottom) {
-           
-            Button("Next") {
-                router.tripCreationRoute.append(TripCreationRoute.createRoute)
+            NavigationLink(destination: CreateRouteView()) {
+                Text("Next")
+                    .frame(maxWidth: .infinity)
             }
             .controlSize(.large)
             .buttonStyle(.glassProminent)
@@ -84,7 +66,7 @@ struct CreateTripView: View {
         
             // MARK: Location Search Bar
             .searchable(
-                text: $searchRequest,
+                text: $locationVM.searchRequest,
                 placement: .navigationBarDrawer(displayMode: .always),
                 prompt: "Search for a place",
             )
@@ -95,9 +77,6 @@ struct CreateTripView: View {
 #Preview {
     let user = AppUser(id: "Test", email: "test@email.com")
     NavigationStack {
-        CreateTripView()
-            .environment(LocationViewModel(user: user))
-            .environment(TripCreationViewModel())
-
+        CreateTripView().environment(LocationViewModel(user: user))
     }
 }

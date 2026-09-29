@@ -10,16 +10,14 @@ import SwiftUI
 /// Allows user to choose a name for the ``Trip``.
 struct TripNameView: View {
     @Environment(LocationViewModel.self) var locationVM: LocationViewModel
-    @Environment(TripCreationViewModel.self) var tripCreationVM: TripCreationViewModel
-    @Environment(Router.self) var router: Router
-
+    @State var name: String = ""
+    
     var body: some View {
         @Bindable var locationVM = locationVM
-        @Bindable var tripCreationVM = tripCreationVM
-        // MARK: Name input field
         
+        // MARK: Name input field
         VStack {
-            TextField("e.g. Asian Street Food Tour", text: $tripCreationVM.name)
+            TextField("e.g. Asian Street Food Tour", text: $name)
                 .textFieldStyle(RoundedBorderTextFieldStyle())
         }
         .padding(.horizontal, 16)
@@ -28,9 +26,9 @@ struct TripNameView: View {
         
         // MARK: "Confirm" button
         .safeAreaInset(edge: .bottom) {
-            
-            Button("Confirm") {
-                router.tripCreationRoute.append(TripCreationRoute.preferences)
+            NavigationLink(destination: TripPreferenceView(name: name)) {
+                Text("Confirm")
+                    .frame(maxWidth: .infinity)
             }
             .controlSize(.large)
             .buttonStyle(.glassProminent)
@@ -40,18 +38,12 @@ struct TripNameView: View {
         
         .navigationTitle(Text("Name your Trip"))
         .navigationSubtitle(Text("What would you like your trip to be called?"))
-        .toolbar(.hidden, for: .tabBar)
-
     }
-
 }
 
 #Preview {
     let user = AppUser(id: "Test", email: "test@email.com")
     NavigationStack {
-        TripNameView()
-            .environment(LocationViewModel(user: user))
-            .environment(TripCreationViewModel())
-
+        TripNameView().environment(LocationViewModel(user: user))
     }
 }

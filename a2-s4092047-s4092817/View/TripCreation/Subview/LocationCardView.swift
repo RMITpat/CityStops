@@ -10,7 +10,7 @@ import MapKit
 
 struct LocationCardView: View {
     let location: MKMapItem
-    @Binding var selectedPlaces: [MKMapItem]
+    let locationVM: LocationViewModel
     
     var body: some View {
         HStack(spacing: 16) {
@@ -36,7 +36,7 @@ struct LocationCardView: View {
             
             // "Add" button
             Button {
-                selectedPlaces.append(location)
+                locationVM.selectedPlaces.append(location)
             } label: {
                 Image(systemName: "plus")
                     .bold()
@@ -60,11 +60,10 @@ struct LocationCardView: View {
 }
 
 #Preview {
-    @Previewable @State var selectedPlaces: [MKMapItem] = []
     let user = AppUser(id: "Test", email: "test@email.com")
     LocationCardView(
         location: LocationCardPreviewData.testLocation,
-        selectedPlaces: $selectedPlaces
+        locationVM: LocationViewModel(user: user)
     )
 }
 

@@ -11,17 +11,16 @@ import SwiftUI
 
 struct TripPreferenceView: View {
     @Environment(LocationViewModel.self) var locationVM: LocationViewModel
-    @Environment(TripCreationViewModel.self) var tripCreationVM: TripCreationViewModel
-    @Environment(Router.self) var router: Router
+    @State var preferenceVM = PreferenceViewModel()
+    let name: String
 
     var body: some View {
         @Bindable var locationVM = locationVM
-        @Bindable var tripCreationVM = tripCreationVM
         // MARK: - Preference List
         // TODO: - Create ViewModel for this View to store preferences for Trip model
         List {
-            ForEach(tripCreationVM.preferences, id: \.preference) { item in
-                let isSelected = tripCreationVM.isSelected(item)
+            ForEach(preferenceVM.preferences, id: \.preference) { item in
+                let isSelected = preferenceVM.isSelected(item)
 
                 HStack {
                     // SF symbol
@@ -46,19 +45,23 @@ struct TripPreferenceView: View {
                 
                 // Change tap boolean when tapped
                 .onTapGesture {
-                    tripCreationVM.toggle(item)
+                    preferenceVM.toggle(item)
                 }
             }
         }
         .listStyle(.plain)
         
+        // Transfer preferences from the View's VM to Trip Creation VM
+        .onChange(of: preferenceVM.selectedPreferences.map(\.preference)) {
+            locationVM.preferences = preferenceVM.selectedPreferences.map(\.preference)
+        }
         
         // MARK: - "Next" Button
         // TODO: - Create wrapper for all bottom buttons (reusable view / wrapper)
         .safeAreaInset(edge: .bottom) {
-         
-            Button("Next") {
-                router.tripCreationRoute.append(TripCreationRoute.createTrip)
+            NavigationLink(destination: CreateTripView()) {
+                Text("Next")
+                    .frame(maxWidth: .infinity)
             }
             .controlSize(.large)
             .buttonStyle(.glassProminent)
@@ -76,8 +79,6 @@ struct TripPreferenceView: View {
 #Preview {
     let user = AppUser(id: "Test", email: "test@email.com")
     NavigationStack {
-        TripPreferenceView()
-            .environment(LocationViewModel(user: user))
-            .environment(TripCreationViewModel())
+        TripPreferenceView(name: "name").environment(LocationViewModel(user: user))
     }
 }

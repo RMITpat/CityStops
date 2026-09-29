@@ -29,7 +29,7 @@ struct NearbyLocations: View {
             @Bindable var locationVM = locationVM
             @Bindable var tripCreationVM = tripCreationVM
             
-            NavigationStack {
+
                 Group {
                     if isLoading {
                         ProgressView("Loading nearby places…")
@@ -58,8 +58,6 @@ struct NearbyLocations: View {
                         }
                         .listStyle(.plain)
                     }
-                }
-                .navigationTitle("Popular Stops")
             }
             .task {
                 await loadLocations()

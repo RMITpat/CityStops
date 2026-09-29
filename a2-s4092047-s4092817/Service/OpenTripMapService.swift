@@ -27,7 +27,7 @@ class OpenTripMapService {
         }
     }
     
-    /// fetches the top-rated nearby locations to a given point, filtered by the "kind" of location (e.g. Restaurant, Historic building, Shop etc.)
+    /// fetches relevant nearby locations to a given point, filtered by the "kind" of location (e.g. Restaurant, Historic building, Shop etc.)
     func fetchNearbyPointsByCategory(for location: CLLocationCoordinate2D,
                                      radius: Int,
                                      filter: String,

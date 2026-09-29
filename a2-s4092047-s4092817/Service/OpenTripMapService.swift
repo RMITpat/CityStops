@@ -29,26 +29,25 @@ class OpenTripMapService {
     
     /// fetches the top-rated nearby locations to a given point, filtered by the "kind" of location (e.g. Restaurant, Historic building, Shop etc.)
     func fetchNearbyPointsByCategory(for location: CLLocationCoordinate2D,
-                                 radius: Int,
-                                 filter: String,
-                                 returnLimit: Int) async throws -> OpenTripLocation {
+                                     radius: Int,
+                                     filter: String,
+                                     returnLimit: Int) async throws -> [OpenTripLocation] {
         
-        let encodedLat = location.latitude
-        let encodedLong = location.longitude
+        var components = URLComponents(string: "https://api.opentripmap.com/0.1/en/places/radius")!
+        components.queryItems = [
+            URLQueryItem(name: "radius", value: String(radius)),
+            URLQueryItem(name: "lon", value: String(location.longitude)),
+            URLQueryItem(name: "lat", value: String(location.latitude)),
+            URLQueryItem(name: "kinds", value: filter),
+            URLQueryItem(name: "rate", value: "3"),
+            URLQueryItem(name: "format", value: "json"),
+            URLQueryItem(name: "limit", value: String(returnLimit)),
+            URLQueryItem(name: "apikey", value: apiKey)
+        ]
         
-        let url = URL(string: """
-                                https://api.opentripmap.com/0.1/en/places/radius?
-                                    radius=\(radius)
-                                    &lon=\(encodedLong)
-                                    &lat=\(encodedLat)
-                                    &kinds=\(filter)
-                                    &rate=3
-                                    &format=json
-                                    &limit=\(returnLimit)
-                                    &apikey=\(apiKey)
-                              """)!
+        guard let url = components.url else { throw URLError(.badURL) }
         
         let (data, _) = try await URLSession.shared.data(from: url)
-        return try JSONDecoder().decode(OpenTripLocation.self, from: data)
+        return try JSONDecoder().decode([OpenTripLocation].self, from: data)
     }
 }

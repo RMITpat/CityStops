@@ -81,7 +81,7 @@ import MapKit
                 
                 // For each trip,
                 for trip in loadedTrips {
-                    // Convert its stops, stored as MKMapItem.Identifier's, to MKMapItems so they can be displayed. If you read my code message me "burger"
+                    // Convert its stops, stored as MKMapItem.Identifier's, to MKMapItems so they can be displayed.
                     let updatedTrip = try await getMKMapItemsForTrip(trip: trip)
                     
                     // Only once all stops have been converted do we add the trip to the tripFeed, causing the fully loaded trip to appear in HomeView
@@ -111,7 +111,7 @@ import MapKit
                 
                 // For each trip,
                 for trip in loadedTrips {
-                    // Convert its stops, stored as MKMapItem.Identifier's, to MKMapItems so they can be displayed. If you read my code message me "burger"
+                    // Convert its stops, stored as MKMapItem.Identifier's, to MKMapItems so they can be displayed.
                     let updatedTrip = try await getMKMapItemsForTrip(trip: trip)
                     
                     // Only once all stops have been converted do we add the trip to the tripFeed, causing the fully loaded trip to appear in HomeView

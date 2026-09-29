@@ -24,12 +24,17 @@ struct CreateTripView: View {
     // The results of a place search
     @State var searchResults: [MKMapItem] = []
     
-   
+    enum Mode: String, CaseIterable, Identifiable {
+        case first = "Nearby Stops"
+        case second = "Search for Stops"
+        var id: Self { self }
+    }
+    
+    @State private var mode: Mode = .first
     
     var body: some View {
         @Bindable var locationVM = locationVM
         @Bindable var tripCreationVM = tripCreationVM
-
 
         VStack {
             // TODO: Need to figure out if displaying map is suitable for interface, or take another approach
@@ -44,8 +49,18 @@ struct CreateTripView: View {
 //            .onAppear {
 //                locationVM.checkLocationAuthorization()
 //            }
+            Picker("Mode", selection: $mode) {
+                ForEach(Mode.allCases) { Text($0.rawValue).tag($0) }
+            }
+            .pickerStyle(.segmented)
+            .padding(.horizontal, 16)
+
+            switch mode {
+            case .first:  NearbyLocations()
+            case .second: NearbyLocations()
+            }
             
-            
+        // MARK: Search history
             if searchRequest.isEmpty {
                 
                     VStack(alignment: .leading) {
@@ -137,6 +152,8 @@ struct CreateTripView: View {
         CreateTripView()
             .environment(LocationViewModel(user: user))
             .environment(TripCreationViewModel())
+            .environment(SearchTermViewModel())
+            .environment(Router())
 
     }
 }

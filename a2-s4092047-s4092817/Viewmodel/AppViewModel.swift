@@ -150,18 +150,23 @@ import MapKit
     }
     
     /// Calls service to save a document which contains the user's id and the id of the trip they are bookmarking
-    func bookmarkTrip(tripId: String) {
-        Task {
-            do {
-                try await tripService.bookmarkTrip(ownerId: user.id, tripId: tripId)
-            } catch {
-                self.error = error.localizedDescription
-                
-            }
-            isLoading = false
-            
-            
+    func bookmarkTrip(tripId: String) async throws {
+
+        try await tripService.bookmarkTrip(ownerId: user.id, tripId: tripId)
+        guard let savedTrip = tripFeed.firstIndex(where: { $0.id == tripId}) else {
+            return
         }
+        tripFeed[savedTrip].savedByUser = true
+    }
+    
+    func deleteTripBookmark(tripId: String) async throws {
+        
+        try await tripService.removeTripBookmark(ownerId: user.id, tripId: tripId)
+      
+        guard let unsavedTrip = tripFeed.firstIndex(where: { $0.id == tripId}) else {
+            return
+        }
+        tripFeed[unsavedTrip].savedByUser = false
     }
     
     

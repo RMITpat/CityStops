@@ -14,12 +14,17 @@ import _MapKit_SwiftUI
 /// 
 struct TripCard: View {
     @Environment(LocationViewModel.self) var locationVM: LocationViewModel
+    @Environment(AppViewModel.self) var appVM: AppViewModel
+
     /// The trip this card displays information for
     let trip: Trip
+    
     
     @State var routes: [MKRoute] = []
     var body: some View {
         @Bindable var locationVM = locationVM
+        @Bindable var appVM = appVM
+        
         VStack(alignment: .leading) {
             
             VStack {
@@ -63,8 +68,18 @@ struct TripCard: View {
                 
             }
             HStack(alignment: .center) {
-                Button("Save", systemImage: "bookmark") {
-                    
+                Button(trip.savedByUser ? "Save" : "Saved", systemImage: trip.savedByUser ? "bookmark" : "bookmark.fill") {
+                    Task {
+                        do {
+                            if trip.savedByUser {
+                                try await appVM.bookmarkTrip(tripId: trip.id)
+                            } else {
+                                try await appVM.deleteTripBookmark(tripId: trip.id)
+                            }
+                        } catch {
+                            
+                        }
+                    }
                 }.font(.title2)
             }
             .frame(maxWidth: .infinity, alignment: .center)
@@ -85,5 +100,6 @@ struct TripCard: View {
 
     TripFeed(trips: [trip, trip2], isLoading: false, onRefresh: {}, loadTrips: {})
             .environment(LocationViewModel(user: user))
+            .environment(AppViewModel(user: user))
 
 }

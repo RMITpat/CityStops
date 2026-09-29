@@ -13,17 +13,25 @@ import MapKit
 struct CreateRouteView: View {
     @Environment(LocationViewModel.self) var locationVM: LocationViewModel
     @Environment(AppViewModel.self) var appVM: AppViewModel
+    @Environment(TripCreationViewModel.self) var tripCreationVM: TripCreationViewModel
+    @Environment(Router.self) var router: Router
 
+    // Routes between selectionPlaces
+    @State var routes: [MKRoute] = []
+    
+    @State var error: String?
+    
     var body: some View {
         @Bindable var locationVM = locationVM
+        @Bindable var tripCreationVM = tripCreationVM
 
         // Map interface
         Map (position: $locationVM.currentLocation) {
-            ForEach(locationVM.selectedPlaces, id: \.self) { place in
+            ForEach(tripCreationVM.selectedPlaces, id: \.self) { place in
                 Marker(item: place)
                     .mapItemDetailSelectionAccessory(.callout)
             }
-            ForEach(locationVM.routes, id: \.self) { route in
+            ForEach(routes, id: \.self) { route in
                 MapPolyline(route)
                     .stroke(.blue, lineWidth: 5)
             }
@@ -31,14 +39,18 @@ struct CreateRouteView: View {
         }
         .frame(height:400)
         // Route between stops
-        .onAppear {
-            locationVM.createRoute()
-            print(locationVM.routes.count)
+        .task {
+            do {
+                routes = try await locationVM.createRoute(selectedPlaces: tripCreationVM.selectedPlaces)
+            } catch {
+                self.error = error.localizedDescription
+            }
+            
         }
         // Scroll View of chosen locations
         ScrollView {
              VStack {
-                 ForEach(locationVM.selectedPlaces, id: \.identifier) { result in
+                 ForEach(tripCreationVM.selectedPlaces, id: \.identifier) { result in
                      VStack {
                          // and any other details such as place type
                          Text(result.name ?? "no name")
@@ -49,10 +61,24 @@ struct CreateRouteView: View {
              }
          }
         Spacer()
-        // FIXME: TESTING PURPOSES ONLY, REMOVE THIS
-        Text(locationVM.getTrip().toString())
+      
         Button("Finish") {
-            appVM.saveTrip(trip: locationVM.getTrip())
+            Task {
+                do {
+                    try await appVM.saveTrip(name: tripCreationVM.name, selectedPlaces: tripCreationVM.selectedPlaces, preferences: tripCreationVM.preferences.map {$0.preference })
+                    tripCreationVM.clear()
+                    router.tripCreationRoute.removeAll()
+                    router.selectedTab = .create
+                } catch {
+                    self.error = error.localizedDescription
+                }
+            }
+        }
+        if let error {
+            Text(error)
+                .font(.footnote)
+                .foregroundStyle(.red)
+                .multilineTextAlignment(.center)
         }
         
     }
@@ -60,9 +86,12 @@ struct CreateRouteView: View {
 
 #Preview {
     let user = AppUser(id: "Test", email: "test@email.com")
+
     NavigationStack {
         CreateRouteView()
             .environment(LocationViewModel(user: user))
             .environment(AppViewModel(user: user))
+            .environment(TripCreationViewModel())
+
     }
 }

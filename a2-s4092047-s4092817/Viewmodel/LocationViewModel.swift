@@ -17,39 +17,22 @@ import _MapKit_SwiftUI
 @Observable
 final class LocationViewModel: NSObject, CLLocationManagerDelegate {
     
-    // When currentRegion updates:
-    // - update currentLocation so that the map in CreateTripView updates
-    // - update request so that search results are relevant
-    private var currentRegion: MKCoordinateRegion {
+    /// The region of the user.
+    /// When currentRegion updates:
+    /// - update currentLocation so that the map in CreateTripView updates
+    /// - update request so that search results are relevant
+    var currentRegion: MKCoordinateRegion {
         didSet {
             currentLocation = .region(currentRegion)
         }
     }
-        
-    // The place search request inputted by the user
-    var searchRequest: String = ""
     
-    // The results of a place search
-    var searchResults: [MKMapItem] = []
-    
-    // The current region, represented as MapCameraPosition so it can be displayed by Map
+    /// The current region, represented as MapCameraPosition so it can be displayed by Map
     var currentLocation: MapCameraPosition
     
-    // Places selected by the user to be a part of the trip
-    var selectedPlaces: [MKMapItem] = []
-
-    // Routes between selectionPlaces
-    var routes: [MKRoute] = []
-    
-    // The current route finding task created by createRoute. Stored here so that it can be cancelled if a new request is made
-    private var currentRouteTask: Task<Void, Never>?
-    
-    // The logged in user
+    /// The logged in user
     private let user: AppUser
     
-    var name: String = ""
-    
-    var preferences: [String] = []
     
     init(user: AppUser) {
         let sydneyRegion = MKCoordinateRegion(
@@ -62,7 +45,7 @@ final class LocationViewModel: NSObject, CLLocationManagerDelegate {
                 longitudeDelta: 0.1
             )
         )
-
+        
         currentRegion = sydneyRegion
         currentLocation = .region(sydneyRegion)
         
@@ -71,97 +54,84 @@ final class LocationViewModel: NSObject, CLLocationManagerDelegate {
         super.init()
     }
     
-    // Conduct a search of places the currently set request
-    func searchPlaces() {
-        let request: MKLocalSearch.Request = MKLocalSearch.Request()
-        request.region = currentRegion
+    /// Conduct a search of places the currently set request
+    func searchPlaces(searchRequest: String) async throws -> [MKMapItem] {
+        let request = MKLocalSearch.Request()
         request.naturalLanguageQuery = searchRequest
+        request.region = currentRegion
         
-        let search = MKLocalSearch(request: request)
+        let response = try await MKLocalSearch(request: request).start()
         
-        search.start { response, error in
-            guard let response = response else {
-                print("Error: \(error?.localizedDescription ?? "Unknown error").")
-                return
-            }
-            // Only take map items without nil identifiers, since we rely on identifiers for retrieving a place's details
-            self.searchResults = response.mapItems.filter { $0.identifier != nil}
+        return response.mapItems.filter {
+            $0.identifier != nil
         }
     }
-
+    
     var manager = CLLocationManager()
     
-    // Sets the current location based off authorisation
+    /// Sets the current location based off authorisation
     func checkLocationAuthorization() {
         
         // Sets delegate so that locationManagerDidChangeAuthorization and locationManager(didUpdateLocations) functions are called automatically
         manager.delegate = self
-                
+        
         switch manager.authorizationStatus {
             // If the user hasn't determined authorisation status, prompt it
-            case .notDetermined:
-                manager.requestWhenInUseAuthorization()
+        case .notDetermined:
+            manager.requestWhenInUseAuthorization()
             
             // If the user has given authorisation, request location
-            case .authorizedAlways, .authorizedWhenInUse:
-                manager.requestLocation()
-
-            default:
-                break
+        case .authorizedAlways, .authorizedWhenInUse:
+            manager.requestLocation()
+            
+        default:
+            break
             
         }
     }
     
-    // Triggered every time authorization status changes
+    /// Triggered every time authorization status changes
     func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
         checkLocationAuthorization()
     }
     
-    // Called when manager.requestLocation() succeeds
+    /// Called when manager.requestLocation() succeeds
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         currentRegion.center = locations.first?.coordinate ?? currentRegion.center
         
     }
     
-    // Called when manager.requestLocation() fails
+    /// Called when manager.requestLocation() fails
     func locationManager(
-            _ manager: CLLocationManager,
-            didFailWithError error: Error
-        ) {
-            print("Failed to get location:", error.localizedDescription)
-        }
+        _ manager: CLLocationManager,
+        didFailWithError error: Error
+    ) {
+        print("Failed to get location:", error.localizedDescription)
+    }
     
-    // Creates a route between all the locations currently stored in selectedPlaces, in the order they were added.
-    // Begins by checking if there was a previous, ongoing route request occurring and
-    // cancelling it if there was and replacing it with the new one.
-    func createRoute() {
-        currentRouteTask?.cancel()
-        routes.removeAll()
+    /// Creates a route between all the locations currently stored in selectedPlaces, in the order they were added.
+    /// Begins by checking if there was a previous, ongoing route request occurring and
+    /// cancelling it if there was and replacing it with the new one.
+    func createRoute(selectedPlaces: [MKMapItem]) async throws -> [MKRoute] {
+        var routes: [MKRoute] = []
         
-        let directionsRequest: MKDirections.Request = MKDirections.Request()
-        currentRouteTask = Task {
-            for (source, dest) in zip(selectedPlaces, selectedPlaces.dropFirst()) {
-                directionsRequest.source = source
-                directionsRequest.destination = dest
-                directionsRequest.transportType = MKDirectionsTransportType.walking
-                
-                let directions = MKDirections(request: directionsRequest)
-                let response = try? await directions.calculate()
-                if let route = response?.routes.first {
-                    routes.append(route)
-                }
+        for (source, dest) in zip(selectedPlaces, selectedPlaces.dropFirst()) {
+            // If the user has closed the view cancel this task. Will still finish calculating the last directions however.
+            if Task.isCancelled {
+                break
             }
-                  
+            let directionsRequest: MKDirections.Request = MKDirections.Request()
+            directionsRequest.source = source
+            directionsRequest.destination = dest
+            directionsRequest.transportType = MKDirectionsTransportType.walking
+            
+            let directions = MKDirections(request: directionsRequest)
+            let response = try? await directions.calculate()
+            if let route = response?.routes.first {
+                routes.append(route)
+            }
         }
+        return routes
+        
     }
-    
-    // Creates and returns the currently created trip
-    func getTrip() -> Trip {
-        // compact removes any selected places that do not have identifiers. There shouldn't be any anyways because locations without identifiers
-        // will not show up in search results
-        let placeIdentifiers = selectedPlaces.compactMap { $0.identifier }
-        return Trip(ownerId: user.id, name: name, places: placeIdentifiers, preferences: preferences)
-    }
-    
-
 }

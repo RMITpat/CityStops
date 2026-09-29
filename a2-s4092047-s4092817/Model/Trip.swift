@@ -25,6 +25,8 @@ struct Trip: Identifiable {
     let createdAt: Date
     let preferences: [String]
     
+    var mkMapItemPlaces: [MKMapItem] = []
+    
     init(id: String = "", ownerId: String, name: String, places: [MKMapItem.Identifier], createdAt: Date = Date(), preferences: [String]) {
         self.id = id
         self.ownerId = ownerId
@@ -32,25 +34,49 @@ struct Trip: Identifiable {
         self.places = places
         self.createdAt = createdAt
         self.preferences = preferences
-
+        
     }
-  
+    
     
     var asDictionary: [String: Any] {
         let rawValueIdentifiers: [String] = places.map { $0.rawValue }
         
         return [
-                "id": id,
-                "ownerId": ownerId,
-                "name": name,
-                "places": rawValueIdentifiers,
-                "createdAt" : createdAt,
-                "preferences" : preferences
-            ]
+            "id": id,
+            "ownerId": ownerId,
+            "name": name,
+            "places": rawValueIdentifiers,
+            "createdAt" : createdAt,
+            "preferences" : preferences
+        ]
     }
     
+    // Converts a Firestore document back into Project.
+    init?(snapshot: QueryDocumentSnapshot) {
+        
+        let data = snapshot.data()
+        
+        guard
+            let ownerId = data["ownerId"] as? String,
+            let name = data["name"] as? String,
+            let places = data["places"] as? [String],
+            let preferences = data["preferences"] as? [String],
+            let timestamp = data["createdAt"] as? Timestamp
+                
+        else {
+            return nil
+        }
+        
+        id = snapshot.documentID
+        self.ownerId = ownerId
+        self.name = name
+        self.places = places.compactMap { MKMapItem.Identifier(rawValue: $0) }
+        self.preferences = preferences
+        createdAt = timestamp.dateValue()
+    }
     //FIXME: FOR TESTING PURPOSES ONLY (FOR NOW)
     func toString() -> String {
         return "\(id) \(ownerId) \(name) \(places) \(createdAt) \(preferences)"
     }
+    
 }

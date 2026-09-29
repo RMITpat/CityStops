@@ -38,5 +38,6 @@ final class TripCreationViewModel {
     func clear() {
         name.removeAll()
         selectedPlaces.removeAll()
+        selectedPreferences.removeAll()
     }
 }

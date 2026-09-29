@@ -70,6 +70,8 @@ struct CreateTripView: View {
                             .contentShape(Rectangle())
                             .onTapGesture {
                                 searchRequest = term.term
+                                startSearch()
+                                
                             }
                             Divider()
                         }
@@ -79,14 +81,8 @@ struct CreateTripView: View {
             
             // MARK: "Search" Button
             Button("Search") {
-                Task {
-                    do {
-                        searchResults = try await locationVM.searchPlaces(searchRequest: searchRequest)
-                    } catch {
-                        // TODO: display errors somewhere
-                    }
-                }
-                searchTermVM.insert(searchTerm: searchRequest)
+                
+                startSearch()
             }
             .buttonStyle(.glassProminent)
             
@@ -128,6 +124,18 @@ struct CreateTripView: View {
                 prompt: "Search for a place",
             )
         }
+    
+    func startSearch() {
+        searchResults.removeAll()
+        Task {
+            do {
+                searchResults = try await locationVM.searchPlaces(searchRequest: searchRequest)
+            } catch {
+                // TODO: display errors somewhere
+            }
+        }
+        searchTermVM.insert(searchTerm: searchRequest)
+    }
 }
 
 
@@ -137,6 +145,7 @@ struct CreateTripView: View {
         CreateTripView()
             .environment(LocationViewModel(user: user))
             .environment(TripCreationViewModel())
+            .environment(SearchTermViewModel())
 
     }
 }

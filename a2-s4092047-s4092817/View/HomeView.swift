@@ -13,21 +13,14 @@ import MapKit
 // TODO: MOVE SIGN OUT TO SETTINGS PAGE
 struct HomeView: View {
     @Environment(AppViewModel.self) var appVM: AppViewModel
-    @Environment(LocationViewModel.self) var locationVM: LocationViewModel
+
     var body: some View {
         @Bindable var appVM = appVM
-        ScrollView {
-            VStack {
-                ForEach(appVM.tripFeed, id: \.id) { trip in
-                    TripCard(trip: trip)
-                }
-                if (appVM.isLoading) {
-                    ProgressView()
-                }
-                Spacer()
-            }
-        }.onAppear {
-            appVM.loadAllTrips()
+
+        TripFeed(trips: appVM.tripFeed, isLoading: appVM.isLoading) {
+            appVM.refreshFeed()
+        } loadTrips: {
+            appVM.loadTrips()
         }
     }
 }

@@ -15,6 +15,7 @@ import MapKit
 struct CreateTripView: View {
     @Environment(LocationViewModel.self) var locationVM: LocationViewModel
     @Environment(TripCreationViewModel.self) var tripCreationVM: TripCreationViewModel
+    @Environment(SearchTermViewModel.self) var searchTermVM: SearchTermViewModel
     @Environment(Router.self) var router: Router
 
     // The place search request inputted by the user
@@ -28,6 +29,7 @@ struct CreateTripView: View {
     var body: some View {
         @Bindable var locationVM = locationVM
         @Bindable var tripCreationVM = tripCreationVM
+
 
         VStack {
             // TODO: Need to figure out if displaying map is suitable for interface, or take another approach
@@ -43,6 +45,38 @@ struct CreateTripView: View {
 //                locationVM.checkLocationAuthorization()
 //            }
             
+            
+            if searchRequest.isEmpty {
+                
+                    VStack(alignment: .leading) {
+                        Text("Recently searched:")
+                            .font(.title2)
+                        
+                        // Past searches
+                        ForEach(searchTermVM.pastSearches, id: \.id) { term in
+                            HStack {
+                                Image(systemName: "clock.fill")
+                                Text(term.term)
+                                    .font(.title3)
+                                    .bold()
+                                    .foregroundStyle(.primary)
+                                    
+                                Spacer()
+                                Button("", systemImage: "xmark.circle.fill") {
+                                    searchTermVM.delete(searchTerm: term)
+                                }.font(.title3)
+                            }
+                            .padding()
+                            .contentShape(Rectangle())
+                            .onTapGesture {
+                                searchRequest = term.term
+                            }
+                            Divider()
+                        }
+                    }
+                .frame(maxWidth: .infinity, alignment: .leading)
+            }
+            
             // MARK: "Search" Button
             Button("Search") {
                 Task {
@@ -52,8 +86,10 @@ struct CreateTripView: View {
                         // TODO: display errors somewhere
                     }
                 }
+                searchTermVM.insert(searchTerm: searchRequest)
             }
             .buttonStyle(.glassProminent)
+            
             
             // MARK: Location search results
             ScrollView {
@@ -66,6 +102,9 @@ struct CreateTripView: View {
             }
             
             .padding(.horizontal, 16)
+        }
+        .onAppear {
+            searchTermVM.fetch()
         }
         
         // MARK: "Next" Button

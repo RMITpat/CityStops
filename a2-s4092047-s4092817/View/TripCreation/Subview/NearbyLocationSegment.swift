@@ -20,9 +20,9 @@ struct NearbyLocationSegment: View {
     private let converter = OpenTripMapConverter()
     private let service = OpenTripMapService()
 
-    private let radius = 3000
-    private let limit = 10
-    private let maxResults = 5
+    private let radius = 5000
+    private let limit = 15
+    private let maxResults = 3
 
     @State private var locations: [MKMapItem] = []
     @State private var isLoading = false

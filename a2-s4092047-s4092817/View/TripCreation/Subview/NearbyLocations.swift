@@ -9,6 +9,10 @@ import SwiftUI
 import CoreLocation
 
 struct NearbyLocations: View {
+    // MARK: View Models
+    @Environment(LocationViewModel.self) var locationVM: LocationViewModel
+    @Environment(TripCreationViewModel.self) var tripCreationVM: TripCreationViewModel
+    
     // Replace with the user's real location when you have it
         var coordinate = CLLocationCoordinate2D(latitude: -33.8688, longitude: 151.2093)
         var category = "foods"   // e.g. "foods", "shops", "historic"
@@ -22,6 +26,9 @@ struct NearbyLocations: View {
         private let service = OpenTripMapService()
 
         var body: some View {
+            @Bindable var locationVM = locationVM
+            @Bindable var tripCreationVM = tripCreationVM
+            
             NavigationStack {
                 Group {
                     if isLoading {
@@ -52,7 +59,7 @@ struct NearbyLocations: View {
                         .listStyle(.plain)
                     }
                 }
-                .navigationTitle("Nearby")
+                .navigationTitle("Popular Stops")
             }
             .task {
                 await loadLocations()
@@ -80,6 +87,11 @@ struct NearbyLocations: View {
         }
     }
 
-    #Preview {
+#Preview {
+    let user = AppUser(id: "Test", email: "test@email.com")
+    NavigationStack {
         NearbyLocations()
+            .environment(LocationViewModel(user: user))
+            .environment(TripCreationViewModel())
     }
+}

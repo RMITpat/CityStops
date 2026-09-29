@@ -7,7 +7,7 @@
 
 /// Fixed list of preferences, displayed in the creating daytrip user flow.
 var preferencesList : [Preference] = [Preference(preference: "Food", preferenceSearch: "restaurants", icon: "fork.knife"),
-                                      Preference(preference: "Landmarks and Sightseeing", preferenceSearch: "history", icon: "building.columns"),
+                                      Preference(preference: "Landmarks and Sightseeing", preferenceSearch: "historic", icon: "building.columns"),
                                       Preference(preference: "Shopping", preferenceSearch: "malls", icon: "bag"),
                                       Preference(preference: "Nature", preferenceSearch: "natural", icon: "leaf"),
                                       Preference(preference: "Sports and Amusement", preferenceSearch: "sport", icon: "basketball")

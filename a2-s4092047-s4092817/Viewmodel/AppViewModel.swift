@@ -51,7 +51,7 @@ import MapKit
         isLoading = true
        
         let placeIdentifiers = selectedPlaces.compactMap { $0.identifier }
-        let newTrip = Trip(ownerId: user.id, name: name, places: placeIdentifiers, preferences: preferences)
+        let newTrip = Trip(ownerUsername: user.username, ownerId: user.id, name: name, places: placeIdentifiers, preferences: preferences)
         try await tripService.saveTrip(trip: newTrip)
             
         

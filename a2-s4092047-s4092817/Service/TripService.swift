@@ -43,7 +43,7 @@ final class TripServiceImpl: TripService {
     func saveTrip(trip: Trip) async throws {
         let ref = db.collection("trips").document()
         
-        let tripWithId = Trip(id: ref.documentID, ownerId: trip.ownerId, name: trip.name, places: trip.places, createdAt: trip.createdAt, preferences: trip.preferences)
+        let tripWithId = Trip(id: ref.documentID, ownerUsername: trip.ownerUsername, ownerId: trip.ownerId, name: trip.name, places: trip.places, createdAt: trip.createdAt, preferences: trip.preferences)
         try await ref.setData(tripWithId.asDictionary)
     }
     

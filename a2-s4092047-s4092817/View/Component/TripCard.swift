@@ -27,10 +27,13 @@ struct TripCard: View {
                     VStack(alignment: .leading) {
                         Text(trip.name)
                             .font(.title2)
+                            .bold()
                         Text(trip.preferences.sorted().joined(separator: ", "))
                             .font(.subheadline)
+                            .foregroundStyle(.gray)
                     }
                     Spacer()
+                    Text("By \(trip.ownerUsername)")
                     
                 }
             }
@@ -59,6 +62,13 @@ struct TripCard: View {
                 }
                 
             }
+            HStack(alignment: .center) {
+                Button("Save", systemImage: "bookmark") {
+                    
+                }.font(.title2)
+            }
+            .frame(maxWidth: .infinity, alignment: .center)
+
         }
         .padding(18)
 
@@ -68,8 +78,8 @@ struct TripCard: View {
 
 #Preview {
     let user = AppUser(id: "Test", username: "test", email: "test@email.com")
-    let trip = Trip(id: "1", ownerId: "", name: "Cool trip", places: [], preferences: ["Food", "Landmarks"])
-    let trip2 = Trip(id: "", ownerId: "", name: "Cool trip again", places: [], preferences: ["Food", "Sightseeing"])
+    let trip = Trip(id: "1", ownerUsername: "conan", ownerId: "", name: "Cool trip", places: [], preferences: ["Food", "Landmarks"])
+    let trip2 = Trip(id: "", ownerUsername: "bob", ownerId: "", name: "Cool trip again", places: [], preferences: ["Food", "Sightseeing"])
 //
 //    TripCard(trip: trip)
 

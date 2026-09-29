@@ -10,7 +10,7 @@ import SwiftUI
 import MapKit
 
 /// Displays nearby locations for one preference.
-private struct NearbyLocationSection: View {
+private struct NearbyLocationSegment: View {
 
     let preference: String
     let coordinate: CLLocationCoordinate2D

@@ -30,7 +30,7 @@ struct NearbyLocations: View {
                 ) { preference in
 
                     NearbyLocationSegment(
-                        preference: preference.preferenceSearch,
+                        preference: preference,
                         coordinate: locationVM.currentRegion.center,
                         selectedPlaces: $tripCreationVM.selectedPlaces
                     )

@@ -57,7 +57,7 @@ struct CreateTripView: View {
 
             switch mode {
             case .first:  NearbyLocations()
-            case .second: NearbyLocations()
+            case .second: SearchLocations()
             }
             
         // MARK: Search history

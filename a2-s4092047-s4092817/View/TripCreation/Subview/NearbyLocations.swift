@@ -8,6 +8,8 @@
 import SwiftUI
 import CoreLocation
 
+/// Subview for ``CreateTripView`` that shows nearby, top-rated locations based on
+/// user's ``Preference`` selections in ``TripPreferenceView``.
 struct NearbyLocations: View {
     // MARK: View Models
     @Environment(LocationViewModel.self) var locationVM: LocationViewModel

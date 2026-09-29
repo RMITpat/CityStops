@@ -79,5 +79,6 @@ struct TripPreferenceView: View {
         TripPreferenceView()
             .environment(LocationViewModel(user: user))
             .environment(TripCreationViewModel())
+            .environment(Router())
     }
 }

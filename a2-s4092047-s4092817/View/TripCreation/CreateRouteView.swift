@@ -92,6 +92,7 @@ struct CreateRouteView: View {
             .environment(LocationViewModel(user: user))
             .environment(AppViewModel(user: user))
             .environment(TripCreationViewModel())
+            .environment(Router())
 
     }
 }

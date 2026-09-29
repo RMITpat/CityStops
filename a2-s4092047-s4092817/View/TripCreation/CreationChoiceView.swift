@@ -67,6 +67,7 @@ struct CreationChoiceView: View {
     NavigationStack {
         CreationChoiceView()
             .environment(LocationViewModel(user: user))
+            .environment(Router())
 
     }
 }

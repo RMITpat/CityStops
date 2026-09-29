@@ -49,6 +49,7 @@ struct CreateTripView: View {
 //            .onAppear {
 //                locationVM.checkLocationAuthorization()
 //            }
+            
             Picker("Mode", selection: $mode) {
                 ForEach(Mode.allCases) { Text($0.rawValue).tag($0) }
             }
@@ -60,66 +61,8 @@ struct CreateTripView: View {
             case .second: SearchLocations()
             }
             
-        // MARK: Search history
-            if searchRequest.isEmpty {
-                
-                    VStack(alignment: .leading) {
-                        Text("Recently searched:")
-                            .font(.title2)
-                        
-                        // Past searches
-                        ForEach(searchTermVM.pastSearches, id: \.id) { term in
-                            HStack {
-                                Image(systemName: "clock.fill")
-                                Text(term.term)
-                                    .font(.title3)
-                                    .bold()
-                                    .foregroundStyle(.primary)
-                                    
-                                Spacer()
-                                Button("", systemImage: "xmark.circle.fill") {
-                                    searchTermVM.delete(searchTerm: term)
-                                }.font(.title3)
-                            }
-                            .padding()
-                            .contentShape(Rectangle())
-                            .onTapGesture {
-                                searchRequest = term.term
-                            }
-                            Divider()
-                        }
-                    }
-                .frame(maxWidth: .infinity, alignment: .leading)
-            }
-            
-            // MARK: "Search" Button
-            Button("Search") {
-                Task {
-                    do {
-                        searchResults = try await locationVM.searchPlaces(searchRequest: searchRequest)
-                    } catch {
-                        // TODO: display errors somewhere
-                    }
-                }
-                searchTermVM.insert(searchTerm: searchRequest)
-            }
-            .buttonStyle(.glassProminent)
-            
-            
-            // MARK: Location search results
-            ScrollView {
-                VStack {
-                    // Generate location detail cards
-                    ForEach(searchResults, id: \.identifier) { result in
-                        LocationCardView(location: result, selectedPlaces: $tripCreationVM.selectedPlaces)
-                    }
-                }
-            }
-            
-            .padding(.horizontal, 16)
-        }
-        .onAppear {
-            searchTermVM.fetch()
+            // Keep Picker at top of View
+            Spacer()
         }
         
         // MARK: "Next" Button
@@ -135,13 +78,7 @@ struct CreateTripView: View {
         }
             .navigationTitle(Text("Select Stops"))
             .navigationSubtitle(Text("Add stops to your trip!"))
-        
-            // MARK: Location Search Bar
-            .searchable(
-                text: $searchRequest,
-                placement: .navigationBarDrawer(displayMode: .always),
-                prompt: "Search for a place",
-            )
+
         }
 }
 

@@ -48,7 +48,6 @@
 		8DB84A0230596DF5004206E7 /* Exceptions for "a2-s4092047-s4092817" folder in "a2-s4092047-s4092817Tests" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				Secrets.plist,
 				View/HomeView.swift,
 			);
 			target = 8D6264EA30528A4D00D842C2 /* a2-s4092047-s4092817Tests */;
@@ -56,7 +55,6 @@
 		8DB84A0330596DF5004206E7 /* Exceptions for "a2-s4092047-s4092817" folder in "a2-s4092047-s4092817UITests" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				Secrets.plist,
 				View/HomeView.swift,
 			);
 			target = 8D6264F430528A4D00D842C2 /* a2-s4092047-s4092817UITests */;

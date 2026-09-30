@@ -16,17 +16,23 @@ struct HomeView: View {
 
     var body: some View {
         @Bindable var appVM = appVM
-        
-        TripFeed(trips: appVM.tripFeed, isLoading: appVM.isLoading) {
-            appVM.refreshFeed()
-        } loadTrips: {
-            appVM.loadTrips()
+        VStack (alignment: .leading) {
+            Text("Your Feed").font(.largeTitle).padding()
+            
+            TripFeed(trips: appVM.tripFeed, isLoading: appVM.isLoading) {
+                appVM.refreshFeed()
+            } loadTrips: {
+                appVM.loadTrips()
+            }
         }
     }
 }
 
 #Preview {
     NavigationStack {
+        let user = AppUser(id: "Test", username: "test", email: "test@email.com")
+
         HomeView()
+            .environment(AppViewModel(user: user ))
     }
 }

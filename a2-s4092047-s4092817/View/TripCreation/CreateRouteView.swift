@@ -65,7 +65,7 @@ struct CreateRouteView: View {
         Button("Finish") {
             Task {
                 do {
-                    try await appVM.saveTrip(name: tripCreationVM.name, selectedPlaces: tripCreationVM.selectedPlaces, preferences: tripCreationVM.preferences.map {$0.preference })
+                    try await appVM.saveTrip(name: tripCreationVM.name, selectedPlaces: tripCreationVM.selectedPlaces, preferences: tripCreationVM.selectedPreferences.map {$0.preference })
                     tripCreationVM.clear()
                     router.tripCreationRoute.removeAll()
                     router.selectedTab = .create

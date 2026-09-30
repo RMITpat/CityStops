@@ -51,9 +51,13 @@ struct LoginView: View {
                 // Log In / Sign Up button
                 Button(action: {
                     if isSigningUp {
-                        auth.signUp()
+                        Task {
+                            await auth.signUp()
+                        }
                     } else {
-                        auth.signIn()
+                        Task {
+                            await auth.signIn()
+                        }
                     }
                 }) {
                     Text(isSigningUp ? "Sign Up" : "Log In")
@@ -66,7 +70,9 @@ struct LoginView: View {
                 
                 // Log In via Google
                 GoogleSignInButton {
-                    auth.signInWithGoogle()
+                    Task {
+                        await auth.signInWithGoogle()
+                    }
                 }
                 .frame(height: 50)
                 .disabled(auth.isLoading)

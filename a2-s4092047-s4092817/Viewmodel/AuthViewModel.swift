@@ -30,9 +30,12 @@ import Foundation
     }
     
     // Init used by mocks
-    init(service: AuthService) {
+    init(service: AuthService, email: String, password: String, username: String) {
         self.authService = service
         self.signedInUser = service.currentUser
+        self.email = email
+        self.password = password
+        self.username = username
     }
     
     /// Sign up with email and password

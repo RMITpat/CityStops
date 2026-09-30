@@ -8,31 +8,59 @@
 import XCTest
 @testable import a2_s4092047_s4092817
 
+@MainActor
+final class FakeAuthService : AuthService {
+    let currentUser: AppUser? = AppUser(id: "1", username: "Walter", email: "waltergod@email.com")
+    var signInWithGoogleCalled: Bool = false
+    var signInWithEmailCalled: Bool = false
+    var signUpWithEmailCalled: Bool = false
+    var signOutCalled: Bool = false
+    
+    func signInWithGoogle() async throws -> AppUser {
+        signInWithGoogleCalled = true
+        return currentUser!
+    }
+    
+    func signOut() throws {
+        signOutCalled = true
+        
+    }
+    
+    func signInWithEmail(email: String, password: String) async throws -> AppUser {
+        signInWithEmailCalled = true
+        return currentUser!
+    }
+    
+    func signUpWithEmail(email: String, password: String, username: String) async throws -> AppUser {
+        signUpWithEmailCalled = true
+        return currentUser!
+    }
+    
+    
+}
+
+@MainActor
 final class a2_s4092047_s4092817Tests: XCTestCase {
-
+    var authVM: AuthViewModel!
+    var fakeAuthService: FakeAuthService!
+    
+    // By default initialise authVM with valid credentials. Set it manually in test to test invalid credentials
     override func setUpWithError() throws {
-        // Put setup code here. This method is called before the invocation of each test method in the class.
+        let validEmail = "walter@email.com"
+        let validPassword = "WalterGod67@"
+        let validUsername = "WalterTheBest"
+        fakeAuthService = FakeAuthService()
+        authVM = AuthViewModel(service: fakeAuthService, email: validEmail, password: validPassword, username: validUsername)
     }
 
-    override func tearDownWithError() throws {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
+
+    func testSignUpFails() throws {
+        authVM = AuthViewModel(service: fakeAuthService, email: "walter", password: "walterpassword", username: "walterthegod")
+        authVM.signUp()
+        XCTAssertFalse(fakeAuthService.signUpWithEmailCalled)
     }
 
-    func testExample() throws {
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
-        // Any test you write for XCTest can be annotated as throws and async.
-        // Mark your test throws to produce an unexpected failure when your test encounters an uncaught error.
-        // Mark your test async to allow awaiting for asynchronous code to complete. Check the results with assertions afterwards.
-        // XCTest Documentation
-        // https://developer.apple.com/documentation/xctest
-    }
 
-    func testPerformanceExample() throws {
-        // This is an example of a performance test case.
-        self.measure {
-            // Put the code you want to measure the time of here.
-        }
-    }
+   
 
 }

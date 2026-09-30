@@ -42,7 +42,7 @@ struct NearbyLocationSegment: View {
                     Text(errorMessage)
                         .foregroundStyle(.secondary)
                     Button("Retry") {
-                        Task { await load() }
+                        Task { await segmentVM.loadLocations(for: preference, near: coordinate) }
                     }
                     Spacer()
                 }
@@ -65,10 +65,6 @@ struct NearbyLocationSegment: View {
                 }
             }
         }
-        .task { await load() }
-    }
-
-    private func load() async {
-        await segmentVM.loadLocations(for: preference, near: coordinate)
+        .task { await segmentVM.loadIfNeeded(for: preference, near: coordinate) }
     }
 }

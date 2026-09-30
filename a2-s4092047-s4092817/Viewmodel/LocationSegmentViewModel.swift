@@ -19,23 +19,33 @@ final class LocationSegmentViewModel {
     private(set) var isLoading = false
     private(set) var errorMessage: String?
 
+    // var for checking if locations in View have loaded once; prevents multiple API calls
+    private var hasLoaded = false
+
     // MARK: - Dependencies
     private let converter = OpenTripMapConverter()
     private let service = OpenTripMapService()
 
-    // MARK: - Set REST API query values
+    // MARK: - Preset REST API query values
     private let radius = 5000
     private let limit = 15
     private let maxResults = 3
 
-    /// load OpenMapTrip API repsonse locations as ``MKMapItem``, if they exist in Apple's Map database.
+    /// runs API calls only if the View is pushed into the ``NavigationStack`` for the first time, to prevent duplicate calls.
+    /// This allows API responses to persist if the user backtracks into the View.
+    func loadIfNeeded(for preference: Preference,
+                      near coordinate: CLLocationCoordinate2D) async {
+        guard !hasLoaded, !isLoading else { return }
+        await loadLocations(for: preference, near: coordinate)
+    }
+
+    /// always fetches API response data; called directly by user interface when API call error occurs.
     func loadLocations(for preference: Preference,
                        near coordinate: CLLocationCoordinate2D) async {
         isLoading = true
         errorMessage = nil
         defer { isLoading = false }
-        
-        // fetch OpenMapTripAPI results
+
         do {
             let results = try await service.fetchNearbyPointsByCategory(
                 location: coordinate,
@@ -44,7 +54,6 @@ final class LocationSegmentViewModel {
                 returnLimit: limit
             )
 
-            // attempt to convert API results into MKMapItems, if they exist in Apple's database
             var mapItems: [MKMapItem] = []
             for place in results where !place.name.isEmpty {
                 if mapItems.count >= maxResults { break }
@@ -55,9 +64,12 @@ final class LocationSegmentViewModel {
                 }
             }
             locations = mapItems
-            
-            // if no locations for a preference are found, show error
+            hasLoaded = true   // only mark "done" on success
+
         } catch {
+            // .task cancels when the view disappears; don't show that as an error
+            if Task.isCancelled || (error as? URLError)?.code == .cancelled { return }
+
             locations = []
             errorMessage = """
             Couldn't load places for \(preference.preference).

@@ -20,6 +20,7 @@ struct Trip: Identifiable {
     
     let id: String
     let ownerId: String
+    let ownerUsername: String
     let name: String
     let places: [MKMapItem.Identifier]
     let createdAt: Date
@@ -27,9 +28,10 @@ struct Trip: Identifiable {
     
     var mkMapItemPlaces: [MKMapItem] = []
     
-    init(id: String = "", ownerId: String, name: String, places: [MKMapItem.Identifier], createdAt: Date = Date(), preferences: [String]) {
+    init(id: String = "", ownerUsername:String, ownerId: String, name: String, places: [MKMapItem.Identifier], createdAt: Date = Date(), preferences: [String]) {
         self.id = id
         self.ownerId = ownerId
+        self.ownerUsername = ownerUsername
         self.name = name
         self.places = places
         self.createdAt = createdAt
@@ -44,6 +46,7 @@ struct Trip: Identifiable {
         return [
             "id": id,
             "ownerId": ownerId,
+            "ownerUsername": ownerUsername,
             "name": name,
             "places": rawValueIdentifiers,
             "createdAt" : createdAt,
@@ -58,6 +61,7 @@ struct Trip: Identifiable {
         
         guard
             let ownerId = data["ownerId"] as? String,
+            let ownerUsername = data["ownerUsername"] as? String,
             let name = data["name"] as? String,
             let places = data["places"] as? [String],
             let preferences = data["preferences"] as? [String],
@@ -69,6 +73,7 @@ struct Trip: Identifiable {
         
         id = snapshot.documentID
         self.ownerId = ownerId
+        self.ownerUsername = ownerUsername
         self.name = name
         self.places = places.compactMap { MKMapItem.Identifier(rawValue: $0) }
         self.preferences = preferences
@@ -76,7 +81,7 @@ struct Trip: Identifiable {
     }
     //FIXME: FOR TESTING PURPOSES ONLY (FOR NOW)
     func toString() -> String {
-        return "\(id) \(ownerId) \(name) \(places) \(createdAt) \(preferences)"
+        return "\(id) \(ownerId) \(ownerUsername) \(name) \(places) \(createdAt) \(preferences)"
     }
     
 }

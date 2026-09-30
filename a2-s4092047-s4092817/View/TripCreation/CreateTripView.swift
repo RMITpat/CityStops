@@ -50,6 +50,7 @@ struct CreateTripView: View {
     //                locationVM.checkLocationAuthorization()
     //            }
 
+   
             Picker("Mode", selection: $mode) {
                 ForEach(Mode.allCases) { Text($0.rawValue).tag($0) }
             }
@@ -85,6 +86,7 @@ struct CreateTripView: View {
         }
         .navigationTitle(Text("Select Stops"))
         .navigationSubtitle(Text("Add stops to your trip!"))
+
     }
 }
 
@@ -97,6 +99,7 @@ struct CreateTripView: View {
             .environment(TripCreationViewModel())
             .environment(SearchTermViewModel())
             .environment(Router())
+
 
     }
 }

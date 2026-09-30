@@ -27,3 +27,4 @@ GoogleService-Info.plist
 .env
 .env.*
 !.env.example
+Secrets.plist

@@ -139,6 +139,7 @@ final class a2_s4092047_s4092817Tests: XCTestCase {
         XCTAssertNil(fakeAuthService.currentUser)
     }
     
+    /// Trigger a FakeAuthService error by setting failSignOut to true. Assert that this error is set in authVM
     func testSignOutError() throws {
         fakeAuthService.failSignOut = true
 

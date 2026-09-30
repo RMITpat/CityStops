@@ -12,13 +12,15 @@ enum TestError : Error {
     case signInFail
     case signUpFail
     case signInWithGoogleFail
+    case signOutFail
 }
 
 @MainActor
 final class FakeAuthService : AuthService {
-    let currentUser: AppUser? = AppUser(id: "1", username: "Walter", email: "waltergod@email.com")
+    var currentUser: AppUser? = AppUser(id: "1", username: "Walter", email: "waltergod@email.com")
     
     var failSignInWithGoogle = false
+    var failSignOut = false
     
     func signInWithGoogle() async throws -> AppUser {
         if (failSignInWithGoogle) {
@@ -29,7 +31,10 @@ final class FakeAuthService : AuthService {
     }
     
     func signOut() throws {
-        
+        if (failSignOut) {
+            throw TestError.signOutFail
+        }
+        currentUser = nil
     }
     
     func signInWithEmail(email: String, password: String) async throws -> AppUser {
@@ -126,6 +131,20 @@ final class a2_s4092047_s4092817Tests: XCTestCase {
         XCTAssertEqual(authVM.signedInUser?.email, "waltergod@email.com")
     }
 
-   
+    /// Assert that signing out sets the authVM signedInUser to nil, and calls the AuthService method evidenced by its currentUser becoming nil
+    func testSignOutSuccess() throws {
+        authVM.signOut()
+        
+        XCTAssertNil(authVM.signedInUser)
+        XCTAssertNil(fakeAuthService.currentUser)
+    }
+    
+    func testSignOutError() throws {
+        fakeAuthService.failSignOut = true
 
+        authVM.signOut()
+        
+        XCTAssertEqual(authVM.error, "The operation couldn’t be completed. (a2_s4092047_s4092817Tests.TestError error 3.)")
+        
+    }
 }

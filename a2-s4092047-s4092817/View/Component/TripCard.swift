@@ -25,6 +25,7 @@ struct TripCard: View {
         @Bindable var locationVM = locationVM
         @Bindable var appVM = appVM
         
+
         VStack(alignment: .leading) {
             
             VStack {
@@ -82,6 +83,7 @@ struct TripCard: View {
                             
                         }
                     }
+
                 }.font(.title2)
             }
             .frame(maxWidth: .infinity, alignment: .center)
@@ -103,5 +105,6 @@ struct TripCard: View {
     TripFeed(trips: [trip, trip2], isLoading: false, onRefresh: {}, loadTrips: {})
             .environment(LocationViewModel(user: user))
             .environment(AppViewModel(user: user))
+
 
 }

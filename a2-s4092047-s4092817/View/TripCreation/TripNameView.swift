@@ -52,6 +52,7 @@ struct TripNameView: View {
         TripNameView()
             .environment(LocationViewModel(user: user))
             .environment(TripCreationViewModel())
+            .environment(Router())
 
     }
 }

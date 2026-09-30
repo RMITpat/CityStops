@@ -39,46 +39,45 @@ import Foundation
     }
     
     /// Sign up with email and password
-    func signUp()  {
+    func signUp() async {
         
         if !validateSignUp(email: email, password: password, username: username) {
+            print("invalid creds")
             return
         }
-        Task {
-            do {
-                signedInUser = try await authService.signUpWithEmail(email: email, password: password, username: username)
-            } catch {
-                self.error = error.localizedDescription
-            }
+        
+        do {
+            signedInUser = try await authService.signUpWithEmail(email: email, password: password, username: username)
+        } catch {
+            self.error = error.localizedDescription
         }
+        
     }
     
     /// Sign in with email and password
-    func signIn() {
+    func signIn() async {
         error = nil
-        Task {
-            do {
-                signedInUser = try await authService.signInWithEmail(email: email, password: password)
-            } catch {
-                self.error = "Could not find a user with these credentials"
-            }
+        do {
+            signedInUser = try await authService.signInWithEmail(email: email, password: password)
+        } catch {
+            self.error = "Could not find a user with these credentials"
         }
+        
     }
     
     
     /// Signs the user in with Google through AuthService.
-    func signInWithGoogle() {
+    func signInWithGoogle() async {
         isLoading = true
 
-        Task {
-            do {
-                signedInUser = try await authService.signInWithGoogle()
-            } catch {
-                self.error = error.localizedDescription
-            }
-
-            self.isLoading = false
+        do {
+            signedInUser = try await authService.signInWithGoogle()
+        } catch {
+            self.error = error.localizedDescription
         }
+
+        self.isLoading = false
+        
     }
     
     /// Sign out of account.

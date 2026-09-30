@@ -54,12 +54,18 @@ final class a2_s4092047_s4092817Tests: XCTestCase {
     }
 
 
-    func testSignUpFails() throws {
+    func testSignUpFails() async throws {
         authVM = AuthViewModel(service: fakeAuthService, email: "walter", password: "walterpassword", username: "walterthegod")
-        authVM.signUp()
+        await authVM.signUp()
+        
         XCTAssertFalse(fakeAuthService.signUpWithEmailCalled)
     }
-
+    
+    func testSignUpSucceeds() async throws {
+        await authVM.signUp()
+        
+        XCTAssertTrue(fakeAuthService.signUpWithEmailCalled)
+    }
 
    
 

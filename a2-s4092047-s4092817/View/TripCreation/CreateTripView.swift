@@ -37,37 +37,44 @@ struct CreateTripView: View {
         @Bindable var tripCreationVM = tripCreationVM
 
         VStack {
-            // TODO: Need to figure out if displaying map is suitable for interface, or take another approach
+
             // Map interface
-//            Map (position: $locationVM.currentLocation) {
-//                ForEach(selectedPlaces, id: \.self) { place in
-//                    Marker(item: place)
-//                        .mapItemDetailSelectionAccessory(.callout)
-//                }
-//            }
-//            .frame(height:400)
-//            .onAppear {
-//                locationVM.checkLocationAuthorization()
-//            }
-            
+    //            Map (position: $locationVM.currentLocation) {
+    //                ForEach(selectedPlaces, id: \.self) { place in
+    //                    Marker(item: place)
+    //                        .mapItemDetailSelectionAccessory(.callout)
+    //                }
+    //            }
+    //            .frame(height:400)
+    //            .onAppear {
+    //                locationVM.checkLocationAuthorization()
+    //            }
+
             Picker("Mode", selection: $mode) {
                 ForEach(Mode.allCases) { Text($0.rawValue).tag($0) }
             }
             .pickerStyle(.segmented)
             .padding(.horizontal, 16)
 
-            switch mode {
-            case .first:  NearbyLocations()
-            case .second: SearchLocations()
+            // Keep both subviews alive so their state (and loaded results) survives switching
+            ZStack {
+                NearbyLocations()
+                    .opacity(mode == .first ? 1 : 0)
+                    .allowsHitTesting(mode == .first)
+                    .accessibilityHidden(mode != .first)
+
+                SearchLocations()
+                    .opacity(mode == .second ? 1 : 0)
+                    .allowsHitTesting(mode == .second)
+                    .accessibilityHidden(mode != .second)
             }
-            
+
             // Keep Picker at top of View
             Spacer()
         }
-        
+
         // MARK: "Next" Button
         .safeAreaInset(edge: .bottom) {
-           
             Button("Next") {
                 router.tripCreationRoute.append(TripCreationRoute.createRoute)
             }
@@ -76,10 +83,9 @@ struct CreateTripView: View {
             .padding(.horizontal, 16)
             .padding(.bottom, 24)
         }
-            .navigationTitle(Text("Select Stops"))
-            .navigationSubtitle(Text("Add stops to your trip!"))
-
-        }
+        .navigationTitle(Text("Select Stops"))
+        .navigationSubtitle(Text("Add stops to your trip!"))
+    }
 }
 
 

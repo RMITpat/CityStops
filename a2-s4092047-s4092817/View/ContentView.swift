@@ -66,20 +66,12 @@ struct ContentView: View {
         .task {
             searchTermVM.attach(modelContext: modelContext)
         }
-        .onChange(of: router.selectedTab) { oldTab, newTab in
-            if newTab == .home  {
-                appVM.refreshFeed()
-            } else if newTab == .profile {
-                appVM.refreshUserTrips()
-
-            }
-            
-        }
+     
     }
 }
 
 #Preview {
-    let user = AppUser(id: "Test", email: "test@email.com")
+    let user = AppUser(id: "Test", username: "test", email: "test@email.com")
     ContentView(signedInUser: user)
         
 }

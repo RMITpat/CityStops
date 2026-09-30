@@ -16,7 +16,7 @@ struct HomeView: View {
 
     var body: some View {
         @Bindable var appVM = appVM
-
+        
         TripFeed(trips: appVM.tripFeed, isLoading: appVM.isLoading) {
             appVM.refreshFeed()
         } loadTrips: {

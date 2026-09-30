@@ -22,6 +22,7 @@ struct TripFeed: View {
             LazyVStack {
                 ForEach(trips, id: \.id) { trip in
                     TripCard(trip: trip)
+                    Divider()
                 }
                 
                 // Invisible element. Since LazyVStacks only load elements when necessary, when this appears it mean the user has scrolled to the bottom of the ScrollView.

@@ -52,6 +52,7 @@ struct SearchLocations: View {
                         .contentShape(Rectangle())
                         .onTapGesture {
                             searchRequest = term.term
+                            startSearch()
                         }
                         Divider()
                     }
@@ -61,14 +62,7 @@ struct SearchLocations: View {
             
             // MARK: "Search" Button
             Button("Search") {
-                Task {
-                    do {
-                        searchResults = try await locationVM.searchPlaces(searchRequest: searchRequest)
-                    } catch {
-                        // TODO: display errors somewhere
-                    }
-                }
-                searchTermVM.insert(searchTerm: searchRequest)
+                startSearch()
             }
             .buttonStyle(.glassProminent)
             
@@ -95,10 +89,25 @@ struct SearchLocations: View {
             prompt: "Search for a place",
         )
     }
+    
+    
+    func startSearch() {
+           searchResults.removeAll()
+           Task {
+               do {
+                   searchResults = try await locationVM.searchPlaces(searchRequest: searchRequest)
+               } catch {
+                   // TODO: display errors somewhere
+               }
+           }
+           searchTermVM.insert(searchTerm: searchRequest)
+       }
+
 }
 
+
 #Preview {
-    let user = AppUser(id: "Test", email: "test@email.com")
+    let user = AppUser(id: "Test", username: "test", email: "test@email.com")
     NavigationStack {
         SearchLocations()
             .environment(LocationViewModel(user: user))

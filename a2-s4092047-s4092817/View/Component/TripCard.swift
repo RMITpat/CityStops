@@ -20,28 +20,70 @@ struct TripCard: View {
     @State var routes: [MKRoute] = []
     var body: some View {
         @Bindable var locationVM = locationVM
-        Text(trip.name)
-        Map(position: .constant(.automatic), interactionModes: []) {
-            ForEach(trip.mkMapItemPlaces, id: \.self) { place in
+        VStack(alignment: .leading) {
+            
+            VStack {
+                HStack {
+                    VStack(alignment: .leading) {
+                        Text(trip.name)
+                            .font(.title2)
+                            .bold()
+                        Text(trip.preferences.sorted().joined(separator: ", "))
+                            .font(.subheadline)
+                            .foregroundStyle(.gray)
+                    }
+                    Spacer()
+                    Text("By \(trip.ownerUsername)")
+                    
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            
+            Map(position: .constant(.automatic), interactionModes: []) {
+                ForEach(trip.mkMapItemPlaces, id: \.self) { place in
                     Marker(item: place)
                         .mapItemDetailSelectionAccessory(.callout)
                     ForEach(routes, id: \.self) { route in
-                                    MapPolyline(route)
-                                        .stroke(.blue, lineWidth: 5)
-                                }
+                        MapPolyline(route)
+                            .stroke(.blue, lineWidth: 5)
+                    }
+                }
+                
             }
-            
-        }
-        .frame(height: 400)
-        .task {
-            do {
-                routes = try await locationVM.createRoute(selectedPlaces: trip.mkMapItemPlaces, tripID: trip.id)
-            } catch {
-                // TODO: display error somewhere
+            .padding(5)
+            .frame(height: 350)
+            .clipShape(RoundedRectangle(cornerRadius: 50))
+
+            .task {
+                do {
+                    routes = try await locationVM.createRoute(selectedPlaces: trip.mkMapItemPlaces, tripID: trip.id)
+                } catch {
+                    // TODO: display error somewhere
+                }
+                
             }
-            
+            HStack(alignment: .center) {
+                Button("Save", systemImage: "bookmark") {
+                    
+                }.font(.title2)
+            }
+            .frame(maxWidth: .infinity, alignment: .center)
+
         }
+        .padding(18)
+
     }
 }
 
 
+#Preview {
+    let user = AppUser(id: "Test", username: "test", email: "test@email.com")
+    let trip = Trip(id: "1", ownerUsername: "conan", ownerId: "", name: "Cool trip", places: [], preferences: ["Food", "Landmarks"])
+    let trip2 = Trip(id: "", ownerUsername: "bob", ownerId: "", name: "Cool trip again", places: [], preferences: ["Food", "Sightseeing"])
+//
+//    TripCard(trip: trip)
+
+    TripFeed(trips: [trip, trip2], isLoading: false, onRefresh: {}, loadTrips: {})
+            .environment(LocationViewModel(user: user))
+
+}

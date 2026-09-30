@@ -8,6 +8,7 @@
 /// Daytrip preferences used as a filter for sorting daytrips.
 struct Preference {
     var preference : String
+    let preferenceSearch : String
     let icon: String
 }
 

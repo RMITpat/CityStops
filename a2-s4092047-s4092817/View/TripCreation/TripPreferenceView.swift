@@ -18,7 +18,6 @@ struct TripPreferenceView: View {
         @Bindable var locationVM = locationVM
         @Bindable var tripCreationVM = tripCreationVM
         // MARK: - Preference List
-        // TODO: - Create ViewModel for this View to store preferences for Trip model
         List {
             ForEach(tripCreationVM.preferences, id: \.preference) { item in
                 let isSelected = tripCreationVM.isSelected(item)
@@ -79,5 +78,6 @@ struct TripPreferenceView: View {
         TripPreferenceView()
             .environment(LocationViewModel(user: user))
             .environment(TripCreationViewModel())
+            .environment(Router())
     }
 }

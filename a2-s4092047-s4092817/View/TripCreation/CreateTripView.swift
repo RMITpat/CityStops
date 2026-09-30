@@ -24,92 +24,57 @@ struct CreateTripView: View {
     // The results of a place search
     @State var searchResults: [MKMapItem] = []
     
-   
+    enum Mode: String, CaseIterable, Identifiable {
+        case first = "Nearby Stops"
+        case second = "Search for Stops"
+        var id: Self { self }
+    }
+    
+    @State private var mode: Mode = .first
     
     var body: some View {
         @Bindable var locationVM = locationVM
         @Bindable var tripCreationVM = tripCreationVM
 
-
         VStack {
-            // TODO: Need to figure out if displaying map is suitable for interface, or take another approach
+
             // Map interface
-//            Map (position: $locationVM.currentLocation) {
-//                ForEach(selectedPlaces, id: \.self) { place in
-//                    Marker(item: place)
-//                        .mapItemDetailSelectionAccessory(.callout)
-//                }
-//            }
-//            .frame(height:400)
-//            .onAppear {
-//                locationVM.checkLocationAuthorization()
-//            }
-            
-            
-            if searchRequest.isEmpty {
-                
-                    VStack(alignment: .leading) {
-                        Text("Recently searched:")
-                            .font(.title2)
-                        
-                        // Past searches
-                        ForEach(searchTermVM.pastSearches, id: \.id) { term in
-                            HStack {
-                                Image(systemName: "clock.fill")
-                                Text(term.term)
-                                    .font(.title3)
-                                    .bold()
-                                    .foregroundStyle(.primary)
-                                    
-                                Spacer()
-                                Button("", systemImage: "xmark.circle.fill") {
-                                    searchTermVM.delete(searchTerm: term)
-                                }.font(.title3)
-                            }
-                            .padding()
-                            .contentShape(Rectangle())
-                            .onTapGesture {
-                                searchRequest = term.term
-                            }
-                            Divider()
-                        }
-                    }
-                .frame(maxWidth: .infinity, alignment: .leading)
+    //            Map (position: $locationVM.currentLocation) {
+    //                ForEach(selectedPlaces, id: \.self) { place in
+    //                    Marker(item: place)
+    //                        .mapItemDetailSelectionAccessory(.callout)
+    //                }
+    //            }
+    //            .frame(height:400)
+    //            .onAppear {
+    //                locationVM.checkLocationAuthorization()
+    //            }
+
+            Picker("Mode", selection: $mode) {
+                ForEach(Mode.allCases) { Text($0.rawValue).tag($0) }
             }
-            
-            // MARK: "Search" Button
-            Button("Search") {
-                Task {
-                    do {
-                        searchResults = try await locationVM.searchPlaces(searchRequest: searchRequest)
-                    } catch {
-                        // TODO: display errors somewhere
-                    }
-                }
-                searchTermVM.insert(searchTerm: searchRequest)
-            }
-            .buttonStyle(.glassProminent)
-            
-            
-            // MARK: Location search results
-            ScrollView {
-                VStack {
-                    // Generate location detail cards
-                    ForEach(searchResults, id: \.identifier) { result in
-                        LocationCardView(location: result, selectedPlaces: $tripCreationVM.selectedPlaces)
-                    }
-                }
-            }
-            
+            .pickerStyle(.segmented)
             .padding(.horizontal, 16)
+
+            // Keep both subviews alive so their state (and loaded results) survives switching
+            ZStack {
+                NearbyLocations()
+                    .opacity(mode == .first ? 1 : 0)
+                    .allowsHitTesting(mode == .first)
+                    .accessibilityHidden(mode != .first)
+
+                SearchLocations()
+                    .opacity(mode == .second ? 1 : 0)
+                    .allowsHitTesting(mode == .second)
+                    .accessibilityHidden(mode != .second)
+            }
+
+            // Keep Picker at top of View
+            Spacer()
         }
-        .onAppear {
-            searchTermVM.fetch()
-        }
-        
+
         // MARK: "Next" Button
         .safeAreaInset(edge: .bottom) {
-           
             Button("Next") {
                 router.tripCreationRoute.append(TripCreationRoute.createRoute)
             }
@@ -118,16 +83,9 @@ struct CreateTripView: View {
             .padding(.horizontal, 16)
             .padding(.bottom, 24)
         }
-            .navigationTitle(Text("Select Stops"))
-            .navigationSubtitle(Text("Add stops to your trip!"))
-        
-            // MARK: Location Search Bar
-            .searchable(
-                text: $searchRequest,
-                placement: .navigationBarDrawer(displayMode: .always),
-                prompt: "Search for a place",
-            )
-        }
+        .navigationTitle(Text("Select Stops"))
+        .navigationSubtitle(Text("Add stops to your trip!"))
+    }
 }
 
 
@@ -137,6 +95,8 @@ struct CreateTripView: View {
         CreateTripView()
             .environment(LocationViewModel(user: user))
             .environment(TripCreationViewModel())
+            .environment(SearchTermViewModel())
+            .environment(Router())
 
     }
 }

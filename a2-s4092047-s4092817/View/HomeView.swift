@@ -19,7 +19,7 @@ struct HomeView: View {
         VStack (alignment: .leading) {
             Text("Your Feed").font(.largeTitle).padding()
             
-            TripFeed(trips: appVM.tripFeed, isLoading: appVM.isLoading) {
+            TripFeed(trips: appVM.tripFeed, isLoading: appVM.isLoadingTrips) {
                 appVM.refreshFeed()
             } loadTrips: {
                 appVM.loadTrips()

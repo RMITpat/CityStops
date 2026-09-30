@@ -61,7 +61,7 @@ struct LocationCardView: View {
 
 #Preview {
     @Previewable @State var selectedPlaces: [MKMapItem] = []
-    let user = AppUser(id: "Test", email: "test@email.com")
+    let user = AppUser(id: "Test", username: "test", email: "test@email.com")
     LocationCardView(
         location: LocationCardPreviewData.testLocation,
         selectedPlaces: $selectedPlaces

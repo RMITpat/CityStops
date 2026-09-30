@@ -8,6 +8,7 @@
 import FirebaseAuth
 import FirebaseCore
 import GoogleSignIn
+import FirebaseFirestore
 
 // Protocol for AuthService
 @MainActor
@@ -16,7 +17,7 @@ protocol AuthService {
     func signInWithGoogle() async throws -> AppUser
     func signOut() throws
     func signInWithEmail(email: String, password: String) async throws -> AppUser
-    func signUpWithEmail(email: String, password: String) async throws -> AppUser
+    func signUpWithEmail(email: String, password: String, username: String) async throws -> AppUser
 
 }
 
@@ -52,6 +53,7 @@ final class AuthServiceImpl: AuthService {
         )
 
         let authResult = try await Auth.auth().signIn(with: credential)
+        
         return AppUser.fromFirebaseUser(authResult.user)
     }
 
@@ -61,9 +63,14 @@ final class AuthServiceImpl: AuthService {
     }
     
     // Starts a sign up with email
-    func signUpWithEmail(email: String, password: String) async throws -> AppUser {
+    func signUpWithEmail(email: String, password: String, username: String) async throws -> AppUser {
         let authResult = try await Auth.auth().createUser(withEmail: email, password: password)
-        return AppUser.fromFirebaseUser(authResult.user)
+        let changeReq = authResult.user.createProfileChangeRequest()
+        changeReq.displayName = username
+        
+        try await changeReq.commitChanges()
+        
+        return AppUser.fromFirebaseUser(authResult.user, username: username)
     }
     
     // Starts a sign in with email

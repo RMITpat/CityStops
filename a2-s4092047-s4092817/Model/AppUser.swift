@@ -12,6 +12,7 @@ import FirebaseAuth
 /// Simple version of user so other files don't have to pull in Firebase dependencies
 struct AppUser {
     let id: String
+    let username: String
     let email: String
     
     // Converts Firebase's User into our simpler app model.
@@ -19,6 +20,17 @@ struct AppUser {
         
         return AppUser(
             id: user.uid,
+            username: user.displayName ?? "",
+            email: user.email ?? ""
+        )
+    }
+    
+    // Overload for when users sign up with email and password instead of google
+    static func fromFirebaseUser(_ user: User, username: String) -> AppUser {
+        
+        return AppUser(
+            id: user.uid,
+            username: username,
             email: user.email ?? ""
         )
     }

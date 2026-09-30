@@ -13,10 +13,16 @@ struct ProfileView: View {
     var body: some View {
         @Bindable var appVM = appVM
 
-        TripFeed(trips: appVM.yourTrips, isLoading: appVM.isLoading) {
-            appVM.refreshUserTrips()
-        } loadTrips: {
-            appVM.loadYourTrips()
+        
+        
+        VStack (alignment: .leading) {
+            Text(appVM.user.username).font(.largeTitle).padding()
+            
+            TripFeed(trips: appVM.yourTrips, isLoading: appVM.isLoading) {
+                appVM.refreshUserTrips()
+            } loadTrips: {
+                appVM.loadYourTrips()
+            }
         }
     }
 }

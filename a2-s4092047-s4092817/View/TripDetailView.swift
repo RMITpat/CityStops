@@ -43,6 +43,9 @@ struct TripDetailView: View {
                 }
                 
             }
+                HStack {
+                    SaveTripButton(trip: trip)
+                }
                 VStack {
                     ForEach(trip.mkMapItemPlaces, id: \.self) { place in
                         VStack {

@@ -10,18 +10,39 @@ import FirebaseAILogic
 
 @MainActor
 protocol GeminiService {
-    
+    func request() async throws
 }
 
 @MainActor
 final class GeminiServiceImpl : GeminiService {
-    func request() async throws {
+    
+    let ai: FirebaseAI
+    let model: GenerativeModel
+    
+    let searchPlaces = FunctionDeclaration(
+      name: "searchPlaces",
+      description: "Search for existing places that a user can visit, localised to the user's location. This can be used to check if a certain place exists nearby the user.",
+      parameters: [
+        "search query": .string(
+          description: """
+          A natural language search query for a type of place. e.g. Burger restaurant
+          """
+        ),
+      ]
+    )
+    
+    
+    init() {
+        ai = FirebaseAI.firebaseAI(backend: .googleAI())
         
-        // Initialize the Gemini Developer API backend service
-        let ai = FirebaseAI.firebaseAI(backend: .googleAI())
-
-        // Create a `GenerativeModel` instance with a model that supports your use case
-        let model = ai.generativeModel(modelName: "gemini-3.5-flash")
+        // Change from 3.5-3.8 depending on traffic
+        model = ai.generativeModel(
+            modelName: "gemini-3.5-flash",
+            tools: [.functionDeclarations([searchPlaces])]
+        )
+    }
+    
+    func request() async throws {
 
         // Provide a prompt that contains text
         let prompt = "Write a story about a magic backpack."

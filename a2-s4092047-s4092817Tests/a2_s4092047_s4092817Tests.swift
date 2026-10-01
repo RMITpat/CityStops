@@ -148,4 +148,163 @@ final class a2_s4092047_s4092817Tests: XCTestCase {
         XCTAssertEqual(authVM.error, "The operation couldn’t be completed. (a2_s4092047_s4092817Tests.TestError error 3.)")
         
     }
+    
+    /// Invalid email, valid password, valid username
+    func testInvalidEmailStart() throws {
+        let invalidEmail = "@email.com"
+        let validPassword = "Walter67@Cool"
+        let validUsername = "WalterTheCool"
+        
+        let valid = authVM.validateSignUp(email: invalidEmail, password: validPassword, username: validUsername)
+        
+        XCTAssertFalse(valid)
+        XCTAssertEqual(authVM.error, "Email must match x@x.xx\n")
+    }
+    
+    /// Invalid email, valid password, valid username
+    func testInvalidEmailStartCharacters() throws {
+        let invalidEmail = "%^@email.com"
+        let validPassword = "Walter67@Cool"
+        let validUsername = "WalterTheCool"
+        
+        let valid = authVM.validateSignUp(email: invalidEmail, password: validPassword, username: validUsername)
+        
+        XCTAssertFalse(valid)
+        XCTAssertEqual(authVM.error, "Email must match x@x.xx\n")
+    }
+    
+    /// Invalid email, valid password, valid username
+    func testInvalidEmailNoAtSymbol() throws {
+        let invalidEmail = "walteremail.com"
+        let validPassword = "Walter67@Cool"
+        let validUsername = "WalterTheCool"
+        
+        let valid = authVM.validateSignUp(email: invalidEmail, password: validPassword, username: validUsername)
+        
+        XCTAssertFalse(valid)
+        XCTAssertEqual(authVM.error, "Email must match x@x.xx\n")
+    }
+    
+    /// Invalid email, valid password, valid username
+    func testInvalidEmailNoPeriod() throws {
+        let invalidEmail = "walter@emailcom"
+        let validPassword = "Walter67@Cool"
+        let validUsername = "WalterTheCool"
+        
+        let valid = authVM.validateSignUp(email: invalidEmail, password: validPassword, username: validUsername)
+        
+        XCTAssertFalse(valid)
+        XCTAssertEqual(authVM.error, "Email must match x@x.xx\n")
+    }
+    
+    /// Invalid email, valid password, valid username
+    func testInvalidEmailEnd() throws {
+        let invalidEmail = "walter@email.c"
+        let validPassword = "Walter67@Cool"
+        let validUsername = "WalterTheCool"
+        
+        let valid = authVM.validateSignUp(email: invalidEmail, password: validPassword, username: validUsername)
+        
+        XCTAssertFalse(valid)
+        XCTAssertEqual(authVM.error, "Email must match x@x.xx\n")
+    }
+    
+    /// Invalid email, valid password, valid username
+    func testEmptyEmail() throws {
+        let invalidEmail = ""
+        let validPassword = "Walter67@Cool"
+        let validUsername = "WalterTheCool"
+        
+        let valid = authVM.validateSignUp(email: invalidEmail, password: validPassword, username: validUsername)
+        
+        XCTAssertFalse(valid)
+        XCTAssertEqual(authVM.error, "Email must match x@x.xx\n")
+    }
+
+    
+    /// Valid email, invalid password, valid username
+    func testInvalidPasswordNoNumbers() throws {
+        let validEmail = "walter@email.com"
+        let invalidPassword = "walter"
+        let validUsername = "WalterTheCool"
+        
+        let valid = authVM.validateSignUp(email: validEmail, password: invalidPassword, username: validUsername)
+        
+        XCTAssertFalse(valid)
+        XCTAssertEqual(authVM.error, "Password must be 8 characters, have at least one uppercase letter, one digit and one special character\n")
+    }
+    
+    /// Valid email, invalid password, valid username
+    func testInvalidPasswordNoCharacters() throws {
+        let validEmail = "walter@email.com"
+        let invalidPassword = "walter"
+        let validUsername = "38383929*#&*#"
+        
+        let valid = authVM.validateSignUp(email: validEmail, password: invalidPassword, username: validUsername)
+        
+        XCTAssertFalse(valid)
+        XCTAssertEqual(authVM.error, "Password must be 8 characters, have at least one uppercase letter, one digit and one special character\n")
+    }
+    
+    /// Valid email, invalid password, valid username
+    func testInvalidPasswordNoCapitalLetter() throws {
+        let validEmail = "walter@email.com"
+        let invalidPassword = "walter"
+        let validUsername = "walterthecool73&^"
+        
+        let valid = authVM.validateSignUp(email: validEmail, password: invalidPassword, username: validUsername)
+        
+        XCTAssertFalse(valid)
+        XCTAssertEqual(authVM.error, "Password must be 8 characters, have at least one uppercase letter, one digit and one special character\n")
+    }
+    
+    /// Valid email, invalid password, valid username
+    func testInvalidPasswordNoSymbol() throws {
+        let validEmail = "walter@email.com"
+        let invalidPassword = "walter"
+        let validUsername = "WalterTheCool34"
+        
+        let valid = authVM.validateSignUp(email: validEmail, password: invalidPassword, username: validUsername)
+        
+        XCTAssertFalse(valid)
+        XCTAssertEqual(authVM.error, "Password must be 8 characters, have at least one uppercase letter, one digit and one special character\n")
+    }
+    
+    /// Valid email, invalid password, valid username
+    func testInvalidPasswordLength() throws {
+        let validEmail = "walter@email.com"
+        let invalidPassword = "walter"
+        let validUsername = "Wa37&"
+        
+        let valid = authVM.validateSignUp(email: validEmail, password: invalidPassword, username: validUsername)
+        
+        XCTAssertFalse(valid)
+        XCTAssertEqual(authVM.error, "Password must be 8 characters, have at least one uppercase letter, one digit and one special character\n")
+    }
+    
+    
+    
+    /// Valid email, valid password, invalid username
+    func testInvalidUsername() throws {
+        let validEmail = "walter@email.com"
+        let validPassword = "Walter67@Cool"
+        let invalidUsername = ""
+        
+        let valid = authVM.validateSignUp(email: validEmail, password: validPassword, username: invalidUsername)
+        
+        XCTAssertFalse(valid)
+        XCTAssertEqual(authVM.error, "Username cannot be empty\n")
+    }
+    
+    /// Valid email, valid password, valid username
+    func testValidCredentials() throws {
+        let validEmail = "walter@email.com"
+        let validPassword = "Walter67@Cool"
+        let validUsername = "WalterTheCool"
+        
+        let valid = authVM.validateSignUp(email: validEmail, password: validPassword, username: validUsername)
+        
+        XCTAssertTrue(valid)
+        XCTAssertNil(authVM.error)
+    }
 }

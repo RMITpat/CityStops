@@ -21,6 +21,13 @@ final class GeminiServiceImpl : GeminiService {
     let model: GenerativeModel
     let currentRegion: MKCoordinateRegion
     
+    /// The selectedPlaces for the trip this
+    var selectedPlaces: [MKMapItem] = []
+    
+    /// A cache of searched places so that when the model chooses a spot, we can use the identifier to retrieve its MKMapItem immediately without needing another search
+    var searchedPlaces: [String : MKMapItem] = [:]
+    
+    
     init(region: MKCoordinateRegion) {
         ai = FirebaseAI.firebaseAI(backend: .googleAI())
         
@@ -49,16 +56,17 @@ final class GeminiServiceImpl : GeminiService {
       ]
     )
     
-    let selectPlace = FunctionDeclaration(
-      name: "select_place",
+    let selectPlaces = FunctionDeclaration(
+      name: "select_places",
       description: """
-        Add an existing place to the overall trip. This place should fit in with the overall goal or theme of the trip.
+        Add one or more existing places to the overall trip. These places should fit in with the overall goal or theme of the trip.
         """,
       parameters: [
-        "place_identifier": .string(
-          description: """
-          The unique place identifier you retrieved from searching for this place. 
-          """
+        "place_identifiers": .array(items: .string(
+              description: """
+              A unique place identifier you retrieved from searching for this place. 
+              """
+          )
         ),
       ]
     )
@@ -94,6 +102,15 @@ final class GeminiServiceImpl : GeminiService {
         return [
             "places" : .array(mapItems.map { .object($0.toJSONObject()) })
         ]
+    }
+    
+    func selectPlaces(identifiers: [String]) {
+        for identifier in identifiers {
+            if let selectedPlace = searchedPlaces[identifier] {
+                selectedPlaces.append(selectedPlace)
+            }
+        }
+        
     }
     
     

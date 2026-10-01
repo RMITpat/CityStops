@@ -33,6 +33,7 @@ struct HomeView: View {
                 case .tripDetail: TripDetailView()
                 }
             }
+            Spacer()
         }
     }
 }

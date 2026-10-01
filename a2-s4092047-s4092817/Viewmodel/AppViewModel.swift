@@ -52,6 +52,13 @@ import MapKit
         self.user = user
     }
     
+    /// Init used by preview
+    init(user: AppUser, currentTrip: Trip) {
+        let service = TripServiceImpl()
+        self.tripService = service
+        self.user = user
+        self.currentTrip = currentTrip
+    }
     /// Saves a trip to Firestore
     func saveTrip(name: String, selectedPlaces: [MKMapItem], preferences: [String]) async throws {
     

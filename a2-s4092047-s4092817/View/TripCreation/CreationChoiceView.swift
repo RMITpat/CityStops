@@ -53,7 +53,7 @@ struct CreationChoiceView: View {
                 case .preferences: TripPreferenceView()
                 case .createTrip: CreateTripView()
                 case .createRoute: CreateRouteView()
-                case .aiTripCreation: AITripCreationView()
+            case .aiTripCreation: AITripCreationView(region: locationVM.currentRegion)
             }
         }
         }

@@ -37,8 +37,8 @@ final class GeminiServiceImpl : GeminiService {
       name: "search_places",
       description: """
         Search for and retrieve existing places that a user can visit, localised to the user's location. This can be used to check if a certain place exists nearby the user. 
-        If any places exist, it will return a list of places consisting of a unique identifier, the name of the place and its location type, such as restaurant or museum. If you
-        would like to add this place to the trip, return its unique identifier. 
+        If any places exist, it will return a list of places consisting of a unique identifier, the name of the place and its location category, such as restaurant or museum. If you
+        would like to add one of these places to the trip, remember its unique identifier. 
         """,
       parameters: [
         "search_query": .string(
@@ -82,16 +82,31 @@ final class GeminiServiceImpl : GeminiService {
     }
     
     
-    func searchPlaces(searchRequest: String) async throws -> [MKMapItem] {
+    func searchPlaces(searchRequest: String) async throws -> JSONObject {
         let request = MKLocalSearch.Request()
         request.naturalLanguageQuery = searchRequest
         request.region = currentRegion
         
         let response = try await MKLocalSearch(request: request).start()
         
-        return response.mapItems.filter {
-            $0.identifier != nil
-        }
+        let mapItems = response.mapItems.filter { $0.identifier != nil }
+        
+        return [
+            "places" : .array(mapItems.map { .object($0.toJSONObject()) })
+        ]
     }
     
+    
+    
+}
+
+extension MKMapItem {
+    func toJSONObject() -> JSONObject {
+        return [
+            // identifier should exist, was checked in searchPlaces
+            "identifier" : .string(self.identifier?.rawValue ?? ""),
+            "name" : .string(self.name ?? "No name"),
+            "category" : .string(self.pointOfInterestCategory?.rawValue ?? "No category")
+        ]
+    }
 }

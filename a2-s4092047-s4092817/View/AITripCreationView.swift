@@ -6,9 +6,14 @@
 //
 
 import SwiftUI
+import MapKit
 
 struct AITripCreationView: View {
-    @State private var gemini: GeminiViewModel = GeminiViewModel()
+    @State private var gemini: GeminiViewModel
+    
+    init(region: MKCoordinateRegion) {
+        gemini = GeminiViewModel(region: region)
+    }
 
     var body: some View {
         Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
@@ -18,7 +23,7 @@ struct AITripCreationView: View {
         }
     }
 }
-
-#Preview {
-    AITripCreationView()
-}
+//
+//#Preview {
+//    AITripCreationView()
+//}

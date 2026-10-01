@@ -24,6 +24,7 @@ enum TripCreationRoute: Hashable {
     case preferences
     case createTrip
     case createRoute
+    case aiTripCreation
 }
 
 enum FeedRoute: Hashable {

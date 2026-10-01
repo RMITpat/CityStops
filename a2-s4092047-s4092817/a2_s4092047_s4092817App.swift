@@ -9,6 +9,7 @@ import SwiftUI
 import FirebaseCore
 import GoogleSignIn
 import SwiftData
+import FirebaseAppCheck
 
 /// App entry point.
 @main
@@ -17,19 +18,22 @@ struct a2_s4092047_s4092817App: App {
 
     
     init() {
-            FirebaseApp.configure()
-            
-            if let clientID = FirebaseApp.app()?.options.clientID {
-                GIDSignIn.sharedInstance.configuration =
-                GIDConfiguration(clientID: clientID)
-            } else {
-                print("Firebase client ID could not be found.")
-            }
-
-            _authVM = State(
-                initialValue: AuthViewModel()
-            )
+        let providerFactory = AppCheckDebugProviderFactory()
+            AppCheck.setAppCheckProviderFactory(providerFactory)
+        
+        FirebaseApp.configure()
+        
+        if let clientID = FirebaseApp.app()?.options.clientID {
+            GIDSignIn.sharedInstance.configuration =
+            GIDConfiguration(clientID: clientID)
+        } else {
+            print("Firebase client ID could not be found.")
         }
+
+        _authVM = State(
+            initialValue: AuthViewModel()
+        )
+    }
     
     var body: some Scene {
         // MARK: Login Entry point

@@ -36,6 +36,9 @@ import MapKit
     /// The feed of user's created trips
     var yourTrips: [Trip] = []
     
+    /// The current trip being viewed in TripDetailView
+    var currentTrip: Trip? = nil
+    
     /// Real init used in app
     init(user: AppUser) {
         let service = TripServiceImpl()

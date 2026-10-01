@@ -13,16 +13,25 @@ import MapKit
 // TODO: MOVE SIGN OUT TO SETTINGS PAGE
 struct HomeView: View {
     @Environment(AppViewModel.self) var appVM: AppViewModel
-
+    @Environment(Router.self) var router: Router
     var body: some View {
         @Bindable var appVM = appVM
-        VStack (alignment: .leading) {
-            Text("Your Feed").font(.largeTitle).padding()
-            
-            TripFeed(trips: appVM.tripFeed, isLoading: appVM.isLoadingTrips) {
-                appVM.refreshFeed()
-            } loadTrips: {
-                appVM.loadTrips()
+        @Bindable var router = router
+        
+        NavigationStack(path: $router.feedRoute) {
+            VStack (alignment: .leading) {
+                Text("Your Feed").font(.largeTitle).padding()
+                
+                TripFeed(trips: appVM.tripFeed, isLoading: appVM.isLoadingTrips) {
+                    appVM.refreshFeed()
+                } loadTrips: {
+                    appVM.loadTrips()
+                }
+            }
+            .navigationDestination(for: FeedRoute.self) { route in
+                switch route {
+                case .tripDetail: TripDetailView()
+                }
             }
         }
     }
@@ -34,5 +43,6 @@ struct HomeView: View {
 
         HomeView()
             .environment(AppViewModel(user: user ))
+            .environment(Router())
     }
 }

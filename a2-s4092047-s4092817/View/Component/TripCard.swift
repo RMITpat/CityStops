@@ -15,7 +15,8 @@ import _MapKit_SwiftUI
 struct TripCard: View {
     @Environment(LocationViewModel.self) var locationVM: LocationViewModel
     @Environment(AppViewModel.self) var appVM: AppViewModel
-
+    @Environment(Router.self) var router: Router
+    
     /// The trip this card displays information for
     let trip: Trip
     
@@ -89,6 +90,11 @@ struct TripCard: View {
             .frame(maxWidth: .infinity, alignment: .center)
 
         }
+        
+        .contentShape(Rectangle())
+        .onTapGesture {
+            router.feedRoute.append(.tripDetail)
+        }
         .padding(18)
 
     }
@@ -105,6 +111,7 @@ struct TripCard: View {
     TripFeed(trips: [trip, trip2], isLoading: false, onRefresh: {}, loadTrips: {})
             .environment(LocationViewModel(user: user))
             .environment(AppViewModel(user: user))
+            .environment(Router())
 
 
 }

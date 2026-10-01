@@ -26,6 +26,10 @@ enum TripCreationRoute: Hashable {
     case createRoute
 }
 
+enum FeedRoute: Hashable {
+    case tripDetail
+}
+
 // MARK: - Router Class
 
 /// Centralized navigation manager that controls both Tab selection and NavigationStack paths
@@ -40,4 +44,5 @@ class Router {
     /// The navigation stack path for the Create Trip flow
     var tripCreationRoute: [TripCreationRoute] = [TripCreationRoute]()
     
+    var feedRoute: [FeedRoute] = [FeedRoute]()
 }

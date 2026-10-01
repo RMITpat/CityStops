@@ -18,7 +18,7 @@ struct ProfileView: View {
         VStack (alignment: .leading) {
             Text(appVM.user.username).font(.largeTitle).padding()
             
-            TripFeed(trips: appVM.yourTrips, isLoading: appVM.isLoading) {
+            TripFeed(trips: appVM.yourTrips, isLoading: appVM.isLoadingUserTrips) {
                 appVM.refreshUserTrips()
             } loadTrips: {
                 appVM.loadYourTrips()

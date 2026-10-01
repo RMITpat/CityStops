@@ -20,7 +20,12 @@ import MapKit
     func request() {
         Task {
             do {
-                try await geminiService.request()
+                let places = try await geminiService.request()
+                print(places.count)
+                for place in places {
+                    print(place.name ?? "No place name")
+                    print(place.pointOfInterestCategory?.rawValue ?? "No category")
+                }
             } catch {
                 
             }

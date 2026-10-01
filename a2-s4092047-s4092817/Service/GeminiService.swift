@@ -83,22 +83,23 @@ final class GeminiServiceImpl : GeminiService {
         and Hungry Jacks. 
         
         The order and quantity of the stops matter and you should come up with a logical reasoning behind the order. For example, it might not make sense for users to eat
-        dinner at multiple restaurants in one night, unless the trip involves experience multiple food locations. The order of the stops is the order in which you add them using the select place tool. 
+        dinner at multiple restaurants in one night, unless the trip involves experiencing multiple food locations. The order of the stops is the order in which you add them using 
+        the select place tool. 
         
         The trip should balance between each of the goals of the trip to ensure an enjoyable experience for the user. For example, a trip centered around visiting museums and 
         shopping should not be heavily about shopping only.
         
         You can use tools to search for these places. Results from the search tool will always be local to the user's region. If a search fails, try modifying the query slightly. ONLY add a place
-        to a trip if it came from the search tool.
+        to a trip if it came from the search tool. Try and make multiple search requests in one response instead of in individual responses.
         
         When you have searched for a place and believe it is a good fit for the trip, use the select place tool to add it to the trip. Each of these places needs to be added individually.
         
-        When you have finished adding places, provide a description of the overall tour, its stops and why you have chosen them.
+        When you have finished adding places, provide a short summary of the overall tour and its stops.
         
         The following is your trip creation task.
-        Create a trip that lets me explore some thrift shops and eat at some asian dessert shops. I'd also like to grab coffee before I start thrifting for some energy. 
+        Create a trip that lets me explore galleries around me.
         """
-
+//    Create a trip that lets me explore some thrift shops and eat at some asian dessert shops. I'd also like to grab coffee before I start thrifting for some energy.
         let chat = model.startChat()
 
         // To generate text output, call generateContent with the text input
@@ -135,7 +136,7 @@ final class GeminiServiceImpl : GeminiService {
         
         var functionResponses = [FunctionResponsePart]()
         
-        
+        print(response.functionCalls.count)
         for functionCall in response.functionCalls {
             
             if functionCall.name == "search_places" {
@@ -208,11 +209,20 @@ final class GeminiServiceImpl : GeminiService {
         
         let mapItems = response.mapItems.filter { $0.identifier != nil }
         
+        
+        var placesResult: [JSONValue] = []
+        
         for item in mapItems {
+            if let id = item.identifier {
+                searchedPlaces[id.rawValue] = item
+                placesResult.append(.object(item.toJSONObject()))
+            }
             print(item.name ?? "no name")
+            
         }
+        
         return [
-            "places" : .array(mapItems.map { .object($0.toJSONObject()) }),
+            "places" : .array(placesResult),
             "search_success" : .bool(true)
         ]
     }

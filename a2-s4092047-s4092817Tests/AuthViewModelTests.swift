@@ -57,7 +57,7 @@ final class FakeAuthService : AuthService {
 }
 
 @MainActor
-final class a2_s4092047_s4092817Tests: XCTestCase {
+final class AuthViewModelTests: XCTestCase {
     var authVM: AuthViewModel!
     var fakeAuthService: FakeAuthService!
     

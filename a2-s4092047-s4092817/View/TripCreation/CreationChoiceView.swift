@@ -42,6 +42,9 @@ struct CreationChoiceView: View {
                 .controlSize(.large)
                 
             }
+            .onAppear {
+                locationVM.checkLocationAuthorization()
+            }
             .navigationTitle(Text("Create a Daytrip"))
             .navigationBarTitleDisplayMode(.large)
             .navigationDestination(for: TripCreationRoute.self) { route in

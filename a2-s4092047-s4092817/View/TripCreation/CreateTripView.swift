@@ -46,9 +46,7 @@ struct CreateTripView: View {
     //                }
     //            }
     //            .frame(height:400)
-    //            .onAppear {
-    //                locationVM.checkLocationAuthorization()
-    //            }
+    //            
 
    
             Picker("Mode", selection: $mode) {

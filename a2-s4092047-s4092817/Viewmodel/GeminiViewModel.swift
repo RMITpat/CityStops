@@ -6,9 +6,16 @@
 //
 
 import Foundation
+import MapKit
 
 @Observable class GeminiViewModel {
-    let geminiService = GeminiServiceImpl()
+    let geminiService: GeminiService
+    
+    init(region: MKCoordinateRegion) {
+        geminiService = GeminiServiceImpl(region: region)
+
+    }
+    
     
     func request() {
         Task {

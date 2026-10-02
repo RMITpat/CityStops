@@ -11,7 +11,7 @@ import MapKit
 
 @MainActor
 protocol GeminiService {
-    func request() async throws -> [MKMapItem]
+    func request(prompt: String) async throws -> [MKMapItem]
 }
 
 @MainActor
@@ -33,7 +33,7 @@ final class GeminiServiceImpl : GeminiService {
         
         // Change from 3.5-3.8 depending on traffic
         model = ai.generativeModel(
-            modelName: "gemini-3.5-flash",
+            modelName: "gemini-3.8-flash",
             tools: [.functionDeclarations([searchPlaces, selectPlaces])]
         )
         currentRegion = region
@@ -72,7 +72,7 @@ final class GeminiServiceImpl : GeminiService {
     )
     
     
-    func request() async throws -> [MKMapItem] {
+    func request(prompt: String) async throws -> [MKMapItem] {
 
         // Provide a prompt that contains text
         let prompt = """
@@ -97,8 +97,10 @@ final class GeminiServiceImpl : GeminiService {
         When you have finished adding places, provide a short summary of the overall tour and its stops.
         
         The following is your trip creation task.
-        Create a trip that lets me explore galleries around me.
+        \(prompt)
         """
+//    Create a trip that lets me explore galleries around me.
+
 //    Create a trip that lets me explore some thrift shops and eat at some asian dessert shops. I'd also like to grab coffee before I start thrifting for some energy.
         let chat = model.startChat()
 

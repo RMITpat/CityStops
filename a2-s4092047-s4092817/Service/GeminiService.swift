@@ -34,7 +34,11 @@ final class GeminiServiceImpl : GeminiService {
         // Change from 3.5-3.8 depending on traffic
         model = ai.generativeModel(
             modelName: "gemini-3.8-flash",
-            tools: [.functionDeclarations([searchPlaces, selectPlaces])]
+            generationConfig: GenerationConfig(
+                responseMIMEType: "application/json",
+                responseSchema: tripJSONSchema
+            ),
+            tools: [.functionDeclarations([searchPlaces, selectPlaces])],
         )
         currentRegion = region
 
@@ -72,6 +76,12 @@ final class GeminiServiceImpl : GeminiService {
     )
     
     
+    let tripJSONSchema = Schema.object(
+      properties: [
+        "trip_name" : .string(),
+        "description" : .string(),
+      ]
+    )
     func request(prompt: String) async throws -> [MKMapItem] {
 
         // Provide a prompt that contains text
@@ -89,12 +99,14 @@ final class GeminiServiceImpl : GeminiService {
         The trip should balance between each of the goals of the trip to ensure an enjoyable experience for the user. For example, a trip centered around visiting museums and 
         shopping should not be heavily about shopping only.
         
-        You can use tools to search for these places. Results from the search tool will always be local to the user's region. If a search fails, try modifying the query slightly. ONLY add a place
+        You can use tools to search for these places. Results from the search_places tool will always be local to the user's region. If a search fails, try modifying the query slightly. ONLY add a place
         to a trip if it came from the search tool. Try and make multiple search requests in one response instead of in individual responses.
         
-        When you have searched for a place and believe it is a good fit for the trip, use the select place tool to add it to the trip. Each of these places needs to be added individually.
+        When you have finished searching for places and have accumulated a list of stops for the trip, use the select_places tool to add all of them to the trip.
         
-        When you have finished adding places, provide a short summary of the overall tour and its stops.
+        After selecting your places, generate a name and description for the trip using the json schema. The description should be short and brief, outlining some of the places chosen. 
+        A maximum of around 60 words. 
+
         
         The following is your trip creation task.
         \(prompt)
@@ -163,7 +175,7 @@ final class GeminiServiceImpl : GeminiService {
                 } catch {
                     let fail: JSONObject = [
                         "places" : .array([]),
-                        "search_success" : .bool(true)
+                        "search_success" : .bool(false)
                     ]
                     
                     functionResponses.append(FunctionResponsePart(

@@ -60,14 +60,12 @@ import MapKit
         self.currentTrip = currentTrip
     }
     /// Saves a trip to Firestore
-    func saveTrip(name: String, selectedPlaces: [MKMapItem], preferences: [String]) async throws {
+    func saveTrip(name: String, description: String, selectedPlaces: [MKMapItem], preferences: [String]) async throws {
     
         let placeIdentifiers = selectedPlaces.compactMap { $0.identifier }
-        let newTrip = Trip(ownerUsername: user.username, ownerId: user.id, name: name, places: placeIdentifiers, preferences: preferences)
+        let newTrip = Trip(ownerUsername: user.username, ownerId: user.id, name: name, description: description, places: placeIdentifiers, preferences: preferences)
         try await tripService.saveTrip(trip: newTrip)
-            
-        
-        
+
     }
     
     func refreshFeed() {

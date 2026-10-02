@@ -16,13 +16,17 @@ struct TripNameView: View {
     var body: some View {
         @Bindable var locationVM = locationVM
         @Bindable var tripCreationVM = tripCreationVM
-        // MARK: Name input field
         
+        // MARK: Input fields
         VStack {
             TextField("e.g. Asian Street Food Tour", text: $tripCreationVM.name)
                 .textFieldStyle(RoundedBorderTextFieldStyle())
+                .padding(.horizontal, 16)
+            
+            TextField("e.g. A day out in the city to eat delicious Asian street food!", text: $tripCreationVM.description)
+                .textFieldStyle(RoundedBorderTextFieldStyle())
+                .padding(.horizontal, 16)
         }
-        .padding(.horizontal, 16)
         
         Spacer()
         

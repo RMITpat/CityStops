@@ -67,7 +67,7 @@ struct TripDetailView: View {
 #Preview {
     let user = AppUser(id: "Test", username: "test", email: "test@email.com")
     
-    let trip = Trip(id: "1", ownerUsername: "conan", ownerId: "", name: "Cool trip", places: [], preferences: ["Food", "Landmarks"])
+    let trip = Trip(id: "1", ownerUsername: "conan", ownerId: "", name: "Cool trip", description: "Very cool trip!", places: [], preferences: ["Food", "Landmarks"])
     TripDetailView()
         .environment(LocationViewModel(user: user))
         .environment(AppViewModel(user: user, currentTrip: trip))

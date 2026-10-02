@@ -9,9 +9,23 @@ import Foundation
 import FirebaseAILogic
 import MapKit
 
+struct AITripDetails: Codable {
+    let name: String
+    let description: String
+}
+
 @MainActor
 protocol GeminiService {
-    func request(prompt: String) async throws -> [MKMapItem]
+    func request(tripRequest: String) async throws -> ([MKMapItem], String, String)
+    func editTrip(identifiers: [String]) async throws -> ([MKMapItem], String, String)
+    func generateTrip(prompt: String) async throws -> ([MKMapItem], String, String)
+    
+    func decodeTrip(responseText: String?) throws -> ([MKMapItem], String, String)
+    
+    func searchPlaces(searchRequest: String) async throws -> JSONObject
+    func useTools(response: GenerateContentResponse) async -> [FunctionResponsePart]
+    func multiTurn(firstResponse: GenerateContentResponse) async throws -> GenerateContentResponse
+    func selectPlace(identifier: String)
 }
 
 @MainActor
@@ -27,6 +41,7 @@ final class GeminiServiceImpl : GeminiService {
     /// A cache of searched places so that when the model chooses a spot, we can use the identifier to retrieve its MKMapItem immediately without needing another search
     var searchedPlaces: [String : MKMapItem] = [:]
     
+    var currentChat: Chat
     
     init(region: MKCoordinateRegion) {
         ai = FirebaseAI.firebaseAI(backend: .googleAI())
@@ -41,7 +56,8 @@ final class GeminiServiceImpl : GeminiService {
             tools: [.functionDeclarations([searchPlaces, selectPlaces])],
         )
         currentRegion = region
-
+        
+        currentChat = model.startChat()
     }
     
     let searchPlaces = FunctionDeclaration(
@@ -82,7 +98,7 @@ final class GeminiServiceImpl : GeminiService {
         "description" : .string(),
       ]
     )
-    func request(prompt: String) async throws -> [MKMapItem] {
+    func request(tripRequest: String) async throws -> ([MKMapItem], String, String) {
 
         // Provide a prompt that contains text
         let prompt = """
@@ -109,40 +125,77 @@ final class GeminiServiceImpl : GeminiService {
 
         
         The following is your trip creation task.
-        \(prompt)
+        \(tripRequest)
         """
-//    Create a trip that lets me explore galleries around me.
 
-//    Create a trip that lets me explore some thrift shops and eat at some asian dessert shops. I'd also like to grab coffee before I start thrifting for some energy.
-        let chat = model.startChat()
+        currentChat = model.startChat()
+            
+        return try await generateTrip(prompt: prompt)
+        
+    }
+    
+    func editTrip(identifiers: [String]) async throws -> ([MKMapItem], String, String) {
+        selectedPlaces.removeAll()
+        
+        var prompt = """
+            The user has reviewed your selected places and would like to remove some places. 
+            Please find suitable replacements for them from your searched places or through searching for more places. Then, recreate the entire trip using the select_places tool, 
+            keeping in places that were not removed. Then submit the trip again using the json schema.
+            The following identifiers should be replaced:
+            
+            """
+        for id in identifiers {
+            prompt.append(id + " ")
+        }
+        
+        return try await generateTrip(prompt: prompt)
 
-        // To generate text output, call generateContent with the text input
-        var response = try await chat.sendMessage(prompt)
+        
+    }
+    
+    func generateTrip(prompt: String) async throws -> ([MKMapItem], String, String) {
+        var firstResponse = try await currentChat.sendMessage(prompt)
+    
+        let finalResponse = try await multiTurn(firstResponse: firstResponse)
+        print(finalResponse.text ?? "no text response")
+
+        return try decodeTrip(responseText: finalResponse.text)
+        
+        
+    }
+    
+    func multiTurn(firstResponse: GenerateContentResponse) async throws -> GenerateContentResponse {
+        var response = firstResponse
         
         var iterations = 20
-        print(response.text ?? "no text response")
-        print(response.thoughtSummary ?? "no thought summary")
 
         while (!response.functionCalls.isEmpty && iterations > 0) {
-            print(response.text ?? "no text response")
-            print(response.thoughtSummary ?? "no thought summary")
-
             let functionResponses = await useTools(response: response)
             
-            response = try await chat.sendMessage(
+            response = try await currentChat.sendMessage(
                 [ModelContent(role: "user", parts: functionResponses)]
             )
             iterations -= 1
         }
         
-        if (iterations <= 0) {
-            print("max iterations reached")
+        return response
+        
+    }
+    
+    func decodeTrip(responseText: String?) throws -> ([MKMapItem], String, String) {
+        let emptyTrip = (selectedPlaces, "Generated Trip", "This trip was generated by Dora")
+        
+        guard let text = responseText else {
+            return emptyTrip
         }
         
-        print(response.text ?? "no text response")
+        guard let tripDetails = text.data(using: .utf8) else {
+            return emptyTrip
+        }
         
-        return selectedPlaces
+        let data = try JSONDecoder().decode(AITripDetails.self, from: tripDetails)
         
+        return (selectedPlaces, data.name, data.description)
     }
     
     

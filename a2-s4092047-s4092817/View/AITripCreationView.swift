@@ -61,8 +61,24 @@ struct AITripCreationView: View {
                         VStack {
                             ForEach(selectedPlaces, id: \.self) { place in
                                 VStack {
-                                    Text(place.name ?? "")
-                                    Text(place.address?.fullAddress ?? "")
+                                    if let id = place.identifier?.rawValue, gemini.placesToRemove.contains(id)  {
+                                        Text("REMOVED")
+                                    }
+                                    HStack {
+                                        Text(place.name ?? "")
+                                        Text(place.address?.fullAddress ?? "")
+                                    }
+                                    Button("Remove") {
+                                        guard let id = place.identifier?.rawValue else {
+                                                return
+                                        }
+
+                                        if let index = gemini.placesToRemove.firstIndex(of: id) {
+                                            gemini.placesToRemove.remove(at: index)
+                                        } else {
+                                            gemini.placesToRemove.append(id)
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -81,7 +97,7 @@ struct AITripCreationView: View {
                     Button("", systemImage: "paperplane.circle.fill") {
                         Task {
                             do {
-                                //                        selectedPlaces = try await gemini.request(prompt: prompt)
+                                selectedPlaces = try await gemini.request(prompt: prompt)
                                 gemini.isLoading = true
                                 
                                 try await Task.sleep(for: (.seconds(3)))
@@ -102,16 +118,17 @@ struct AITripCreationView: View {
                         selectedPlaces.removeAll()
                         routes.removeAll()
                     }
-                    Button("Choose different spots") {
+                    
+                    Button("Replace selected spots") {
                         Task {
                             do {
-                                //                        selectedPlaces = try await gemini.request(prompt: prompt)
+                                selectedPlaces = try await gemini.editTrip()
                                 routes = try await locationVM.createRoute(selectedPlaces: selectedPlaces)
                             } catch {
                                 
                             }
                         }
-                    }
+                    }.disabled(gemini.placesToRemove.isEmpty)
                     Button("Continue") {
                         
                     }

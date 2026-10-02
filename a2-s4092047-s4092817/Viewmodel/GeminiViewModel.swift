@@ -12,28 +12,44 @@ import MapKit
     let geminiService: GeminiService
     
     var isLoading: Bool = false
+    
+    var placesToRemove: [String] = []
+    
+    var name: String = ""
+    var description: String = ""
+    
     init(region: MKCoordinateRegion) {
         geminiService = GeminiServiceImpl(region: region)
 
     }
     
     
-    func request(prompt: String) async throws -> [MKMapItem]{
+    func request(prompt: String) async throws -> [MKMapItem] {
         isLoading = true
+        placesToRemove.removeAll()
+        let aiTrip = try await geminiService.request(tripRequest: prompt)
         
-        let places = try await geminiService.request(prompt: prompt)
+        let places = aiTrip.0
+        name = aiTrip.1
+        description = aiTrip.2
         
-        print(places.count)
-        
-        for place in places {
-            print(place.name ?? "No place name")
-            print(place.pointOfInterestCategory?.rawValue ?? "No category")
-        }
-        //selectedPlaces = places
         isLoading = false
         
         return places
             
         
+    }
+    
+    func editTrip() async throws -> [MKMapItem] {
+        isLoading = true
+        let aiTrip = try await geminiService.editTrip(identifiers: placesToRemove)
+        
+        let places = aiTrip.0
+        name = aiTrip.1
+        description = aiTrip.2
+        
+        isLoading = false
+        
+        return places
     }
 }

@@ -16,6 +16,7 @@ struct SettingsView: View {
             Button("Sign out") {
                 auth.signOut()
             }
+            .modifier(ButtonFormat())
         }
     }
 }

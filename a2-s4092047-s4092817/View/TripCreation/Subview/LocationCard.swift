@@ -8,7 +8,7 @@
 import SwiftUI
 import MapKit
 
-struct LocationCardView: View {
+struct LocationCard: View {
     let location: MKMapItem
     var selectedPlaces: Binding<[MKMapItem]>?
     
@@ -87,7 +87,7 @@ struct LocationCardView: View {
 #Preview {
     @Previewable @State var selectedPlaces: [MKMapItem] = []
     let user = AppUser(id: "Test", username: "test", email: "test@email.com")
-    LocationCardView(
+    LocationCard(
         location: LocationCardPreviewData.testLocation,
         selectedPlaces: $selectedPlaces)
 }

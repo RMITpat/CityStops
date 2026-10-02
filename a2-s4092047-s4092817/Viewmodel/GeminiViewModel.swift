@@ -36,6 +36,10 @@ import MapKit
         isLoading = false
         
         return places
+        
+//        try await Task.sleep(for: .seconds(5))
+//        isLoading = false
+//        return []
             
         
     }

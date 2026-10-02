@@ -20,7 +20,14 @@ struct AITripCreationView: View {
     init(region: MKCoordinateRegion) {
         gemini = GeminiViewModel(region: region)
     }
+    @State private var mode: Mode = .first
 
+    enum Mode: String, CaseIterable, Identifiable {
+        case first = "Details"
+        case second = "Places"
+        var id: Self { self }
+    }
+    
     var body: some View {
         VStack (alignment: .leading){
             Text("AI Trip Creation")
@@ -29,18 +36,23 @@ struct AITripCreationView: View {
             Spacer()
             VStack (alignment: .center) {
                 if selectedPlaces.isEmpty {
-                    VStack {
-                        Text("Hi, I'm Dora.")
-                            .multilineTextAlignment(.center)
-                            .font(.largeTitle)
-                            .bold()
+                    if gemini.isLoading {
+                        ProgressView()
+                            .frame(maxWidth: .infinity, alignment: .center)
                         
-                        Text("Where would you like to explore today?")
-                            .font(.title)
-                            .multilineTextAlignment(.center)
-                    }.frame(maxWidth: .infinity, alignment: .center)
-                } else if gemini.isLoading {
-                    ProgressView()
+                    } else {
+                        VStack {
+                            Text("Hi, I'm Dora.")
+                                .multilineTextAlignment(.center)
+                                .font(.largeTitle)
+                                .bold()
+                            
+                            Text("Where would you like to explore today?")
+                                .font(.title)
+                                .multilineTextAlignment(.center)
+                        }.frame(maxWidth: .infinity, alignment: .center)
+                    }
+                
                 } else {
                     ScrollView {
                         Map {
@@ -56,30 +68,51 @@ struct AITripCreationView: View {
                         .frame(height: 425)
                         
                         if gemini.isLoading {
-                            ProgressView()
-                        }
-                        VStack {
-                            ForEach(selectedPlaces, id: \.self) { place in
-                                VStack {
-                                    if let id = place.identifier?.rawValue, gemini.placesToRemove.contains(id)  {
-                                        Text("REMOVED")
+                            VStack {
+                                Text("Curating the perfect trip...")
+                                ProgressView()
+                                
+                            }
+                        } else {
+                            VStack {
+                                Picker("Mode", selection: $mode) {
+                                    ForEach(Mode.allCases) { Text($0.rawValue).tag($0) }
+                                }
+                                .pickerStyle(.segmented)
+                                .padding(.horizontal, 16)
+                                
+                                switch mode {
+                                case .first:
+                                    
+                                    VStack(alignment: .leading) {
+                                        Text(gemini.name).font(.title)
+                                        Text(gemini.description).font(.default)
                                     }
-                                    HStack {
-                                        Text(place.name ?? "")
-                                        Text(place.address?.fullAddress ?? "")
-                                    }
-                                    Button("Remove") {
-                                        guard let id = place.identifier?.rawValue else {
-                                                return
-                                        }
-
-                                        if let index = gemini.placesToRemove.firstIndex(of: id) {
-                                            gemini.placesToRemove.remove(at: index)
-                                        } else {
-                                            gemini.placesToRemove.append(id)
+                                case .second:
+                                    ForEach(selectedPlaces, id: \.self) { place in
+                                        VStack {
+                                            if let id = place.identifier?.rawValue, gemini.placesToRemove.contains(id)  {
+                                                Text("REMOVED")
+                                            }
+                                            HStack {
+                                                Text(place.name ?? "")
+                                                Text(place.address?.fullAddress ?? "")
+                                            }
+                                            Button("Remove") {
+                                                guard let id = place.identifier?.rawValue else {
+                                                    return
+                                                }
+                                                
+                                                if let index = gemini.placesToRemove.firstIndex(of: id) {
+                                                    gemini.placesToRemove.remove(at: index)
+                                                } else {
+                                                    gemini.placesToRemove.append(id)
+                                                }
+                                            }.disabled(gemini.isLoading)
                                         }
                                     }
                                 }
+                                
                             }
                         }
                         
@@ -87,7 +120,7 @@ struct AITripCreationView: View {
                 }
             }
             Spacer()
-            if selectedPlaces.isEmpty {
+            if selectedPlaces.isEmpty && !gemini.isLoading{
 
                 HStack {
                     TextField("Create a trip through my local parks....", text: $prompt, axis: .vertical)
@@ -95,42 +128,44 @@ struct AITripCreationView: View {
                     
                     
                     Button("", systemImage: "paperplane.circle.fill") {
+                        prompt.removeAll()
                         Task {
                             do {
                                 selectedPlaces = try await gemini.request(prompt: prompt)
-                                gemini.isLoading = true
-                                
-                                try await Task.sleep(for: (.seconds(3)))
-                                selectedPlaces = try await Array(locationVM.searchPlaces(searchRequest: "burger restaurants").prefix(5))
-                                
+//                                selectedPlaces = try await locationVM.searchPlaces(searchRequest: "burger")
                                 routes = try await locationVM.createRoute(selectedPlaces: selectedPlaces)
                                 
-                                gemini.isLoading = false
                             }catch {
                                 
                             }
                         }
-                    }.font(.largeTitle)
+                    }
+                    .font(.largeTitle)
+                    .disabled(gemini.isLoading)
                 }.padding()
 
                 } else {
-                    Button("Create a different trip") {
-                        selectedPlaces.removeAll()
-                        routes.removeAll()
-                    }
-                    
-                    Button("Replace selected spots") {
-                        Task {
-                            do {
-                                selectedPlaces = try await gemini.editTrip()
-                                routes = try await locationVM.createRoute(selectedPlaces: selectedPlaces)
-                            } catch {
-                                
-                            }
+                    VStack {
+                        HStack {
+                            Button("Create a different trip") {
+                                selectedPlaces.removeAll()
+                                routes.removeAll()
+                            }.disabled(gemini.isLoading)
+                            
+                            Button("Replace selected spots") {
+                                Task {
+                                    do {
+                                        selectedPlaces = try await gemini.editTrip()
+                                        routes = try await locationVM.createRoute(selectedPlaces: selectedPlaces)
+                                    } catch {
+                                        
+                                    }
+                                }
+                            }.disabled(gemini.placesToRemove.isEmpty || gemini.isLoading)
                         }
-                    }.disabled(gemini.placesToRemove.isEmpty)
-                    Button("Continue") {
-                        
+                        Button("Finish") {
+                            
+                        }.disabled(gemini.isLoading)
                     }
                 }
                 

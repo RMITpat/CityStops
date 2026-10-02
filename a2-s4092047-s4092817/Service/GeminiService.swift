@@ -10,7 +10,7 @@ import FirebaseAILogic
 import MapKit
 
 struct AITripDetails: Codable {
-    let name: String
+    let trip_name: String
     let description: String
 }
 
@@ -48,7 +48,7 @@ final class GeminiServiceImpl : GeminiService {
         
         // Change from 3.5-3.8 depending on traffic
         model = ai.generativeModel(
-            modelName: "gemini-3.8-flash",
+            modelName: "gemini-3.5-flash",
             generationConfig: GenerationConfig(
                 responseMIMEType: "application/json",
                 responseSchema: tripJSONSchema
@@ -154,7 +154,7 @@ final class GeminiServiceImpl : GeminiService {
     }
     
     func generateTrip(prompt: String) async throws -> ([MKMapItem], String, String) {
-        var firstResponse = try await currentChat.sendMessage(prompt)
+        let firstResponse = try await currentChat.sendMessage(prompt)
     
         let finalResponse = try await multiTurn(firstResponse: firstResponse)
         print(finalResponse.text ?? "no text response")
@@ -195,7 +195,7 @@ final class GeminiServiceImpl : GeminiService {
         
         let data = try JSONDecoder().decode(AITripDetails.self, from: tripDetails)
         
-        return (selectedPlaces, data.name, data.description)
+        return (selectedPlaces, data.trip_name, data.description)
     }
     
     

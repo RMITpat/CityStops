@@ -15,35 +15,19 @@ import _MapKit_SwiftUI
 struct TripCard: View {
     @Environment(LocationViewModel.self) var locationVM: LocationViewModel
     @Environment(AppViewModel.self) var appVM: AppViewModel
-
+    @Environment(Router.self) var router: Router
+    
     /// The trip this card displays information for
     let trip: Trip
     
     
     @State var routes: [MKRoute] = []
     var body: some View {
-        @Bindable var locationVM = locationVM
-        @Bindable var appVM = appVM
-        
+        @Bindable var locationVM = locationVM        
 
         VStack(alignment: .leading) {
             
-            VStack {
-                HStack {
-                    VStack(alignment: .leading) {
-                        Text(trip.name)
-                            .font(.title2)
-                            .bold()
-                        Text(trip.preferences.sorted().joined(separator: ", "))
-                            .font(.subheadline)
-                            .foregroundStyle(.gray)
-                    }
-                    Spacer()
-                    Text("By \(trip.ownerUsername)")
-                    
-                }
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
+            TripCardInfo(trip: trip)
             
             Map(position: .constant(.automatic), interactionModes: []) {
                 ForEach(trip.mkMapItemPlaces, id: \.self) { place in
@@ -69,25 +53,16 @@ struct TripCard: View {
                 
             }
             HStack(alignment: .center) {
-                Button(trip.savedByUser ? "Saved" : "Save", systemImage: trip.savedByUser ? "bookmark.fill" : "bookmark") {
-                    Task {
-                        do {
-                            if trip.savedByUser {
-                                try await appVM.deleteTripBookmark(tripId: trip.id)
-
-                            } else {
-                                try await appVM.bookmarkTrip(tripId: trip.id)
-
-                            }
-                        } catch {
-                            
-                        }
-                    }
-
-                }.font(.title2)
+                SaveTripButton(trip: trip)
             }
             .frame(maxWidth: .infinity, alignment: .center)
 
+        }
+        
+        .contentShape(Rectangle())
+        .onTapGesture {
+            router.feedRoute.append(.tripDetail)
+            appVM.currentTrip = trip
         }
         .padding(18)
 
@@ -105,6 +80,7 @@ struct TripCard: View {
     TripFeed(trips: [trip, trip2], isLoading: false, onRefresh: {}, loadTrips: {})
             .environment(LocationViewModel(user: user))
             .environment(AppViewModel(user: user))
+            .environment(Router())
 
 
 }

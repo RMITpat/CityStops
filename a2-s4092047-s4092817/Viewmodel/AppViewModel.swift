@@ -36,6 +36,9 @@ import MapKit
     /// The feed of user's created trips
     var yourTrips: [Trip] = []
     
+    /// The current trip being viewed in TripDetailView
+    var currentTrip: Trip? = nil
+    
     /// Real init used in app
     init(user: AppUser) {
         let service = TripServiceImpl()
@@ -49,6 +52,13 @@ import MapKit
         self.user = user
     }
     
+    /// Init used by preview
+    init(user: AppUser, currentTrip: Trip) {
+        let service = TripServiceImpl()
+        self.tripService = service
+        self.user = user
+        self.currentTrip = currentTrip
+    }
     /// Saves a trip to Firestore
     func saveTrip(name: String, selectedPlaces: [MKMapItem], preferences: [String]) async throws {
     

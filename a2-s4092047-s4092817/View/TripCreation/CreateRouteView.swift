@@ -15,11 +15,15 @@ struct CreateRouteView: View {
     @Environment(AppViewModel.self) var appVM: AppViewModel
     @Environment(TripCreationViewModel.self) var tripCreationVM: TripCreationViewModel
     @Environment(Router.self) var router: Router
+    
+    @State var createRouteVM = CreateRouteViewModel()
 
     // Routes between selectionPlaces
     @State var routes: [MKRoute] = []
-    
     @State var error: String?
+    
+    // Sheet state
+    @State private var showStopsSheet = true
     
     var body: some View {
         @Bindable var locationVM = locationVM
@@ -45,9 +49,37 @@ struct CreateRouteView: View {
             } catch {
                 self.error = error.localizedDescription
             }
-            
+
         }
-        // Scroll View of chosen locations
+        .task {
+            await createRouteVM.preload(
+                preferences: tripCreationVM.selectedPreferences,
+                near: locationVM.currentRegion.center
+            )
+        }
+        
+        // MARK: Choose stops sheet
+        .sheet(isPresented: $showStopsSheet) {
+            VStack {
+                CreateTripView()
+                .padding(.top, 24)
+                
+                .safeAreaInset(edge: .bottom) {
+                    Button("Done") {
+                        showStopsSheet.toggle()
+                    }
+                    .modifier(ButtonFormat())
+                }
+            }
+            .environment(createRouteVM) 
+            .presentationDetents([.large])
+            // Lets you pan/zoom the map while the sheet is at small/medium size
+            .presentationBackgroundInteraction(.enabled(upThrough: .medium))
+            .presentationDragIndicator(.visible)
+            .interactiveDismissDisabled()
+        }
+        
+        // MARK: Scroll View of chosen locations
         ScrollView {
              VStack {
                  ForEach(tripCreationVM.selectedPlaces, id: \.identifier) { result in
@@ -61,18 +93,28 @@ struct CreateRouteView: View {
              }
          }
         Spacer()
-      
-        Button("Finish") {
-            Task {
-                do {
-                    try await appVM.saveTrip(name: tripCreationVM.name, selectedPlaces: tripCreationVM.selectedPlaces, preferences: tripCreationVM.selectedPreferences.map {$0.preference })
-                    tripCreationVM.clear()
-                    router.tripCreationRoute.removeAll()
-                    router.selectedTab = .create
-                } catch {
-                    self.error = error.localizedDescription
+        
+        // MARK: "Open Sheet" button
+        Button("Choose Locations") {
+            showStopsSheet = true
+        }
+        
+        // MARK: "Finish" button
+        .safeAreaInset(edge: .bottom) {
+            Button("Finish") {
+                Task {
+                    do {
+                        try await appVM.saveTrip(name: tripCreationVM.name, selectedPlaces: tripCreationVM.selectedPlaces, preferences: tripCreationVM.selectedPreferences.map {$0.preference })
+                        
+                        tripCreationVM.clear()
+                        router.tripCreationRoute.removeAll()
+                        router.selectedTab = .create
+                    } catch {
+                        self.error = error.localizedDescription
+                    }
                 }
             }
+            .modifier(ButtonFormat())
         }
         if let error {
             Text(error)
@@ -93,6 +135,6 @@ struct CreateRouteView: View {
             .environment(AppViewModel(user: user))
             .environment(TripCreationViewModel())
             .environment(Router())
-
+            .environment(SearchTermViewModel())
     }
 }

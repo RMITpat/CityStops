@@ -38,27 +38,14 @@ struct CreateTripView: View {
 
         VStack {
 
-            // Map interface
-    //            Map (position: $locationVM.currentLocation) {
-    //                ForEach(selectedPlaces, id: \.self) { place in
-    //                    Marker(item: place)
-    //                        .mapItemDetailSelectionAccessory(.callout)
-    //                }
-    //            }
-    //            .frame(height:400)
-    //            .onAppear {
-    //                locationVM.checkLocationAuthorization()
-    //            }
-
-   
-            Picker("Mode", selection: $mode) {
-                ForEach(Mode.allCases) { Text($0.rawValue).tag($0) }
-            }
-            .pickerStyle(.segmented)
-            .padding(.horizontal, 16)
+            // MARK: View Title
+            Text("Select Stops")
+                .font(.largeTitle)
+                .fontWeight(.bold)
 
             // Keep both subviews alive so their state (and loaded results) survives switching
-            ZStack {
+            ZStack (alignment: .top) {
+
                 NearbyLocations()
                     .opacity(mode == .first ? 1 : 0)
                     .allowsHitTesting(mode == .first)
@@ -70,23 +57,17 @@ struct CreateTripView: View {
                     .accessibilityHidden(mode != .second)
             }
 
-            // Keep Picker at top of View
-            Spacer()
-        }
-
-        // MARK: "Next" Button
-        .safeAreaInset(edge: .bottom) {
-            Button("Next") {
-                router.tripCreationRoute.append(TripCreationRoute.createRoute)
+            // Content fills the sheet and anchors to the top
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+            // Picker bar
+            .safeAreaInset(edge: .top, spacing: 8) {
+                Picker("Mode", selection: $mode) {
+                    ForEach(Mode.allCases) { Text($0.rawValue).tag($0) }
+                }
+                .pickerStyle(.segmented)
+                .padding(.horizontal, 16)
             }
-            .controlSize(.large)
-            .buttonStyle(.glassProminent)
-            .padding(.horizontal, 16)
-            .padding(.bottom, 24)
         }
-        .navigationTitle(Text("Select Stops"))
-        .navigationSubtitle(Text("Add stops to your trip!"))
-
     }
 }
 

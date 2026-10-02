@@ -30,7 +30,7 @@ struct CreateTripView: View {
         var id: Self { self }
     }
     
-    @State private var mode: Mode = .first
+    @State var mode: Mode
     
     var body: some View {
         @Bindable var locationVM = locationVM
@@ -75,7 +75,7 @@ struct CreateTripView: View {
 #Preview {
     let user = AppUser(id: "Test", username: "test", email: "test@email.com")
     NavigationStack {
-        CreateTripView()
+        CreateTripView(mode: .first)
             .environment(LocationViewModel(user: user))
             .environment(TripCreationViewModel())
             .environment(SearchTermViewModel())

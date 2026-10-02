@@ -22,7 +22,12 @@ struct NearbyLocations: View {
 
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
-                
+                if tripCreationVM.selectedPreferences.isEmpty {
+                    Text("Select preferences for your trip to see nearby locations")
+                        .font(.title2)
+                        .multilineTextAlignment(.center)
+                    
+                }
                 // show List of nearby locations for each preference selected from
                 // ``TripPreferenceView``
                 ForEach(

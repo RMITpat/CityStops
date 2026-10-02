@@ -33,7 +33,6 @@ struct CreationChoiceView: View {
                 switch route {
                     case .name: TripNameView()
                     case .preferences: TripPreferenceView()
-                    case .createTrip: CreateTripView()
                     case .createRoute: CreateRouteView()
                 }
             }
@@ -42,7 +41,7 @@ struct CreationChoiceView: View {
                     .fontWeight(.light)
                 
                 //TODO: Implement AI / ML daytrip creation feature
-                NavigationLink(destination: CreateTripView()
+                NavigationLink(destination: CreateTripView(mode: .first)
                 ) {
                     Text("Let AI decide for me")
                 }

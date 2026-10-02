@@ -51,4 +51,4 @@ struct HomeView: View {
             .environment(AppViewModel(user: user ))
             .environment(Router())
     }
-}
+

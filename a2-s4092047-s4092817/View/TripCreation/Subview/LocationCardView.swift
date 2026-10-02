@@ -16,6 +16,8 @@ struct LocationCardView: View {
         selectedPlaces.contains(where: { $0.identifier == location.identifier })
     }
     
+    var allowModification: Bool
+    
     var body: some View {
         HStack(spacing: 16) {
             
@@ -38,16 +40,18 @@ struct LocationCardView: View {
             
             Spacer()
             
-            // "Add" / "Remove" button
-            Button {
-                isSelected ? selectedPlaces.removeAll(where: { $0.identifier == location.identifier }) : selectedPlaces.append(location)
-            } label: {
-                Image(systemName: isSelected ? "minus" : "plus")
-                    .bold()
-                    .foregroundStyle(.white)
-                    .frame(width: 36, height: 36)
-                    .background(isSelected ? Color.red : Color.accentColor)
-                    .clipShape(Circle())
+            // MARK: "Add" / "Remove" button
+            if (allowModification) {
+                Button {
+                    isSelected ? selectedPlaces.removeAll(where: { $0.identifier == location.identifier }) : selectedPlaces.append(location)
+                } label: {
+                    Image(systemName: isSelected ? "minus" : "plus")
+                        .bold()
+                        .foregroundStyle(.white)
+                        .frame(width: 36, height: 36)
+                        .background(isSelected ? Color.red : Color.accentColor)
+                        .clipShape(Circle())
+                }
             }
         }
         .padding()
@@ -68,7 +72,7 @@ struct LocationCardView: View {
     let user = AppUser(id: "Test", username: "test", email: "test@email.com")
     LocationCardView(
         location: LocationCardPreviewData.testLocation,
-        selectedPlaces: $selectedPlaces
+        selectedPlaces: $selectedPlaces, allowModification: true
     )
 }
 

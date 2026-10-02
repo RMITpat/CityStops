@@ -82,11 +82,11 @@ struct CreateRouteView: View {
         // MARK: Scroll View of chosen locations
         ScrollView {
              VStack {
-                 ForEach(tripCreationVM.selectedPlaces, id: \.identifier) { result in
+                 ForEach(tripCreationVM.selectedPlaces, id: \.identifier) { place in
                      VStack {
-                         // and any other details such as place type
-                         Text(result.name ?? "no name")
-                         Text(result.address?.fullAddress ?? "no name")
+                         LocationCardView(location: place,
+                                          selectedPlaces: $tripCreationVM.selectedPlaces,
+                                          allowModification: false)
                         
                      }
                  }

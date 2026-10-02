@@ -61,8 +61,7 @@ struct NearbyLocationSegment: View {
                     ForEach(segmentVM.locations, id: \.identifier) { item in
                         LocationCardView(
                             location: item,
-                            selectedPlaces: $selectedPlaces,
-                            allowModification: true
+                            selectedPlaces: $selectedPlaces
                         )
                     }
                 }

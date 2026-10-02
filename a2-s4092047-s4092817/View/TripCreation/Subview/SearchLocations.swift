@@ -94,8 +94,7 @@ struct SearchLocations: View {
                     // Generate location detail cards
                     ForEach(searchResults, id: \.identifier) { result in
                         LocationCardView(location: result,
-                                         selectedPlaces: $tripCreationVM.selectedPlaces,
-                                         allowModification: true
+                                         selectedPlaces: $tripCreationVM.selectedPlaces
                                     )
                     }
                 }

@@ -10,13 +10,30 @@ import MapKit
 
 struct LocationCardView: View {
     let location: MKMapItem
-    @Binding var selectedPlaces: [MKMapItem]
+    var selectedPlaces: Binding<[MKMapItem]>?
     
-    var isSelected: Bool {
-        selectedPlaces.contains(where: { $0.identifier == location.identifier })
+    /// Takes a Binding for ``selectedPlaces`` when ``location`` can be added or deleted from a ``Trip``.
+    init(location: MKMapItem,
+         selectedPlaces: Binding<[MKMapItem]>?) {
+        self.location = location
+        self.selectedPlaces = selectedPlaces
+    }
+
+    /// Takes a ``Location`` for view-only display.
+    init(location: MKMapItem) {
+        self.location = location
+        self.selectedPlaces = nil
     }
     
-    var allowModification: Bool
+    /// View-specific state to detect if location is part of ``Trip``.
+    var isSelected: Bool {
+        // Only unwraps selectedPlaces if ``selectedPlaces`` is passed
+        guard (selectedPlaces != nil) else { return false }
+        
+        return selectedPlaces!.wrappedValue.contains(where: {
+            $0.identifier == location.identifier
+        })
+    }
     
     var body: some View {
         HStack(spacing: 16) {
@@ -41,9 +58,9 @@ struct LocationCardView: View {
             Spacer()
             
             // MARK: "Add" / "Remove" button
-            if (allowModification) {
+            if (selectedPlaces != nil) {
                 Button {
-                    isSelected ? selectedPlaces.removeAll(where: { $0.identifier == location.identifier }) : selectedPlaces.append(location)
+                    isSelected ? selectedPlaces!.wrappedValue.removeAll(where: { $0.identifier == location.identifier }) : selectedPlaces!.wrappedValue.append(location)
                 } label: {
                     Image(systemName: isSelected ? "minus" : "plus")
                         .bold()
@@ -72,8 +89,7 @@ struct LocationCardView: View {
     let user = AppUser(id: "Test", username: "test", email: "test@email.com")
     LocationCardView(
         location: LocationCardPreviewData.testLocation,
-        selectedPlaces: $selectedPlaces, allowModification: true
-    )
+        selectedPlaces: $selectedPlaces)
 }
 
 /// Test MKMapItem used for testing ``LocationCardView``.

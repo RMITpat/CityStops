@@ -85,8 +85,7 @@ struct CreateRouteView: View {
                  ForEach(tripCreationVM.selectedPlaces, id: \.identifier) { place in
                      VStack {
                          LocationCardView(location: place,
-                                          selectedPlaces: $tripCreationVM.selectedPlaces,
-                                          allowModification: false)
+                                          selectedPlaces: $tripCreationVM.selectedPlaces)
                         
                      }
                  }

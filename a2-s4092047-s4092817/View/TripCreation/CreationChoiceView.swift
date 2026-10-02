@@ -35,7 +35,7 @@ struct CreationChoiceView: View {
                     .fontWeight(.light)
                 
                 
-                Button("Let AI decide for me") {
+                Button("Ask Dora to assist") {
                     router.tripCreationRoute.append(TripCreationRoute.aiTripCreation)
                 }
                 .buttonStyle(.glassProminent)

@@ -22,46 +22,114 @@ struct AITripCreationView: View {
     }
 
     var body: some View {
-        ScrollView {
-            Map {
-                ForEach(selectedPlaces.indices, id: \.self) { index in
-                    Marker(item: selectedPlaces[index])
-                        .mapItemDetailSelectionAccessory(.callout)
-                    ForEach(routes, id: \.self) { route in
-                        MapPolyline(route)
-                            .stroke(.blue, lineWidth: 5)
-                    }
-                }
-            }
-            .frame(height: 425)
-
-            if gemini.isLoading {
-                ProgressView()
-            }
-            VStack {
-                ForEach(selectedPlaces, id: \.self) { place in
-                    VStack {
-                        Text(place.name ?? "")
-                        Text(place.address?.fullAddress ?? "")
-                    }
-                }
-            }
-            TextField("trip prompt", text: $prompt)
+        VStack (alignment: .leading){
+            Text("AI Trip Creation")
+                .font(.largeTitle).padding()
             
-            Button("ai button") {
-                Task {
-                    do {
-                        selectedPlaces = try await gemini.request(prompt: prompt)
-                        routes = try await locationVM.createRoute(selectedPlaces: selectedPlaces)
-                    }catch {
+            Spacer()
+            VStack (alignment: .center) {
+                if selectedPlaces.isEmpty {
+                    VStack {
+                        Text("Hi, I'm Dora.")
+                            .multilineTextAlignment(.center)
+                            .font(.largeTitle)
+                            .bold()
+                        
+                        Text("Where would you like to explore today?")
+                            .font(.title)
+                            .multilineTextAlignment(.center)
+                    }.frame(maxWidth: .infinity, alignment: .center)
+                } else if gemini.isLoading {
+                    ProgressView()
+                } else {
+                    ScrollView {
+                        Map {
+                            ForEach(selectedPlaces.indices, id: \.self) { index in
+                                Marker(item: selectedPlaces[index])
+                                    .mapItemDetailSelectionAccessory(.callout)
+                                ForEach(routes, id: \.self) { route in
+                                    MapPolyline(route)
+                                        .stroke(.blue, lineWidth: 5)
+                                }
+                            }
+                        }
+                        .frame(height: 425)
+                        
+                        if gemini.isLoading {
+                            ProgressView()
+                        }
+                        VStack {
+                            ForEach(selectedPlaces, id: \.self) { place in
+                                VStack {
+                                    Text(place.name ?? "")
+                                    Text(place.address?.fullAddress ?? "")
+                                }
+                            }
+                        }
                         
                     }
                 }
             }
+            Spacer()
+            if selectedPlaces.isEmpty {
+
+                HStack {
+                    TextField("Create a trip through my local parks....", text: $prompt, axis: .vertical)
+                        .textFieldStyle(.roundedBorder)
+                    
+                    
+                    Button("", systemImage: "paperplane.circle.fill") {
+                        Task {
+                            do {
+                                //                        selectedPlaces = try await gemini.request(prompt: prompt)
+                                gemini.isLoading = true
+                                
+                                try await Task.sleep(for: (.seconds(3)))
+                                selectedPlaces = try await Array(locationVM.searchPlaces(searchRequest: "burger restaurants").prefix(5))
+                                
+                                routes = try await locationVM.createRoute(selectedPlaces: selectedPlaces)
+                                
+                                gemini.isLoading = false
+                            }catch {
+                                
+                            }
+                        }
+                    }.font(.largeTitle)
+                }.padding()
+
+                } else {
+                    Button("Create a different trip") {
+                        selectedPlaces.removeAll()
+                        routes.removeAll()
+                    }
+                    Button("Choose different spots") {
+                        Task {
+                            do {
+                                //                        selectedPlaces = try await gemini.request(prompt: prompt)
+                                routes = try await locationVM.createRoute(selectedPlaces: selectedPlaces)
+                            } catch {
+                                
+                            }
+                        }
+                    }
+                    Button("Continue") {
+                        
+                    }
+                }
+                
         }
     }
 }
-//
-//#Preview {
-//    AITripCreationView()
-//}
+
+#Preview {
+    let user = AppUser(id: "Test", username: "test", email: "test@email.com")
+    
+    let location = CLLocationCoordinate2D(
+        latitude: -37.8136,
+        longitude: 144.9631
+    )
+
+    let region = MKCoordinateRegion(center: location, span: MKCoordinateSpan())
+    AITripCreationView(region: region)
+        .environment(LocationViewModel(user: user))
+}

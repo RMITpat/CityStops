@@ -12,6 +12,10 @@ struct LocationCardView: View {
     let location: MKMapItem
     @Binding var selectedPlaces: [MKMapItem]
     
+    var isSelected: Bool {
+        selectedPlaces.contains(where: { $0.identifier == location.identifier })
+    }
+    
     var body: some View {
         HStack(spacing: 16) {
             
@@ -34,15 +38,15 @@ struct LocationCardView: View {
             
             Spacer()
             
-            // "Add" button
+            // "Add" / "Remove" button
             Button {
-                selectedPlaces.append(location)
+                isSelected ? selectedPlaces.removeAll(where: { $0.identifier == location.identifier }) : selectedPlaces.append(location)
             } label: {
-                Image(systemName: "plus")
+                Image(systemName: isSelected ? "minus" : "plus")
                     .bold()
                     .foregroundStyle(.white)
                     .frame(width: 36, height: 36)
-                    .background(Color.accentColor)
+                    .background(isSelected ? Color.red : Color.accentColor)
                     .clipShape(Circle())
             }
         }

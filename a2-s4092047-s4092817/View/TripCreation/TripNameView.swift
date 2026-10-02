@@ -27,16 +27,12 @@ struct TripNameView: View {
         Spacer()
         
         // MARK: "Confirm" button
-        .safeAreaInset(edge: .bottom) {
-            
-            Button("Confirm") {
-                router.tripCreationRoute.append(TripCreationRoute.preferences)
+            .safeAreaInset(edge: .bottom) {
+                Button("Confirm") {
+                    router.tripCreationRoute.append(TripCreationRoute.preferences)
+                }
+                .modifier(ButtonFormat())
             }
-            .controlSize(.large)
-            .buttonStyle(.glassProminent)
-            .padding(.horizontal, 16)
-            .padding(.bottom, 24)
-        }
         
         .navigationTitle(Text("Name your Trip"))
         .navigationSubtitle(Text("What would you like your trip to be called?"))

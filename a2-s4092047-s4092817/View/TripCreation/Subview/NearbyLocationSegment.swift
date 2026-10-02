@@ -19,9 +19,11 @@ struct NearbyLocationSegment: View {
     @Binding var selectedPlaces: [MKMapItem]
     
     // MARK: View Models
-    @State private var segmentVM = LocationSegmentViewModel()
+    @Environment(CreateRouteViewModel.self) private var createRouteVM
 
     var body: some View {
+        let segmentVM = createRouteVM.segmentVM(for: preference)
+        
         VStack(alignment: .leading, spacing: 12) {
             // Preference title
             Text(preference.preference)
@@ -65,6 +67,7 @@ struct NearbyLocationSegment: View {
                 }
             }
         }
+        // Safety net: no-ops if the root view's preload already loaded this preference
         .task { await segmentVM.loadIfNeeded(for: preference, near: coordinate) }
     }
 }

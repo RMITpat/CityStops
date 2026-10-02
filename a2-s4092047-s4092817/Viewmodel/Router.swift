@@ -22,7 +22,6 @@ enum AppTab: Hashable {
 enum TripCreationRoute: Hashable {
     case name
     case preferences
-    case createTrip
     case createRoute
 }
 

@@ -36,9 +36,11 @@ final class TripServiceImpl: TripService {
     
     private var lastTripFeedDocument: DocumentSnapshot?
     private var lastUserTripDocument: DocumentSnapshot?
-    
+    private var lastSavedTripDocument: DocumentSnapshot?
+
     private var reachedEndTripFeed: Bool = false
     private var reachedEndUserTrips: Bool = false
+    private var reachedEndSavedTrips: Bool = false
 
     /// Save a trip to firestore
     func saveTrip(trip: Trip) async throws {
@@ -48,17 +50,24 @@ final class TripServiceImpl: TripService {
         try await ref.setData(tripWithId.asDictionary)
     }
     
-    /// Reset the last document so the next LoadTrips() call calls LoadFirst4Trips()
+    /// Reset the last document so the next LoadTrips() call  LoadFirst4Trips()
     func clearLastTripFeedDocument() {
         lastTripFeedDocument = nil
         reachedEndTripFeed = false
     }
     
-    /// Reset the last ocument so the next LoadTrips() call calls LoadFirst4UserTrips()
+    /// Reset the last document so the next LoadTrips() call  LoadFirst4Trips()
     func clearLastUserTripDocument() {
         lastUserTripDocument = nil
         reachedEndUserTrips = false
     }
+    
+    /// Reset the last saved trip document so the next LoadTrips() calls LoadFirst4Trips()
+    func clearLastSavedTripDocument() {
+        lastSavedTripDocument = nil
+        reachedEndSavedTrips = false
+    }
+    
     
     /// Get trips for trip feed from Firebase
     func loadTrips(ownerId: String) async throws -> [Trip] {
@@ -66,7 +75,7 @@ final class TripServiceImpl: TripService {
             return []
         }
         var queryDocuments: [QueryDocumentSnapshot] = []
-        var query = db.collection("trips")
+        let query = db.collection("trips")
             .order(by: "createdAt", descending: true)
             .limit(to: 4)
         
@@ -116,6 +125,35 @@ final class TripServiceImpl: TripService {
         return try await retrieveTrips(queryDocuments: queryDocuments, ownerId: ownerId)
     }
     
+    /// Get saved trips from Firebase
+    func loadSavedTrips(ownerId: String) async throws -> [Trip] {
+        if reachedEndSavedTrips {
+            return []
+        }
+        var queryDocuments: [QueryDocumentSnapshot] = []
+        let query = db.collection("bookmarkedTrips")
+            .whereField("ownerId", isEqualTo: ownerId)
+            .order(by: "createdAt", descending: true)
+            .limit(to: 4)
+        
+        if let lastSavedTripDocument {
+            queryDocuments = try await loadNext4Trips(lastDocument: lastSavedTripDocument, query: query)
+        } else {
+            queryDocuments = try await loadFirst4Trips(query: query)
+        }
+        
+        lastSavedTripDocument = queryDocuments.last
+        
+        // When we reach the end, the last document will be nil. To prevent the feed from starting again and loadFirst4UserTrips() being called, set this bool
+        if lastSavedTripDocument == nil {
+            reachedEndSavedTrips = true
+        }
+        
+        
+        return try await retrieveTrips(queryDocuments: queryDocuments, ownerId: ownerId)
+    }
+    
+    /// Turn querydocuments into trips
     func retrieveTrips(queryDocuments: [QueryDocumentSnapshot], ownerId: String) async throws -> [Trip] {
         
         var trips: [Trip] = []
@@ -132,7 +170,7 @@ final class TripServiceImpl: TripService {
         return trips
     }
     
-    /// Loads the first 4 user's trips and sets the lastDocument for the next query to begin at
+    /// Loads the first 4 trips and sets the lastDocument for the next query to begin at
     func loadFirst4Trips(query: FirebaseFirestore.Query) async throws -> [QueryDocumentSnapshot] {
         let snapshot = try await query.getDocuments()
 
@@ -140,7 +178,7 @@ final class TripServiceImpl: TripService {
     }
     
     
-    /// Loads the next 4 user trips starting at the previous query's end
+    /// Loads the next 4 trips starting at the previous query's end
     func loadNext4Trips(lastDocument: DocumentSnapshot, query: FirebaseFirestore.Query) async throws -> [QueryDocumentSnapshot] {
         let snapshot = try await query
             .start(afterDocument: lastDocument)

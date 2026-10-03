@@ -46,7 +46,8 @@ struct AITripOverview: View {
             .frame(height: 390)
 
             if geminiVM.isLoading {
-                ProgressView("Regenerating places...")
+                Spacer()
+                ProgressView("Tweaking trip...")
                     .progressViewStyle(.circular)
                     .scaleEffect(1.3)
                     .frame(maxWidth: .infinity, alignment: .center)
@@ -73,9 +74,9 @@ struct AITripOverview: View {
                             Button("Replace selected spots") {
                                 Task {
                                     do {
-//                                        try await tripCreationVM.fromAIResult(result: geminiVM.editTrip())
+                                        try await tripCreationVM.fromAIResult(result: geminiVM.editTrip())
 
-                                        try await tripCreationVM.fromAIResult(result: geminiVM.editTrip(currentRegion: locationVM.currentRegion))
+//                                        try await tripCreationVM.fromAIResult(result: geminiVM.editTrip(currentRegion: locationVM.currentRegion))
                                         routes = try await locationVM.createRoute(selectedPlaces: tripCreationVM.selectedPlaces)
                                     } catch {
                                         self.error = "Failed to regenerate stops"
@@ -84,6 +85,22 @@ struct AITripOverview: View {
                                 
                             }
                             .disabled(geminiVM.placesToRemove.isEmpty || geminiVM.isLoading)
+                            .buttonStyle(.glassProminent)
+                            .tint(.dora)
+                            
+                            Button("Add more spots") {
+                                Task {
+                                    do {
+                                        try await tripCreationVM.fromAIResult(result: geminiVM.addStops())
+
+                                        routes = try await locationVM.createRoute(selectedPlaces: tripCreationVM.selectedPlaces)
+                                    } catch {
+                                        self.error = "Failed to add more stops"
+                                    }
+                                }
+                                
+                            }
+                            .disabled(geminiVM.isLoading)
                             .buttonStyle(.glassProminent)
                             .tint(.dora)
                             

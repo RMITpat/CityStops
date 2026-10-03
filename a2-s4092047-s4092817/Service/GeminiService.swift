@@ -20,10 +20,23 @@ struct AIResult {
     let selectedPlaces: [MKMapItem]
 }
 
+enum GeminiModel: String, CaseIterable, Identifiable {
+    var id: Self {self}
+    
+    case flash5 = "gemini-3.5-flash"
+    case flash6 = "gemini-3.6-flash"
+    case flash7 = "gemini-3.7-flash"
+    case flash8 = "gemini-3.8-flash"
+    
+}
+
 @MainActor
 protocol GeminiService {
+    var modelName: GeminiModel { get }
+
     func request(tripRequest: String, preferences: [String]) async throws -> AIResult
     func editTrip(identifiers: [MKMapItem.Identifier]) async throws -> AIResult
+    func addStops() async throws -> AIResult
     func generateTrip(prompt: String) async throws -> AIResult
     
     func decodeTrip(responseText: String?) throws -> AIResult
@@ -32,13 +45,18 @@ protocol GeminiService {
     func useTools(response: GenerateContentResponse) async -> [FunctionResponsePart]
     func multiTurn(firstResponse: GenerateContentResponse) async throws -> GenerateContentResponse
     func selectPlace(identifier: String)
+    
+    func setModel(newModel: GeminiModel)
 }
 
 @MainActor
 final class GeminiServiceImpl : GeminiService {
     
     let ai: FirebaseAI
-    let model: GenerativeModel
+    var model: GenerativeModel
+    
+    var modelName: GeminiModel = .flash6
+    
     let currentRegion: MKCoordinateRegion
     
     /// The selectedPlaces for the trip this
@@ -54,7 +72,7 @@ final class GeminiServiceImpl : GeminiService {
         
         // Change from 3.5-3.8 depending on traffic
         model = ai.generativeModel(
-            modelName: "gemini-3.6-flash",
+            modelName: modelName.rawValue,
             generationConfig: GenerationConfig(
                 responseMIMEType: "application/json",
                 responseSchema: tripJSONSchema
@@ -146,6 +164,22 @@ final class GeminiServiceImpl : GeminiService {
         
     }
     
+    func setModel(newModel: GeminiModel) {
+        let oldHistory = currentChat.history
+        
+        model = ai.generativeModel(
+            modelName: newModel.rawValue,
+            generationConfig: GenerationConfig(
+                responseMIMEType: "application/json",
+                responseSchema: tripJSONSchema
+            ),
+            tools: [.functionDeclarations([searchPlaces, selectPlaces])],
+        )
+        currentChat = model.startChat(history: oldHistory)
+        
+        modelName = newModel
+    }
+    
     func editTrip(identifiers: [MKMapItem.Identifier]) async throws -> AIResult {
         selectedPlaces.removeAll()
         
@@ -163,6 +197,17 @@ final class GeminiServiceImpl : GeminiService {
         return try await generateTrip(prompt: prompt)
 
         
+    }
+    
+    func addStops() async throws -> AIResult {
+        selectedPlaces.removeAll()
+        let prompt = """
+            The user has reviewed your selected places and would like to add some more places. 
+            Please find 3 more locations from your searched places or through searching for more places. Then, add them anywhere to the existing trip.
+            Recreate the entire trip using the select_places tool and submit the trip again using the json schema.            
+            """
+        return try await generateTrip(prompt: prompt)
+
     }
     
     func generateTrip(prompt: String) async throws -> AIResult {

@@ -25,9 +25,41 @@ struct AITripCreationView: View {
     
     
     var body: some View {
+        
         VStack (alignment: .leading){
-            Text("AI Trip Creation")
-                .font(.largeTitle).padding()
+            HStack {
+                Text("AI Trip Creation")
+                    .font(.largeTitle).padding()
+                Spacer()
+                Menu {
+                    ForEach(GeminiModel.allCases, id: \.self) { model in
+                        Button() {
+                            geminiVM.setModel(model: model)
+                            
+                        } label: {
+                            HStack {
+                                Text(model.rawValue)
+                                Spacer()
+                                if geminiVM.currentModelName == model {
+                                    Image(systemName: "checkmark")
+                                }
+                            }
+                        }
+                    }
+                } label: {
+                    HStack {
+                        Text("Model")
+                        Image(systemName: "chevron.down")
+                    }
+                    .font(.headline)
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 10)
+                    .background(.dora)
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                    .contentShape(Rectangle())
+                }
+            }
             
             Spacer()
             VStack (alignment: .center) {
@@ -74,8 +106,8 @@ struct AITripCreationView: View {
                         Task {
                             do {
                                 self.error?.removeAll()
-//                                try await tripCreationVM.fromAIResult(result: geminiVM.request(prompt: prompt, preferences: tripCreationVM.selectedPreferences))
-                                try await tripCreationVM.fromAIResult(result: geminiVM.request(prompt: prompt, currentRegion: locationVM.currentRegion))
+                                try await tripCreationVM.fromAIResult(result: geminiVM.request(prompt: prompt, preferences: tripCreationVM.selectedPreferences))
+//                                try await tripCreationVM.fromAIResult(result: geminiVM.request(prompt: prompt, currentRegion: locationVM.currentRegion))
                                 try await routes = locationVM.createRoute(selectedPlaces: tripCreationVM.selectedPlaces)
                             } catch {
                                 self.error = "Failed to generate a trip"
@@ -83,6 +115,7 @@ struct AITripCreationView: View {
                         }
                         
                     }
+                    .foregroundStyle(.dora)
                     .font(.largeTitle)
                     .disabled(geminiVM.isLoading)
                 }.padding()

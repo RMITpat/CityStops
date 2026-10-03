@@ -54,8 +54,10 @@ struct TripCard: View {
             }
             // MARK: Desc + Save button
             VStack(alignment: .center) {
-                Text(trip.description)
                 HStack() {
+                    Text(trip.createdAt.formatted())
+                        .font(.subheadline)
+                    Spacer()
                     SaveTripButton(trip: trip)
                 }
             }

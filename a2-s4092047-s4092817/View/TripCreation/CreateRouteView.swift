@@ -89,7 +89,7 @@ struct CreateRouteView: View {
                         
                      }
                  }
-             }
+             }.padding()
          }
         Spacer()
         

@@ -114,15 +114,16 @@ struct AITripOverview: View {
                                     .font(.title3)
                             }
                         }
-                        
-                        ForEach(tripCreationVM.selectedPlaces, id: \.self) { place in
-                            VStack {
-                                LocationCard(location: place,
-                                             selectedPlaces: $tripCreationVM.selectedPlaces, placesToRemove: $geminiVM.placesToRemove)
+                        VStack {
+                            ForEach(tripCreationVM.selectedPlaces, id: \.self) { place in
+                                VStack {
+                                    LocationCard(location: place,
+                                                 selectedPlaces: $tripCreationVM.selectedPlaces, placesToRemove: $geminiVM.placesToRemove)
+                                    
+                                }
                                 
                             }
-                            
-                        }
+                        }.padding()
                     }
                     
                 }

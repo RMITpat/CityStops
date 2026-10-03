@@ -40,6 +40,7 @@ struct CreationChoiceView: View {
                 }
                 .buttonStyle(.glassProminent)
                 .controlSize(.large)
+                .tint(.dora)
                 
             }
             .onAppear {

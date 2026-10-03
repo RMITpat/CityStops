@@ -18,42 +18,82 @@ import MapKit
     var name: String = ""
     var description: String = ""
     
+    var selectedPlaces: [MKMapItem] = [MKMapItem]()
+    
+    
     init(region: MKCoordinateRegion) {
         geminiService = GeminiServiceImpl(region: region)
 
     }
-    
-    
-    func request(prompt: String) async throws -> [MKMapItem] {
-        isLoading = true
+    func reset() {
         placesToRemove.removeAll()
-        let aiTrip = try await geminiService.request(tripRequest: prompt)
+        name.removeAll()
+        description.removeAll()
+        selectedPlaces.removeAll()
+    }
+    
+    func request(prompt: String) {
+        if prompt.isEmpty {
+            return
+        }
+        isLoading = true
+        reset()
         
-        let places = aiTrip.0
-        name = aiTrip.1
-        description = aiTrip.2
+        Task {
+            do {
+                let aiTrip = try await geminiService.request(tripRequest: prompt)
+                
+                selectedPlaces = aiTrip.0
+                name = aiTrip.1
+                description = aiTrip.2
+                
+            } catch {
+                
+            }
+            
+            isLoading = false
+        }
         
-        isLoading = false
         
-        return places
-        
-//        try await Task.sleep(for: .seconds(5))
-//        isLoading = false
-//        return []
             
         
     }
     
-    func editTrip() async throws -> [MKMapItem] {
+    func editTrip() {
         isLoading = true
-        let aiTrip = try await geminiService.editTrip(identifiers: placesToRemove)
+        Task {
+            do {
+                let aiTrip = try await geminiService.editTrip(identifiers: placesToRemove)
+                
+                selectedPlaces = aiTrip.0
+                name = aiTrip.1
+                description = aiTrip.2
+                
+                placesToRemove.removeAll()
+            } catch {
+                
+            }
+            isLoading = false
+        }
+    }
+    
+    func isBeingRemoved(place: MKMapItem) -> Bool {
+        guard let identifier = place.identifier?.rawValue else {
+            return false
+        }
         
-        let places = aiTrip.0
-        name = aiTrip.1
-        description = aiTrip.2
+        return placesToRemove.contains(identifier)
+    }
+    
+    func toggleRemove(place: MKMapItem) {
+        guard let id = place.identifier?.rawValue else {
+            return
+        }
         
-        isLoading = false
-        
-        return places
+        if let index = placesToRemove.firstIndex(of: id) {
+            placesToRemove.remove(at: index)
+        } else {
+            placesToRemove.append(id)
+        }
     }
 }

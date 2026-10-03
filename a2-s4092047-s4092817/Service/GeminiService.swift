@@ -48,7 +48,7 @@ final class GeminiServiceImpl : GeminiService {
         
         // Change from 3.5-3.8 depending on traffic
         model = ai.generativeModel(
-            modelName: "gemini-3.5-flash",
+            modelName: "gemini-3.6-flash",
             generationConfig: GenerationConfig(
                 responseMIMEType: "application/json",
                 responseSchema: tripJSONSchema
@@ -203,7 +203,6 @@ final class GeminiServiceImpl : GeminiService {
         
         var functionResponses = [FunctionResponsePart]()
         
-        print(response.functionCalls.count)
         for functionCall in response.functionCalls {
             
             if functionCall.name == "search_places" {

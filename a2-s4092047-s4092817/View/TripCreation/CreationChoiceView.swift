@@ -25,6 +25,7 @@ struct CreationChoiceView: View {
                     .bold()
                 
                 Button("Plan it myself") {
+                    tripCreationVM.clear()
                     router.tripCreationRoute.append(TripCreationRoute.name)
                 }
                 .buttonStyle(.glassProminent)
@@ -35,6 +36,7 @@ struct CreationChoiceView: View {
                 
                 
                 Button("Ask Dora to assist") {
+                    tripCreationVM.clear()
                     router.tripCreationRoute.append(TripCreationRoute.preferences)
                 }
                 .buttonStyle(.glassProminent)

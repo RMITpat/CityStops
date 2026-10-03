@@ -9,11 +9,13 @@ import SwiftUI
 import MapKit
 
 struct AITripCreationView: View {
+    @Environment(TripCreationViewModel.self) var tripCreationVM: TripCreationViewModel
     @State private var gemini: GeminiViewModel
     
     @State private var prompt: String = ""
     
-
+    @State private var error: String?
+    
     init(region: MKCoordinateRegion) {
         gemini = GeminiViewModel(region: region)
     }
@@ -26,7 +28,7 @@ struct AITripCreationView: View {
             
             Spacer()
             VStack (alignment: .center) {
-                if gemini.selectedPlaces.isEmpty {
+                if tripCreationVM.selectedPlaces.isEmpty {
                     if gemini.isLoading {
                         ProgressView("Curating the perfect trip...")
                             .progressViewStyle(.circular)
@@ -45,6 +47,12 @@ struct AITripCreationView: View {
                                 .multilineTextAlignment(.center)
                         }.frame(maxWidth: .infinity, alignment: .center)
                     }
+                    
+                    if let error {
+                        Text(error)
+                            .foregroundStyle(.red)
+                            .font(.title2)
+                    }
                 
                 } else {
                     AITripOverview()
@@ -52,7 +60,7 @@ struct AITripCreationView: View {
                 }
             }
             Spacer()
-            if gemini.selectedPlaces.isEmpty && !gemini.isLoading {
+            if tripCreationVM.selectedPlaces.isEmpty && !gemini.isLoading {
                 
                 HStack {
                     TextField("Create a trip through my local parks....", text: $prompt, axis: .vertical)
@@ -60,7 +68,14 @@ struct AITripCreationView: View {
                     
                     
                     Button("", systemImage: "paperplane.circle.fill") {
-                        gemini.request(prompt: prompt)
+                        Task {
+                            do {
+                                self.error?.removeAll()
+                                try await tripCreationVM.fromAIResult(result: gemini.request(prompt: prompt))
+                            } catch {
+                                self.error = "Failed to generate a trip"
+                            }
+                        }
                         
                     }
                     .font(.largeTitle)

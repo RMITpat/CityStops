@@ -11,11 +11,14 @@ import MapKit
 struct AITripOverview: View {
     @Environment(GeminiViewModel.self) var gemini: GeminiViewModel
     @Environment(LocationViewModel.self) var locationVM: LocationViewModel
+    @Environment(TripCreationViewModel.self) var tripCreationVM: TripCreationViewModel
+    @Environment(Router.self) var router: Router
 
     @State private var routes: [MKRoute] = []
 
     @State private var mode: Mode = .first
 
+    @State private var error: String?
     enum Mode: String, CaseIterable, Identifiable {
         case first = "Details"
         case second = "Places"
@@ -25,8 +28,8 @@ struct AITripOverview: View {
     var body: some View {
         ScrollView {
             Map {
-                ForEach(gemini.selectedPlaces.indices, id: \.self) { index in
-                    Marker(item: gemini.selectedPlaces[index])
+                ForEach(tripCreationVM.selectedPlaces.indices, id: \.self) { index in
+                    Marker(item: tripCreationVM.selectedPlaces[index])
                         .mapItemDetailSelectionAccessory(.callout)
                     ForEach(routes, id: \.self) { route in
                         MapPolyline(route)
@@ -35,16 +38,16 @@ struct AITripOverview: View {
                 }
             }
             .frame(height: 390)
-            .onChange(of: gemini.selectedPlaces) {
-                Task {
-                    do {
-                        print("gemini selected places changed")
-                        routes = try await locationVM.createRoute(selectedPlaces: gemini.selectedPlaces)
-                    } catch {
-                        
-                    }
-                }
-            }
+//            .onChange(of: tripCreationVM.selectedPlaces) {
+//                Task {
+//                    do {
+//                        print("gemini selected places changed")
+//                        routes = try await locationVM.createRoute(selectedPlaces: gemini.selectedPlaces)
+//                    } catch {
+//                        
+//                    }
+//                }
+//            }
             if gemini.isLoading {
                 ProgressView("Regenerating places...")
                     .progressViewStyle(.circular)
@@ -62,21 +65,34 @@ struct AITripOverview: View {
                     switch mode {
                     case .first:
                         VStack(alignment: .leading) {
-                            Text(gemini.name).font(.title)
-                            Text(gemini.description).font(.default)
+                            Text(tripCreationVM.name).font(.title)
+                            Text(tripCreationVM.description).font(.default)
                         }.padding()
                         
                     case .second:
-                        
-                        Button("Replace selected spots") {
-                            gemini.editTrip()
+                        HStack {
+                            Button("Replace selected spots") {
+                                Task {
+                                    do {
+                                        try await tripCreationVM.fromAIResult(result: gemini.editTrip())
+                                    } catch {
+                                        self.error = "Failed to regenerate stops"
+                                    }
+                                }
+                                
+                            }
+                            .disabled(gemini.placesToRemove.isEmpty || gemini.isLoading)
+                            .buttonStyle(.glassProminent)
+                            .tint(.dora)
                             
+                            if let error {
+                                Text(error)
+                                    .foregroundStyle(.red)
+                                    .font(.title2)
+                            }
                         }
-                        .disabled(gemini.placesToRemove.isEmpty || gemini.isLoading)
-                        .buttonStyle(.glassProminent)
-                        .tint(.dora)
                         
-                        ForEach(gemini.selectedPlaces, id: \.self) { place in
+                        ForEach(tripCreationVM.selectedPlaces, id: \.self) { place in
                             VStack {
                                 HStack {
                                     VStack(alignment: .leading, spacing: 4) {
@@ -122,8 +138,9 @@ struct AITripOverview: View {
         Spacer()
             HStack {
                 Button("Start again") {
-                    gemini.reset()
-                    
+                    gemini.placesToRemove.removeAll()
+                    tripCreationVM.clear()
+                    router.tripCreationRoute = [TripCreationRoute.preferences]
                 }.disabled(gemini.isLoading)
                 .buttonStyle(.glassProminent)
                 .tint(.dora)

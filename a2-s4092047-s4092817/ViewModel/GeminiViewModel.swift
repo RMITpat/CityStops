@@ -14,67 +14,39 @@ import MapKit
     var isLoading: Bool = false
     
     var placesToRemove: [String] = []
-    
-    var name: String = ""
-    var description: String = ""
-    
-    var selectedPlaces: [MKMapItem] = [MKMapItem]()
-    
+
     
     init(region: MKCoordinateRegion) {
         geminiService = GeminiServiceImpl(region: region)
 
     }
-    func reset() {
+  
+    
+    func request(prompt: String) async throws -> AIResult {
+        isLoading = true
         placesToRemove.removeAll()
-        name.removeAll()
-        description.removeAll()
-        selectedPlaces.removeAll()
-    }
-    
-    func request(prompt: String) {
-        if prompt.isEmpty {
-            return
-        }
-        isLoading = true
-        reset()
         
-        Task {
-            do {
-                let aiTrip = try await geminiService.request(tripRequest: prompt)
-                
-                selectedPlaces = aiTrip.0
-                name = aiTrip.1
-                description = aiTrip.2
-                
-            } catch {
-                
-            }
+       
+        let aiTrip = try await geminiService.request(tripRequest: prompt)
             
-            isLoading = false
-        }
-        
+        isLoading = false
+    
+        return aiTrip
         
             
         
     }
     
-    func editTrip() {
+    func editTrip() async throws -> AIResult {
         isLoading = true
-        Task {
-            do {
-                let aiTrip = try await geminiService.editTrip(identifiers: placesToRemove)
-                
-                selectedPlaces = aiTrip.0
-                name = aiTrip.1
-                description = aiTrip.2
-                
-                placesToRemove.removeAll()
-            } catch {
-                
-            }
-            isLoading = false
-        }
+     
+        let aiTrip = try await geminiService.editTrip(identifiers: placesToRemove)
+            
+        placesToRemove.removeAll()
+       
+        isLoading = false
+        return aiTrip
+        
     }
     
     func isBeingRemoved(place: MKMapItem) -> Bool {

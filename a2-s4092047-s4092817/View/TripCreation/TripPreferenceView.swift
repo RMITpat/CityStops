@@ -53,20 +53,17 @@ struct TripPreferenceView: View {
         
         
         // MARK: - "Next" Button
-        // TODO: - Create wrapper for all bottom buttons (reusable view / wrapper)
+
         .safeAreaInset(edge: .bottom) {
-         
-            Button("Next") {
-                router.tripCreationRoute.append(TripCreationRoute.createTrip)
+                Button("Next") {
+                    router.tripCreationRoute.append(TripCreationRoute.createRoute)
+                }
+                .modifier(ButtonFormat())
             }
-            .controlSize(.large)
-            .buttonStyle(.glassProminent)
-            .padding(.horizontal, 16)
-            .padding(.bottom, 24)
-        }
+        
             // MARK: View Title
             .navigationTitle(Text("Trip Preferences"))
-        // FIXME: NAV SUBTITLE BUGS THE DISPLAY MODE; MAKES IT DEFAULT TO INLINE RATHER THAN LARGE
+
             //.navigationSubtitle("What will be the purpose of your daytrip?")
             .navigationBarTitleDisplayMode(.large)
     }

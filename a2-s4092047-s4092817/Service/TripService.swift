@@ -14,7 +14,7 @@ import FirebaseFirestore
 protocol TripService {
     func saveTrip(trip: Trip) async throws
     
-    func loadTrips() async throws -> [Trip]
+    func loadTrips(ownerId: String) async throws -> [Trip]
     func loadFirst4Trips() async throws -> [QueryDocumentSnapshot]
     func loadNext4Trips(lastDocument: DocumentSnapshot) async throws -> [QueryDocumentSnapshot]
     
@@ -24,7 +24,9 @@ protocol TripService {
     
     func clearLastTripFeedDocument()
     func clearLastUserTripDocument()
-
+    
+    func bookmarkTrip(ownerId: String, tripId: String) async throws
+    func removeTripBookmark(ownerId: String, tripId: String) async throws
 }
 
 ///
@@ -60,7 +62,7 @@ final class TripServiceImpl: TripService {
     }
     
     /// Get trips for trip feed from Firebase
-    func loadTrips() async throws -> [Trip] {
+    func loadTrips(ownerId: String) async throws -> [Trip] {
         if reachedEndTripFeed {
             return []
         }
@@ -78,9 +80,18 @@ final class TripServiceImpl: TripService {
         if lastTripFeedDocument == nil {
             reachedEndTripFeed = true
         }
-        
-        return queryDocuments
-            .compactMap { Trip(snapshot: $0) }
+        var trips: [Trip] = []
+        for document in queryDocuments {
+                let isSaved = try await checkIfTripIsSaved(
+                    ownerId: ownerId,
+                    tripId: document.documentID
+                )
+
+                if let trip = Trip(snapshot: document, isSaved: isSaved) {
+                    trips.append(trip)
+                }
+            }
+        return trips
 
     }
     
@@ -129,8 +140,18 @@ final class TripServiceImpl: TripService {
             reachedEndUserTrips = true
         }
         
-        return queryDocuments
-            .compactMap { Trip(snapshot: $0) }
+        var trips: [Trip] = []
+        for document in queryDocuments {
+                let isSaved = try await checkIfTripIsSaved(
+                    ownerId: ownerId,
+                    tripId: document.documentID
+                )
+
+                if let trip = Trip(snapshot: document, isSaved: isSaved) {
+                    trips.append(trip)
+                }
+            }
+        return trips
 
     }
     
@@ -158,4 +179,41 @@ final class TripServiceImpl: TripService {
         return snapshot.documents
     
     }
+    
+    /// Save a document which contains the user's id and the id of the trip they are bookmarking
+    func bookmarkTrip(ownerId: String, tripId: String) async throws {
+        let ref = db.collection("bookmarkedTrips").document()
+        
+        let data = [
+            "ownerId" : ownerId,
+            "tripId" : tripId
+        ]
+        try await ref.setData(data)
+    }
+    
+    func removeTripBookmark(ownerId: String, tripId: String) async throws {
+        let dbCollection = db.collection("bookmarkedTrips")
+        let snapshot = try await dbCollection
+            .whereField("ownerId", isEqualTo: ownerId)
+            .whereField("tripId", isEqualTo: tripId)
+            .getDocuments()
+        
+        if let document = snapshot.documents.first {
+            try await document.reference.delete()
+        }
+        
+    }
+    
+    func checkIfTripIsSaved(ownerId: String, tripId: String) async throws -> Bool {
+        let dbCollection = db.collection("bookmarkedTrips")
+        let snapshot = try await dbCollection
+            .whereField("ownerId", isEqualTo: ownerId)
+            .whereField("tripId", isEqualTo: tripId)
+            .getDocuments()
+        
+        return !snapshot.documents.isEmpty
+    }
+    
 }
+
+

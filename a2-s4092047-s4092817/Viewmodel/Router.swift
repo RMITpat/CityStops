@@ -22,8 +22,11 @@ enum AppTab: Hashable {
 enum TripCreationRoute: Hashable {
     case name
     case preferences
-    case createTrip
     case createRoute
+}
+
+enum FeedRoute: Hashable {
+    case tripDetail
 }
 
 // MARK: - Router Class
@@ -40,4 +43,5 @@ class Router {
     /// The navigation stack path for the Create Trip flow
     var tripCreationRoute: [TripCreationRoute] = [TripCreationRoute]()
     
+    var feedRoute: [FeedRoute] = [FeedRoute]()
 }

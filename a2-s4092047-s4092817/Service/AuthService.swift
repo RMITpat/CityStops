@@ -53,8 +53,7 @@ final class AuthServiceImpl: AuthService {
         )
 
         let authResult = try await Auth.auth().signIn(with: credential)
-        print(authResult.user.email)
-        print(authResult.user.displayName)
+
         return AppUser.fromFirebaseUser(authResult.user)
     }
 

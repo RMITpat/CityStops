@@ -138,12 +138,10 @@ import MapKit
                 
                 // Call the service
                 let loadedTrips = try await tripService.loadUserTrips(ownerId: user.id )
-                
                 // For each trip,
                 for trip in loadedTrips {
                     // Convert its stops, stored as MKMapItem.Identifier's, to MKMapItems so they can be displayed.
                     let updatedTrip = try await getMKMapItemsForTrip(trip: trip)
-                    
                     // Only once all stops have been converted do we add the trip to the tripFeed, causing the fully loaded trip to appear in HomeView
                     yourTrips.append(updatedTrip)
                 }
@@ -169,12 +167,14 @@ import MapKit
                 
                 // Call the service
                 let loadedTrips = try await tripService.loadSavedTrips(ownerId: user.id )
-                
+                print("loaded \(loadedTrips.count)")
+
                 // For each trip,
                 for trip in loadedTrips {
                     // Convert its stops, stored as MKMapItem.Identifier's, to MKMapItems so they can be displayed.
                     let updatedTrip = try await getMKMapItemsForTrip(trip: trip)
-                    
+                    print("appending trip")
+
                     // Only once all stops have been converted do we add the trip to the tripFeed, causing the fully loaded trip to appear in HomeView
                     savedTrips.append(updatedTrip)
                 }
@@ -214,20 +214,38 @@ import MapKit
     func bookmarkTrip(tripId: String) async throws {
 
         try await tripService.bookmarkTrip(ownerId: user.id, tripId: tripId)
-        guard let savedTrip = tripFeed.firstIndex(where: { $0.id == tripId}) else {
-            return
+        if let feedSavedTrip = tripFeed.firstIndex(where: { $0.id == tripId}) {
+            tripFeed[feedSavedTrip].savedByUser = true
+
         }
-        tripFeed[savedTrip].savedByUser = true
+        
+        if let userSavedTrip = yourTrips.firstIndex(where: { $0.id == tripId}) {
+            yourTrips[userSavedTrip].savedByUser = true
+        }
+        
+        if let savedSavedTrip = savedTrips.firstIndex(where: { $0.id == tripId}) {
+            savedTrips[savedSavedTrip].savedByUser = true
+        }
     }
     
     func deleteTripBookmark(tripId: String) async throws {
         
         try await tripService.removeTripBookmark(ownerId: user.id, tripId: tripId)
       
-        guard let unsavedTrip = tripFeed.firstIndex(where: { $0.id == tripId}) else {
-            return
+        if let feedSavedTrip = tripFeed.firstIndex(where: { $0.id == tripId}) {
+            tripFeed[feedSavedTrip].savedByUser = false
+
         }
-        tripFeed[unsavedTrip].savedByUser = false
+        
+        if let userSavedTrip = yourTrips.firstIndex(where: { $0.id == tripId}) {
+            yourTrips[userSavedTrip].savedByUser = false
+        }
+        
+        if let savedSavedTrip = savedTrips.firstIndex(where: { $0.id == tripId}) {
+            savedTrips[savedSavedTrip].savedByUser = false
+        }
+        
+        
     }
     
     

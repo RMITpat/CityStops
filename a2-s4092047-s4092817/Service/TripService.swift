@@ -130,6 +130,7 @@ final class TripServiceImpl: TripService {
     /// Get saved trips from Firebase
     func loadSavedTrips(ownerId: String) async throws -> [Trip] {
         if reachedEndSavedTrips {
+            print("reached end")
             return []
         }
         var queryDocuments: [QueryDocumentSnapshot] = []
@@ -138,9 +139,15 @@ final class TripServiceImpl: TripService {
             .order(by: "createdAt", descending: true)
             .limit(to: 4)
         
+        let savedTrips = try await loadFirst4Trips(query: query)
+        
+        
+        
         if let lastSavedTripDocument {
+            print("loding next 4")
             queryDocuments = try await loadNext4Trips(lastDocument: lastSavedTripDocument, query: query)
         } else {
+            print("loading first 4")
             queryDocuments = try await loadFirst4Trips(query: query)
         }
         
@@ -148,6 +155,7 @@ final class TripServiceImpl: TripService {
         
         // When we reach the end, the last document will be nil. To prevent the feed from starting again and loadFirst4UserTrips() being called, set this bool
         if lastSavedTripDocument == nil {
+            print("reached end, setting bool")
             reachedEndSavedTrips = true
         }
         
@@ -155,9 +163,10 @@ final class TripServiceImpl: TripService {
         return try await retrieveTrips(queryDocuments: queryDocuments, ownerId: ownerId)
     }
     
+    
     /// Turn querydocuments into trips
     func retrieveTrips(queryDocuments: [QueryDocumentSnapshot], ownerId: String) async throws -> [Trip] {
-        
+        print(queryDocuments.count)
         var trips: [Trip] = []
         for document in queryDocuments {
                 let isSaved = try await checkIfTripIsSaved(
@@ -169,6 +178,8 @@ final class TripServiceImpl: TripService {
                     trips.append(trip)
                 }
             }
+        
+        print(trips.count)
         return trips
     }
     
@@ -189,14 +200,16 @@ final class TripServiceImpl: TripService {
         return snapshot.documents
     
     }
+ 
     
     /// Save a document which contains the user's id and the id of the trip they are bookmarking
     func bookmarkTrip(ownerId: String, tripId: String) async throws {
         let ref = db.collection("bookmarkedTrips").document()
         
-        let data = [
+        let data: [String : Any] = [
             "ownerId" : ownerId,
-            "tripId" : tripId
+            "tripId" : tripId,
+            "createdAt" : Date()
         ]
         try await ref.setData(data)
     }
@@ -220,7 +233,7 @@ final class TripServiceImpl: TripService {
             .whereField("ownerId", isEqualTo: ownerId)
             .whereField("tripId", isEqualTo: tripId)
             .getDocuments()
-        
+        print(snapshot.documents.count)
         return !snapshot.documents.isEmpty
     }
     

@@ -15,12 +15,11 @@ protocol TripService {
     func saveTrip(trip: Trip) async throws
     
     func loadTrips(ownerId: String) async throws -> [Trip]
-    func loadFirst4Trips() async throws -> [QueryDocumentSnapshot]
-    func loadNext4Trips(lastDocument: DocumentSnapshot) async throws -> [QueryDocumentSnapshot]
+    func loadFirst4Trips(query: FirebaseFirestore.Query) async throws -> [QueryDocumentSnapshot]
+    func loadNext4Trips(lastDocument: DocumentSnapshot, query: FirebaseFirestore.Query) async throws -> [QueryDocumentSnapshot]
     
     func loadUserTrips(ownerId: String) async throws -> [Trip]
-    func loadFirst4UserTrips(ownerId: String) async throws -> [QueryDocumentSnapshot]
-    func loadNext4UserTrips(lastDocument: DocumentSnapshot, ownerId: String) async throws -> [QueryDocumentSnapshot]
+   
     
     func clearLastTripFeedDocument()
     func clearLastUserTripDocument()
@@ -67,11 +66,15 @@ final class TripServiceImpl: TripService {
             return []
         }
         var queryDocuments: [QueryDocumentSnapshot] = []
+        var query = db.collection("trips")
+            .order(by: "createdAt", descending: true)
+            .limit(to: 4)
+        
         
         if let lastTripFeedDocument {
-            queryDocuments = try await loadNext4Trips(lastDocument: lastTripFeedDocument)
+            queryDocuments = try await loadNext4Trips(lastDocument: lastTripFeedDocument, query: query)
         } else {
-            queryDocuments = try await loadFirst4Trips()
+            queryDocuments = try await loadFirst4Trips(query: query)
         }
         
         lastTripFeedDocument = queryDocuments.last
@@ -80,44 +83,10 @@ final class TripServiceImpl: TripService {
         if lastTripFeedDocument == nil {
             reachedEndTripFeed = true
         }
-        var trips: [Trip] = []
-        for document in queryDocuments {
-                let isSaved = try await checkIfTripIsSaved(
-                    ownerId: ownerId,
-                    tripId: document.documentID
-                )
-
-                if let trip = Trip(snapshot: document, isSaved: isSaved) {
-                    trips.append(trip)
-                }
-            }
-        return trips
-
+        return try await retrieveTrips(queryDocuments: queryDocuments, ownerId: ownerId)
     }
     
-    /// Loads the first 4 trips and sets the lastDocument for the next query to begin at
-    func loadFirst4Trips() async throws -> [QueryDocumentSnapshot] {
-        let snapshot = try await db.collection("trips")
-            .order(by: "createdAt", descending: true)
-            .limit(to: 4)
-            .getDocuments()
-        
-        return snapshot.documents
-        
-        
-    }
-    
-    /// Loads the next 4 trips starting at the previous query's end
-    func loadNext4Trips(lastDocument: DocumentSnapshot) async throws -> [QueryDocumentSnapshot] {
-        let snapshot = try await db.collection("trips")
-            .order(by: "createdAt", descending: true)
-            .start(afterDocument: lastDocument)
-            .limit(to: 4)
-            .getDocuments()
-        
-        return snapshot.documents
-    
-    }
+  
     
     /// Get user trips from Firebase
     func loadUserTrips(ownerId: String) async throws -> [Trip] {
@@ -125,12 +94,15 @@ final class TripServiceImpl: TripService {
             return []
         }
         var queryDocuments: [QueryDocumentSnapshot] = []
-        
+        let query = db.collection("trips")
+            .whereField("ownerId", isEqualTo: ownerId)
+            .order(by: "createdAt", descending: true)
+            .limit(to: 4)
         
         if let lastUserTripDocument {
-            queryDocuments = try await loadNext4UserTrips(lastDocument: lastUserTripDocument, ownerId: ownerId)
+            queryDocuments = try await loadNext4Trips(lastDocument: lastUserTripDocument, query: query)
         } else {
-            queryDocuments = try await loadFirst4UserTrips(ownerId: ownerId)
+            queryDocuments = try await loadFirst4Trips(query: query)
         }
         
         lastUserTripDocument = queryDocuments.last
@@ -140,6 +112,12 @@ final class TripServiceImpl: TripService {
             reachedEndUserTrips = true
         }
         
+        
+        return try await retrieveTrips(queryDocuments: queryDocuments, ownerId: ownerId)
+    }
+    
+    func retrieveTrips(queryDocuments: [QueryDocumentSnapshot], ownerId: String) async throws -> [Trip] {
+        
         var trips: [Trip] = []
         for document in queryDocuments {
                 let isSaved = try await checkIfTripIsSaved(
@@ -152,28 +130,20 @@ final class TripServiceImpl: TripService {
                 }
             }
         return trips
-
     }
     
     /// Loads the first 4 user's trips and sets the lastDocument for the next query to begin at
-    func loadFirst4UserTrips(ownerId: String) async throws -> [QueryDocumentSnapshot] {
-        let snapshot = try await db.collection("trips")
-            .whereField("ownerId", isEqualTo: ownerId)
-            .order(by: "createdAt", descending: true)
-            .limit(to: 4)
-            .getDocuments()
+    func loadFirst4Trips(query: FirebaseFirestore.Query) async throws -> [QueryDocumentSnapshot] {
+        let snapshot = try await query.getDocuments()
 
         return snapshot.documents
     }
     
     
     /// Loads the next 4 user trips starting at the previous query's end
-    func loadNext4UserTrips(lastDocument: DocumentSnapshot, ownerId: String) async throws -> [QueryDocumentSnapshot] {
-        let snapshot = try await db.collection("trips")
-            .whereField("ownerId", isEqualTo: ownerId)
-            .order(by: "createdAt", descending: true)
+    func loadNext4Trips(lastDocument: DocumentSnapshot, query: FirebaseFirestore.Query) async throws -> [QueryDocumentSnapshot] {
+        let snapshot = try await query
             .start(afterDocument: lastDocument)
-            .limit(to: 4)
             .getDocuments()
         
         return snapshot.documents

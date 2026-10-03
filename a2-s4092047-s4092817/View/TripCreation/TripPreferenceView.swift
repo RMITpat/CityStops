@@ -56,7 +56,12 @@ struct TripPreferenceView: View {
 
         .safeAreaInset(edge: .bottom) {
                 Button("Next") {
-                    router.tripCreationRoute.append(TripCreationRoute.createRoute)
+                    
+                    if router.tripCreationRoute.contains(TripCreationRoute.name) {
+                        router.tripCreationRoute.append(TripCreationRoute.createRoute)
+                    } else {
+                        router.tripCreationRoute.append(TripCreationRoute.aiTripCreation)
+                    }
                 }
                 .modifier(ButtonFormat())
             }

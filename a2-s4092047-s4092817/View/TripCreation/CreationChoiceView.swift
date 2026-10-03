@@ -35,7 +35,7 @@ struct CreationChoiceView: View {
                 
                 
                 Button("Ask Dora to assist") {
-                    router.tripCreationRoute.append(TripCreationRoute.aiTripCreation)
+                    router.tripCreationRoute.append(TripCreationRoute.preferences)
                 }
                 .buttonStyle(.glassProminent)
                 .controlSize(.large)

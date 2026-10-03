@@ -14,15 +14,17 @@ import FirebaseFirestore
 protocol TripService {
     func saveTrip(trip: Trip) async throws
     
-    func loadTrips(ownerId: String) async throws -> [Trip]
+    
     func loadFirst4Trips(query: FirebaseFirestore.Query) async throws -> [QueryDocumentSnapshot]
     func loadNext4Trips(lastDocument: DocumentSnapshot, query: FirebaseFirestore.Query) async throws -> [QueryDocumentSnapshot]
     
     func loadUserTrips(ownerId: String) async throws -> [Trip]
-   
+    func loadSavedTrips(ownerId: String) async throws -> [Trip]
+    func loadTrips(ownerId: String) async throws -> [Trip]
     
     func clearLastTripFeedDocument()
     func clearLastUserTripDocument()
+    func clearLastSavedTripDocument()
     
     func bookmarkTrip(ownerId: String, tripId: String) async throws
     func removeTripBookmark(ownerId: String, tripId: String) async throws

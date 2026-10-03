@@ -30,11 +30,17 @@ import MapKit
     /// Are trips currently loading for the user's created trips
     var isLoadingUserTrips: Bool = false
     
+    /// Are trips currently loading for the user's saved trips
+    var isLoadingSavedTrips: Bool = false
+    
     /// The feed of loaded trips
     var tripFeed: [Trip] = []
     
     /// The feed of user's created trips
     var yourTrips: [Trip] = []
+    
+    /// The feed of user's saved trips
+    var savedTrips: [Trip] = []
     
     /// The current trip being viewed in TripDetailView
     var currentTrip: Trip? = nil
@@ -82,6 +88,12 @@ import MapKit
         tripService.clearLastUserTripDocument()
         yourTrips.removeAll()
         loadYourTrips()
+    }
+    
+    func refreshSavedTrips() {
+        tripService.clearLastSavedTripDocument()
+        savedTrips.removeAll()
+        loadSavedTrips()
     }
     
     /// Function to start reading all trips from Firestore
@@ -141,6 +153,37 @@ import MapKit
                 
             }
             isLoadingUserTrips = false
+            
+            
+        }
+    }
+    
+    /// Function to start reading user's saved trips from Firestore
+    func loadSavedTrips() {
+        if isLoadingSavedTrips { return }
+        isLoadingSavedTrips = true
+        Task {
+            do {
+                // Artificial wait, can be removed but feels nice
+                try await Task.sleep(for: .seconds(1))
+                
+                // Call the service
+                let loadedTrips = try await tripService.loadSavedTrips(ownerId: user.id )
+                
+                // For each trip,
+                for trip in loadedTrips {
+                    // Convert its stops, stored as MKMapItem.Identifier's, to MKMapItems so they can be displayed.
+                    let updatedTrip = try await getMKMapItemsForTrip(trip: trip)
+                    
+                    // Only once all stops have been converted do we add the trip to the tripFeed, causing the fully loaded trip to appear in HomeView
+                    savedTrips.append(updatedTrip)
+                }
+             
+            } catch {
+                self.error = error.localizedDescription
+                
+            }
+            isLoadingSavedTrips = false
             
             
         }

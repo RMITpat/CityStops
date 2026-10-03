@@ -61,7 +61,9 @@ struct AITripOverview: View {
                         VStack(alignment: .leading) {
                             Text(tripCreationVM.name).font(.title)
                             Text(tripCreationVM.description).font(.default)
-                        }.padding()
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding()
                         
                     case .second:
                         HStack {
@@ -112,7 +114,7 @@ struct AITripOverview: View {
                                     .font(.title)
                                     .disabled(gemini.isLoading)
                                     .foregroundColor(gemini.isBeingRemoved(place: place) ?
-                                                    .accentColor : .gray
+                                        .dora : .gray
                                     )
                                     
                                 }.padding()

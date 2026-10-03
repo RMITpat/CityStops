@@ -71,6 +71,8 @@ struct TripPreferenceView: View {
 
             //.navigationSubtitle("What will be the purpose of your daytrip?")
             .navigationBarTitleDisplayMode(.large)
+            .toolbar(.hidden, for: .tabBar)
+
     }
 }
 

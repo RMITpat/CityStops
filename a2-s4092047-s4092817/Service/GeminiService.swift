@@ -22,7 +22,7 @@ struct AIResult {
 
 @MainActor
 protocol GeminiService {
-    func request(tripRequest: String) async throws -> AIResult
+    func request(tripRequest: String, preferences: [String]) async throws -> AIResult
     func editTrip(identifiers: [String]) async throws -> AIResult
     func generateTrip(prompt: String) async throws -> AIResult
     
@@ -104,10 +104,10 @@ final class GeminiServiceImpl : GeminiService {
         "description" : .string(),
       ]
     )
-    func request(tripRequest: String) async throws -> AIResult {
+    func request(tripRequest: String, preferences: [String]) async throws -> AIResult {
 
         // Provide a prompt that contains text
-        let prompt = """
+        var prompt = """
         You are an expert at creating trips for users. 
         
         Trips involve travelling on a route that consists of multiple stops at different locations, depending
@@ -132,7 +132,13 @@ final class GeminiServiceImpl : GeminiService {
         
         The following is your trip creation task.
         \(tripRequest)
+        
+        If the user has selected any categories/themes for their trip, they are the following:
         """
+        
+        for preference in preferences {
+            prompt.append(preference + ", ")
+        }
 
         currentChat = model.startChat()
             

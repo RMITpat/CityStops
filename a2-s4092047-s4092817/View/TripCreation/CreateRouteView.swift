@@ -82,11 +82,10 @@ struct CreateRouteView: View {
         // MARK: Scroll View of chosen locations
         ScrollView {
              VStack {
-                 ForEach(tripCreationVM.selectedPlaces, id: \.identifier) { result in
+                 ForEach(tripCreationVM.selectedPlaces, id: \.identifier) { place in
                      VStack {
-                         // and any other details such as place type
-                         Text(result.name ?? "no name")
-                         Text(result.address?.fullAddress ?? "no name")
+                         LocationCard(location: place,
+                                          selectedPlaces: $tripCreationVM.selectedPlaces)
                         
                      }
                  }
@@ -104,7 +103,7 @@ struct CreateRouteView: View {
             Button("Finish") {
                 Task {
                     do {
-                        try await appVM.saveTrip(name: tripCreationVM.name, selectedPlaces: tripCreationVM.selectedPlaces, preferences: tripCreationVM.selectedPreferences.map {$0.preference })
+                        try await appVM.saveTrip(name: tripCreationVM.name, description: tripCreationVM.description, selectedPlaces: tripCreationVM.selectedPlaces, preferences: tripCreationVM.selectedPreferences.map {$0.preference })
                         
                         tripCreationVM.clear()
                         router.tripCreationRoute.removeAll()

@@ -17,6 +17,7 @@ final class TripCreationViewModel {
     var selectedPreferences: [Preference] = []
 
     var name: String = ""
+    var description: String = ""
 
     // Places selected by the user to be a part of the trip
     var selectedPlaces: [MKMapItem] = []
@@ -37,6 +38,7 @@ final class TripCreationViewModel {
     
     func clear() {
         name.removeAll()
+        description.removeAll()
         selectedPlaces.removeAll()
         selectedPreferences.removeAll()
     }

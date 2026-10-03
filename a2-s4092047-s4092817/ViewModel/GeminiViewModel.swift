@@ -13,7 +13,7 @@ import MapKit
     
     var isLoading: Bool = false
     
-    var placesToRemove: [String] = []
+    var placesToRemove: [MKMapItem.Identifier] = []
 
     
     init(region: MKCoordinateRegion) {
@@ -22,41 +22,15 @@ import MapKit
     }
   
     
-    func request(prompt: String, preferences: [Preference]) async throws -> AIResult {
-        isLoading = true
-        placesToRemove.removeAll()
-        
-        let preferenceStrings = preferences.map {
-            $0.preference
-        }
-        
-        let aiTrip = try await geminiService.request(tripRequest: prompt, preferences: preferenceStrings)
-            
-        isLoading = false
-    
-        return aiTrip
-        
-            
-        
-    }
-    
-//    func request(prompt: String, currentRegion: MKCoordinateRegion) async throws -> AIResult {
+//    func request(prompt: String, preferences: [Preference]) async throws -> AIResult {
 //        isLoading = true
 //        placesToRemove.removeAll()
 //        
-//        let request = MKLocalSearch.Request()
-//        request.naturalLanguageQuery = "Burger"
-//        request.region = currentRegion
-//        
-//        let response = try await MKLocalSearch(request: request).start()
-//        
-//        let places = response.mapItems.filter {
-//            $0.identifier != nil
+//        let preferenceStrings = preferences.map {
+//            $0.preference
 //        }
 //        
-//        
-//      
-//        let aiTrip = AIResult(tripName: "trip", description: "cool tripz", selectedPlaces: places)
+//        let aiTrip = try await geminiService.request(tripRequest: prompt, preferences: preferenceStrings)
 //            
 //        isLoading = false
 //    
@@ -65,6 +39,32 @@ import MapKit
 //            
 //        
 //    }
+    
+    func request(prompt: String, currentRegion: MKCoordinateRegion) async throws -> AIResult {
+        isLoading = true
+        placesToRemove.removeAll()
+        
+        let request = MKLocalSearch.Request()
+        request.naturalLanguageQuery = "Burger"
+        request.region = currentRegion
+        
+        let response = try await MKLocalSearch(request: request).start()
+        
+        let places = response.mapItems.filter {
+            $0.identifier != nil
+        }
+        
+        
+      
+        let aiTrip = AIResult(tripName: "trip", description: "cool tripz", selectedPlaces: places)
+            
+        isLoading = false
+    
+        return aiTrip
+        
+            
+        
+    }
 //    
 //    func editTrip() async throws -> AIResult {
 //        isLoading = true
@@ -104,23 +104,23 @@ import MapKit
         
     }
     
-    func isBeingRemoved(place: MKMapItem) -> Bool {
-        guard let identifier = place.identifier?.rawValue else {
-            return false
-        }
-        
-        return placesToRemove.contains(identifier)
-    }
-    
-    func toggleRemove(place: MKMapItem) {
-        guard let id = place.identifier?.rawValue else {
-            return
-        }
-        
-        if let index = placesToRemove.firstIndex(of: id) {
-            placesToRemove.remove(at: index)
-        } else {
-            placesToRemove.append(id)
-        }
-    }
+//    func isBeingRemoved(place: MKMapItem) -> Bool {
+//        guard let identifier = place.identifier?.rawValue else {
+//            return false
+//        }
+//        
+//        return placesToRemove.contains(identifier)
+//    }
+//    
+//    func toggleRemove(place: MKMapItem) {
+//        guard let id = place.identifier?.rawValue else {
+//            return
+//        }
+//        
+//        if let index = placesToRemove.firstIndex(of: id) {
+//            placesToRemove.remove(at: index)
+//        } else {
+//            placesToRemove.append(id)
+//        }
+//    }
 }

@@ -11,28 +11,40 @@ import MapKit
 struct LocationCard: View {
     let location: MKMapItem
     var selectedPlaces: Binding<[MKMapItem]>?
+    var placesToRemove: Binding<[MKMapItem.Identifier]>?
+
     
-    /// Takes a Binding for ``selectedPlaces`` when ``location`` can be added or deleted from a ``Trip``.
+    /// Takes a ``Location`` to be  displayed.
+    /// Optionally, takes a Binding for ``selectedPlaces`` when ``location`` can be added or deleted from a ``Trip``.
+    /// Optionally, takes  a binding for ``placesToRemove`` when ``location`` is to be regenerated in an AI generated trip
     init(location: MKMapItem,
-         selectedPlaces: Binding<[MKMapItem]>?) {
+         selectedPlaces: Binding<[MKMapItem]>? = nil,
+         placesToRemove: Binding<[MKMapItem.Identifier]>? = nil
+    ) {
         self.location = location
         self.selectedPlaces = selectedPlaces
-    }
-
-    /// Takes a ``Location`` for view-only display.
-    init(location: MKMapItem) {
-        self.location = location
-        self.selectedPlaces = nil
+        self.placesToRemove = placesToRemove
     }
     
     /// View-specific state to detect if location is part of ``Trip``.
     var isSelected: Bool {
-        // Only unwraps selectedPlaces if ``selectedPlaces`` is passed
-        guard (selectedPlaces != nil) else { return false }
+        if let selectedPlaces {
+            return selectedPlaces.wrappedValue.contains(where: {
+                $0.identifier == location.identifier
+            })
+        }
+        return false
+    }
+    
+    
+    var isSelectedForRemoval: Bool {
+        if let placesToRemove, let identifier = location.identifier {
+            return placesToRemove.wrappedValue.contains(where: {
+                $0 == identifier
+            })
+        }
         
-        return selectedPlaces!.wrappedValue.contains(where: {
-            $0.identifier == location.identifier
-        })
+        return false
     }
     
     var body: some View {
@@ -60,7 +72,9 @@ struct LocationCard: View {
             // MARK: "Add" / "Remove" button
             if (selectedPlaces != nil) {
                 Button {
-                    isSelected ? selectedPlaces!.wrappedValue.removeAll(where: { $0.identifier == location.identifier }) : selectedPlaces!.wrappedValue.append(location)
+                    if let selectedPlaces {
+                        isSelected ? selectedPlaces.wrappedValue.removeAll(where: { $0.identifier == location.identifier }) : selectedPlaces.wrappedValue.append(location)
+                    }
                 } label: {
                     Image(systemName: isSelected ? "minus" : "plus")
                         .bold()
@@ -69,6 +83,20 @@ struct LocationCard: View {
                         .background(isSelected ? Color.red : Color.accentColor)
                         .clipShape(Circle())
                 }
+            }
+            
+            if (placesToRemove != nil) {
+                Button("",
+                       systemImage: isSelectedForRemoval ? "checkmark.circle.fill" : "circle"
+                ) {
+                    if let identifier = location.identifier, let placesToRemove {
+                        isSelectedForRemoval ? placesToRemove.wrappedValue.removeAll(where: { $0 == identifier}) : placesToRemove.wrappedValue.append(identifier)
+                    }
+                }
+                .font(.title)
+                .foregroundColor(isSelectedForRemoval ?
+                    .dora : .gray
+                )
             }
         }
         .padding()

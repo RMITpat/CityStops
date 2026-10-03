@@ -23,7 +23,7 @@ struct AIResult {
 @MainActor
 protocol GeminiService {
     func request(tripRequest: String, preferences: [String]) async throws -> AIResult
-    func editTrip(identifiers: [String]) async throws -> AIResult
+    func editTrip(identifiers: [MKMapItem.Identifier]) async throws -> AIResult
     func generateTrip(prompt: String) async throws -> AIResult
     
     func decodeTrip(responseText: String?) throws -> AIResult
@@ -146,7 +146,7 @@ final class GeminiServiceImpl : GeminiService {
         
     }
     
-    func editTrip(identifiers: [String]) async throws -> AIResult {
+    func editTrip(identifiers: [MKMapItem.Identifier]) async throws -> AIResult {
         selectedPlaces.removeAll()
         
         var prompt = """
@@ -157,7 +157,7 @@ final class GeminiServiceImpl : GeminiService {
             
             """
         for id in identifiers {
-            prompt.append(id + " ")
+            prompt.append(id.rawValue + " ")
         }
         
         return try await generateTrip(prompt: prompt)

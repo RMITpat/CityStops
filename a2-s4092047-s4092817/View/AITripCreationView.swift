@@ -12,7 +12,7 @@ struct AITripCreationView: View {
     @Environment(TripCreationViewModel.self) var tripCreationVM: TripCreationViewModel
     @Environment(LocationViewModel.self) var locationVM: LocationViewModel
 
-    @State private var gemini: GeminiViewModel
+    @State private var geminiVM: GeminiViewModel
     
     @State private var prompt: String = ""
     
@@ -20,7 +20,7 @@ struct AITripCreationView: View {
     @State private var routes: [MKRoute] = []
 
     init(region: MKCoordinateRegion) {
-        gemini = GeminiViewModel(region: region)
+        geminiVM = GeminiViewModel(region: region)
     }
     
     
@@ -32,7 +32,7 @@ struct AITripCreationView: View {
             Spacer()
             VStack (alignment: .center) {
                 if tripCreationVM.selectedPlaces.isEmpty {
-                    if gemini.isLoading {
+                    if geminiVM.isLoading {
                         ProgressView("Curating the perfect trip...")
                             .progressViewStyle(.circular)
                             .scaleEffect(1.3)
@@ -59,11 +59,11 @@ struct AITripCreationView: View {
                 
                 } else {
                     AITripOverview(routes: $routes)
-                        .environment(gemini)
+                        .environment(geminiVM)
                 }
             }
             Spacer()
-            if tripCreationVM.selectedPlaces.isEmpty && !gemini.isLoading {
+            if tripCreationVM.selectedPlaces.isEmpty && !geminiVM.isLoading {
                 
                 HStack {
                     TextField("Create a trip through my local parks....", text: $prompt, axis: .vertical)
@@ -74,8 +74,8 @@ struct AITripCreationView: View {
                         Task {
                             do {
                                 self.error?.removeAll()
-                                try await tripCreationVM.fromAIResult(result: gemini.request(prompt: prompt, preferences: tripCreationVM.selectedPreferences))
-//                                try await tripCreationVM.fromAIResult(result: gemini.request(prompt: prompt, currentRegion: locationVM.currentRegion))
+//                                try await tripCreationVM.fromAIResult(result: geminiVM.request(prompt: prompt, preferences: tripCreationVM.selectedPreferences))
+                                try await tripCreationVM.fromAIResult(result: geminiVM.request(prompt: prompt, currentRegion: locationVM.currentRegion))
                                 try await routes = locationVM.createRoute(selectedPlaces: tripCreationVM.selectedPlaces)
                             } catch {
                                 self.error = "Failed to generate a trip"
@@ -84,7 +84,7 @@ struct AITripCreationView: View {
                         
                     }
                     .font(.largeTitle)
-                    .disabled(gemini.isLoading)
+                    .disabled(geminiVM.isLoading)
                 }.padding()
 
             }

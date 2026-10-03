@@ -9,7 +9,7 @@ import SwiftUI
 import MapKit
 
 struct AITripOverview: View {
-    @Environment(GeminiViewModel.self) var gemini: GeminiViewModel
+    @Environment(GeminiViewModel.self) var geminiVM: GeminiViewModel
     @Environment(LocationViewModel.self) var locationVM: LocationViewModel
     @Environment(TripCreationViewModel.self) var tripCreationVM: TripCreationViewModel
     @Environment(Router.self) var router: Router
@@ -27,6 +27,9 @@ struct AITripOverview: View {
     
     var body: some View {
         @Bindable var locationVM = locationVM
+
+        @Bindable var tripCreationVM = tripCreationVM
+        @Bindable var geminiVM = geminiVM
         
         ScrollView {
             Map (position: $locationVM.currentLocation) {
@@ -42,7 +45,7 @@ struct AITripOverview: View {
             }
             .frame(height: 390)
 
-            if gemini.isLoading {
+            if geminiVM.isLoading {
                 ProgressView("Regenerating places...")
                     .progressViewStyle(.circular)
                     .scaleEffect(1.3)
@@ -70,9 +73,9 @@ struct AITripOverview: View {
                             Button("Replace selected spots") {
                                 Task {
                                     do {
-//                                        try await tripCreationVM.fromAIResult(result: gemini.editTrip())
+//                                        try await tripCreationVM.fromAIResult(result: geminiVM.editTrip())
 
-                                        try await tripCreationVM.fromAIResult(result: gemini.editTrip(currentRegion: locationVM.currentRegion))
+                                        try await tripCreationVM.fromAIResult(result: geminiVM.editTrip(currentRegion: locationVM.currentRegion))
                                         routes = try await locationVM.createRoute(selectedPlaces: tripCreationVM.selectedPlaces)
                                     } catch {
                                         self.error = "Failed to regenerate stops"
@@ -80,7 +83,7 @@ struct AITripOverview: View {
                                 }
                                 
                             }
-                            .disabled(gemini.placesToRemove.isEmpty || gemini.isLoading)
+                            .disabled(geminiVM.placesToRemove.isEmpty || geminiVM.isLoading)
                             .buttonStyle(.glassProminent)
                             .tint(.dora)
                             
@@ -93,38 +96,11 @@ struct AITripOverview: View {
                         
                         ForEach(tripCreationVM.selectedPlaces, id: \.self) { place in
                             VStack {
-                                HStack {
-                                    VStack(alignment: .leading, spacing: 4) {
-                                        
-                                        Text(place.name ?? "")
-                                            .font(.headline)
-                                            .foregroundStyle(.primary)
-                                        Text(place.address?.fullAddress ?? "")
-                                            .font(.subheadline)
-                                            .foregroundStyle(.secondary)
-                                            .lineLimit(1) // address should not be extremely long
-                                    }
-                                    Spacer()
-                                    
-                                    Button("",
-                                           systemImage: gemini.isBeingRemoved(place: place) ? "checkmark.circle.fill" : "circle"
-                                    ) {
-                                        gemini.toggleRemove(place: place)
-                                    }
-                                    .font(.title)
-                                    .disabled(gemini.isLoading)
-                                    .foregroundColor(gemini.isBeingRemoved(place: place) ?
-                                        .dora : .gray
-                                    )
-                                    
-                                }.padding()
-                                
+                                LocationCard(location: place,
+                                             selectedPlaces: $tripCreationVM.selectedPlaces, placesToRemove: $geminiVM.placesToRemove)
+
                             }
-                            .contentShape(Rectangle())
-                            .background(
-                                
-                                )
-                            
+                           
                         }
                     }
                     
@@ -137,10 +113,11 @@ struct AITripOverview: View {
         Spacer()
             HStack {
                 Button("Start again") {
-                    gemini.placesToRemove.removeAll()
+                    geminiVM.placesToRemove.removeAll()
                     tripCreationVM.clear()
                     router.tripCreationRoute = [TripCreationRoute.preferences]
-                }.disabled(gemini.isLoading)
+                    
+                }.disabled(geminiVM.isLoading)
                 .buttonStyle(.glassProminent)
                 .tint(.dora)
 
@@ -148,7 +125,7 @@ struct AITripOverview: View {
                 
                 Button("Finish") {
                     
-                }.disabled(gemini.isLoading)
+                }.disabled(geminiVM.isLoading)
                 .buttonStyle(.glassProminent)
             }
         

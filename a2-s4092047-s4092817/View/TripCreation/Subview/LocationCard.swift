@@ -1,5 +1,5 @@
 //
-//  LocationCardView.swift
+//  LocationCard.swift
 //  a2-s4092047-s4092817
 //
 //  Created by Riley Tran on 22/9/2026.
@@ -92,7 +92,7 @@ struct LocationCard: View {
         selectedPlaces: $selectedPlaces)
 }
 
-/// Test MKMapItem used for testing ``LocationCardView``.
+/// Test MKMapItem used for testing ``LocationCard``.
 private enum LocationCardPreviewData {
     static let testLocation: MKMapItem = {
         let location = CLLocation(

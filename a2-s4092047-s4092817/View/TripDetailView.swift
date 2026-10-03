@@ -56,7 +56,7 @@ struct TripDetailView: View {
                 VStack {
                     ForEach(trip.mkMapItemPlaces, id: \.identifier) { place in
                         VStack {
-                            LocationCardView(location: place)
+                            LocationCard(location: place)
                            
                         }
                     }

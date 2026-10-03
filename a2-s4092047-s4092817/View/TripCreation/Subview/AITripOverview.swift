@@ -12,6 +12,8 @@ struct AITripOverview: View {
     @Environment(GeminiViewModel.self) var geminiVM: GeminiViewModel
     @Environment(LocationViewModel.self) var locationVM: LocationViewModel
     @Environment(TripCreationViewModel.self) var tripCreationVM: TripCreationViewModel
+    @Environment(AppViewModel.self) var appVM: AppViewModel
+
     @Environment(Router.self) var router: Router
 
     @Binding var routes: [MKRoute]
@@ -30,7 +32,6 @@ struct AITripOverview: View {
 
         @Bindable var tripCreationVM = tripCreationVM
         @Bindable var geminiVM = geminiVM
-        
         ScrollView {
             Map (position: $locationVM.currentLocation) {
                 ForEach(tripCreationVM.selectedPlaces, id: \.self) { place in
@@ -44,14 +45,14 @@ struct AITripOverview: View {
                 
             }
             .frame(height: 390)
-
+            
             if geminiVM.isLoading {
-                Spacer()
                 ProgressView("Tweaking trip...")
                     .progressViewStyle(.circular)
                     .scaleEffect(1.3)
                     .frame(maxWidth: .infinity, alignment: .center)
-
+                    .padding(.top)
+                
             } else {
                 VStack {
                     Picker("Mode", selection: $mode) {
@@ -75,8 +76,8 @@ struct AITripOverview: View {
                                 Task {
                                     do {
                                         try await tripCreationVM.fromAIResult(result: geminiVM.editTrip())
-
-//                                        try await tripCreationVM.fromAIResult(result: geminiVM.editTrip(currentRegion: locationVM.currentRegion))
+                                        self.error?.removeAll()
+                                        
                                         routes = try await locationVM.createRoute(selectedPlaces: tripCreationVM.selectedPlaces)
                                     } catch {
                                         self.error = "Failed to regenerate stops"
@@ -91,8 +92,10 @@ struct AITripOverview: View {
                             Button("Add more spots") {
                                 Task {
                                     do {
+                                        self.error?.removeAll()
+                                        
                                         try await tripCreationVM.fromAIResult(result: geminiVM.addStops())
-
+                                        
                                         routes = try await locationVM.createRoute(selectedPlaces: tripCreationVM.selectedPlaces)
                                     } catch {
                                         self.error = "Failed to add more stops"
@@ -115,39 +118,53 @@ struct AITripOverview: View {
                             VStack {
                                 LocationCard(location: place,
                                              selectedPlaces: $tripCreationVM.selectedPlaces, placesToRemove: $geminiVM.placesToRemove)
-
+                                
                             }
-                           
+                            
                         }
                     }
                     
                 }
             }
             
-
+            
             
         }
+        
+        
+        
         Spacer()
-            HStack {
-                Button("Start again") {
-                    geminiVM.placesToRemove.removeAll()
-                    tripCreationVM.clear()
-                    router.tripCreationRoute = [TripCreationRoute.preferences]
-                    
-                }.disabled(geminiVM.isLoading)
+        HStack {
+            Button("Start again") {
+                geminiVM.placesToRemove.removeAll()
+                tripCreationVM.clear()
+                router.tripCreationRoute = [TripCreationRoute.preferences]
+                
+            }.disabled(geminiVM.isLoading)
                 .buttonStyle(.glassProminent)
                 .tint(.dora)
-
-                
-                
-                Button("Finish") {
-                    
-                }.disabled(geminiVM.isLoading)
+            
+            
+            
+            Button("Finish") {
+                Task {
+                    do {
+                        try await appVM.saveTrip(name: tripCreationVM.name, description: tripCreationVM.description, selectedPlaces: tripCreationVM.selectedPlaces, preferences: tripCreationVM.selectedPreferences.map {$0.preference })
+                        
+                        tripCreationVM.clear()
+                        router.tripCreationRoute.removeAll()
+                        router.selectedTab = .create
+                    } catch {
+                        self.error = error.localizedDescription
+                    }
+                }
+            }.disabled(appVM.isSaving)
                 .buttonStyle(.glassProminent)
-            }
+        }
         
         .frame(alignment: .center)
-      
     }
+  
+
 }
 

@@ -41,33 +41,8 @@ import MapKit
             
         
     }
+
     
-//    func request(prompt: String, currentRegion: MKCoordinateRegion) async throws -> AIResult {
-//        isLoading = true
-//        placesToRemove.removeAll()
-//        
-//        let request = MKLocalSearch.Request()
-//        request.naturalLanguageQuery = "Burger"
-//        request.region = currentRegion
-//        
-//        let response = try await MKLocalSearch(request: request).start()
-//        
-//        let places = response.mapItems.filter {
-//            $0.identifier != nil
-//        }
-//        
-//        
-//      
-//        let aiTrip = AIResult(tripName: "trip", description: "cool tripz", selectedPlaces: places)
-//            
-//        isLoading = false
-//    
-//        return aiTrip
-//        
-//            
-//        
-//    }
-//    
     func editTrip() async throws -> AIResult {
         isLoading = true
      
@@ -79,32 +54,7 @@ import MapKit
         return aiTrip
         
     }
-    
-//    func editTrip(currentRegion: MKCoordinateRegion) async throws -> AIResult {
-//        isLoading = true
-//     
-//        
-//       let request = MKLocalSearch.Request()
-//       request.naturalLanguageQuery = "shopping"
-//       request.region = currentRegion
-//       
-//       let response = try await MKLocalSearch(request: request).start()
-//       
-//       let places = response.mapItems.filter {
-//           $0.identifier != nil
-//       }
-//       
-//       
-//     
-//       let aiTrip = AIResult(tripName: "trip", description: "cool tripz", selectedPlaces: places)
-//           
-//            
-//        placesToRemove.removeAll()
-//       
-//        isLoading = false
-//        return aiTrip
-//        
-//    }
+  
         
     func addStops() async throws -> AIResult {
         isLoading = true

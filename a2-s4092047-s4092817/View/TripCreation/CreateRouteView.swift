@@ -113,6 +113,7 @@ struct CreateRouteView: View {
                     }
                 }
             }
+            .disabled(appVM.isSaving)
             .modifier(ButtonFormat())
         }
         if let error {

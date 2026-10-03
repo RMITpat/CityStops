@@ -7,7 +7,7 @@
 import Foundation
 import MapKit
 
-/// Formats ``LocationCardView`` instances in ``NearbyLocationSegment``.
+/// Formats ``LocationCard`` instances in ``NearbyLocationSegment``.
 /// Provides values to be passed to REST API request (e.g. radius, limit of response count).
 
 @MainActor

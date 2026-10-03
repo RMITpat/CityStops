@@ -43,23 +43,35 @@ struct TripDetailView: View {
                 }
                 
             }
-                HStack {
-                    SaveTripButton(trip: trip)
+                // MARK: Desc + Save button
+                VStack(alignment: .center) {
+                    Text(trip.description)
+                    HStack() {
+                        SaveTripButton(trip: trip)
+                    }
                 }
+                .frame(maxWidth: .infinity, alignment: .center)
+                
+                // MARK: Location List
                 VStack {
-                    ForEach(trip.mkMapItemPlaces, id: \.self) { place in
+                    ForEach(trip.mkMapItemPlaces, id: \.identifier) { place in
                         VStack {
-                            Text(place.name ?? "")
-                            Text(place.address?.fullAddress ?? "")
+                            LocationCard(location: place)
+                           
                         }
                     }
                 }
             }
             Spacer()
+            // TODO: Toolbar disappear / reappear animation?
+                .toolbar(.hidden, for: .tabBar)
 
             
         } else {
-            Text("Error")
+            VStack {
+                Text("Error")
+                    .toolbar(.hidden, for: .tabBar)
+            }
         }
     }
 }
@@ -67,7 +79,7 @@ struct TripDetailView: View {
 #Preview {
     let user = AppUser(id: "Test", username: "test", email: "test@email.com")
     
-    let trip = Trip(id: "1", ownerUsername: "conan", ownerId: "", name: "Cool trip", places: [], preferences: ["Food", "Landmarks"])
+    let trip = Trip(id: "1", ownerUsername: "conan", ownerId: "", name: "Cool trip", description: "Very cool trip!", places: [], preferences: ["Food", "Landmarks"])
     TripDetailView()
         .environment(LocationViewModel(user: user))
         .environment(AppViewModel(user: user, currentTrip: trip))

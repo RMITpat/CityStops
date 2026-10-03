@@ -52,8 +52,12 @@ struct TripCard: View {
                 }
                 
             }
-            HStack(alignment: .center) {
-                SaveTripButton(trip: trip)
+            // MARK: Desc + Save button
+            VStack(alignment: .center) {
+                Text(trip.description)
+                HStack() {
+                    SaveTripButton(trip: trip)
+                }
             }
             .frame(maxWidth: .infinity, alignment: .center)
 
@@ -72,8 +76,8 @@ struct TripCard: View {
 
 #Preview {
     let user = AppUser(id: "Test", username: "test", email: "test@email.com")
-    let trip = Trip(id: "1", ownerUsername: "conan", ownerId: "", name: "Cool trip", places: [], preferences: ["Food", "Landmarks"])
-    let trip2 = Trip(id: "", ownerUsername: "bob", ownerId: "", name: "Cool trip again", places: [], preferences: ["Food", "Sightseeing"])
+    let trip = Trip(id: "1", ownerUsername: "conan", ownerId: "", name: "Cool trip", description: "Cool trip to go on!", places: [], preferences: ["Food", "Landmarks"])
+    let trip2 = Trip(id: "", ownerUsername: "bob", ownerId: "", name: "Cool trip again", description: "Another cool trip to go on!", places: [], preferences: ["Food", "Sightseeing"])
 //
 //    TripCard(trip: trip)
 

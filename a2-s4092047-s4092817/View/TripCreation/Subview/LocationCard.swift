@@ -1,5 +1,5 @@
 //
-//  LocationCardView.swift
+//  LocationCard.swift
 //  a2-s4092047-s4092817
 //
 //  Created by Riley Tran on 22/9/2026.
@@ -8,9 +8,32 @@
 import SwiftUI
 import MapKit
 
-struct LocationCardView: View {
+struct LocationCard: View {
     let location: MKMapItem
-    @Binding var selectedPlaces: [MKMapItem]
+    var selectedPlaces: Binding<[MKMapItem]>?
+    
+    /// Takes a Binding for ``selectedPlaces`` when ``location`` can be added or deleted from a ``Trip``.
+    init(location: MKMapItem,
+         selectedPlaces: Binding<[MKMapItem]>?) {
+        self.location = location
+        self.selectedPlaces = selectedPlaces
+    }
+
+    /// Takes a ``Location`` for view-only display.
+    init(location: MKMapItem) {
+        self.location = location
+        self.selectedPlaces = nil
+    }
+    
+    /// View-specific state to detect if location is part of ``Trip``.
+    var isSelected: Bool {
+        // Only unwraps selectedPlaces if ``selectedPlaces`` is passed
+        guard (selectedPlaces != nil) else { return false }
+        
+        return selectedPlaces!.wrappedValue.contains(where: {
+            $0.identifier == location.identifier
+        })
+    }
     
     var body: some View {
         HStack(spacing: 16) {
@@ -34,16 +57,18 @@ struct LocationCardView: View {
             
             Spacer()
             
-            // "Add" button
-            Button {
-                selectedPlaces.append(location)
-            } label: {
-                Image(systemName: "plus")
-                    .bold()
-                    .foregroundStyle(.white)
-                    .frame(width: 36, height: 36)
-                    .background(Color.accentColor)
-                    .clipShape(Circle())
+            // MARK: "Add" / "Remove" button
+            if (selectedPlaces != nil) {
+                Button {
+                    isSelected ? selectedPlaces!.wrappedValue.removeAll(where: { $0.identifier == location.identifier }) : selectedPlaces!.wrappedValue.append(location)
+                } label: {
+                    Image(systemName: isSelected ? "minus" : "plus")
+                        .bold()
+                        .foregroundStyle(.white)
+                        .frame(width: 36, height: 36)
+                        .background(isSelected ? Color.red : Color.accentColor)
+                        .clipShape(Circle())
+                }
             }
         }
         .padding()
@@ -62,13 +87,12 @@ struct LocationCardView: View {
 #Preview {
     @Previewable @State var selectedPlaces: [MKMapItem] = []
     let user = AppUser(id: "Test", username: "test", email: "test@email.com")
-    LocationCardView(
+    LocationCard(
         location: LocationCardPreviewData.testLocation,
-        selectedPlaces: $selectedPlaces
-    )
+        selectedPlaces: $selectedPlaces)
 }
 
-/// Test MKMapItem used for testing ``LocationCardView``.
+/// Test MKMapItem used for testing ``LocationCard``.
 private enum LocationCardPreviewData {
     static let testLocation: MKMapItem = {
         let location = CLLocation(

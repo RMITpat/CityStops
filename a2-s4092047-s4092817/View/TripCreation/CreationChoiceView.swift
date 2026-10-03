@@ -30,7 +30,6 @@ struct CreationChoiceView: View {
                 .buttonStyle(.glassProminent)
                 .controlSize(.large)
                 
-                
                 Text("or")
                     .fontWeight(.light)
                 
@@ -52,7 +51,6 @@ struct CreationChoiceView: View {
             switch route {
                 case .name: TripNameView()
                 case .preferences: TripPreferenceView()
-                case .createTrip: CreateTripView()
                 case .createRoute: CreateRouteView()
                 case .aiTripCreation: AITripCreationView(region: locationVM.currentRegion)
             }

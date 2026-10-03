@@ -27,6 +27,28 @@ struct SearchLocations: View {
         @Bindable var tripCreationVM = tripCreationVM
         
         VStack {
+            // MARK: Custom Search Bar
+            HStack {
+                Image(systemName: "magnifyingglass")
+                    .foregroundStyle(.secondary)
+
+                TextField("Search for a place", text: $searchRequest)
+                    .textFieldStyle(.plain)
+
+                if !searchRequest.isEmpty {
+                    Button {
+                        searchRequest = ""
+                    } label: {
+                        Image(systemName: "xmark.circle.fill")
+                            .foregroundStyle(.secondary)
+                    }
+                }
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 10)
+            .background(.thinMaterial)
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+            
             // MARK: Search history
             if searchRequest.isEmpty {
                 
@@ -71,23 +93,28 @@ struct SearchLocations: View {
                 VStack {
                     // Generate location detail cards
                     ForEach(searchResults, id: \.identifier) { result in
-                        LocationCardView(location: result, selectedPlaces: $tripCreationVM.selectedPlaces)
+                        LocationCard(location: result,
+                                         selectedPlaces: $tripCreationVM.selectedPlaces
+                                    )
                     }
                 }
             }
             
             .padding(.horizontal, 16)
         }
+        .padding(.horizontal, 12)
+
         .onAppear {
             searchTermVM.fetch()
         }
         
-        // MARK: Location Search Bar
-        .searchable(
-            text: $searchRequest,
-            placement: .navigationBarDrawer(displayMode: .always),
-            prompt: "Search for a place",
-        )
+
+//        // MARK: Location Search Bar
+//        .searchable(
+//            text: $searchRequest,
+//            placement: .automatic,
+//            prompt: "Search for a place",
+//        )
     }
     
     

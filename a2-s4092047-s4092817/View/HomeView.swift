@@ -20,7 +20,13 @@ struct HomeView: View {
         
         NavigationStack(path: $router.feedRoute) {
             VStack (alignment: .leading) {
-                Text("Your Feed").font(.largeTitle).padding()
+              // MARK: View Title
+              // Mimic ``NavigationTitle`` styling
+              Text("Your Daytrip Feed")
+                      .font(.largeTitle)
+                      .fontWeight(.bold)
+                      .padding(.horizontal, 16)
+                      .padding(.top, 56)
                 
                 TripFeed(trips: appVM.tripFeed, isLoading: appVM.isLoadingTrips) {
                     appVM.refreshFeed()
@@ -39,11 +45,10 @@ struct HomeView: View {
 }
 
 #Preview {
-    NavigationStack {
         let user = AppUser(id: "Test", username: "test", email: "test@email.com")
 
         HomeView()
             .environment(AppViewModel(user: user ))
             .environment(Router())
     }
-}
+

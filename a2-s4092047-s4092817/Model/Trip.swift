@@ -22,6 +22,7 @@ struct Trip: Identifiable {
     let ownerId: String
     let ownerUsername: String
     let name: String
+    let description: String
     let places: [MKMapItem.Identifier]
     let createdAt: Date
     let preferences: [String]
@@ -29,11 +30,12 @@ struct Trip: Identifiable {
     var savedByUser: Bool = false
     var mkMapItemPlaces: [MKMapItem] = []
     
-    init(id: String = "", ownerUsername:String, ownerId: String, name: String, places: [MKMapItem.Identifier], createdAt: Date = Date(), preferences: [String]) {
+    init(id: String = "", ownerUsername:String, ownerId: String, name: String, description: String, places: [MKMapItem.Identifier], createdAt: Date = Date(), preferences: [String]) {
         self.id = id
         self.ownerId = ownerId
         self.ownerUsername = ownerUsername
         self.name = name
+        self.description = description
         self.places = places
         self.createdAt = createdAt
         self.preferences = preferences
@@ -49,6 +51,7 @@ struct Trip: Identifiable {
             "ownerId": ownerId,
             "ownerUsername": ownerUsername,
             "name": name,
+            "description": description,
             "places": rawValueIdentifiers,
             "createdAt" : createdAt,
             "preferences" : preferences
@@ -64,6 +67,7 @@ struct Trip: Identifiable {
             let ownerId = data["ownerId"] as? String,
             let ownerUsername = data["ownerUsername"] as? String,
             let name = data["name"] as? String,
+            let description = data["description"] as? String,
             let places = data["places"] as? [String],
             let preferences = data["preferences"] as? [String],
             let timestamp = data["createdAt"] as? Timestamp
@@ -76,6 +80,7 @@ struct Trip: Identifiable {
         self.ownerId = ownerId
         self.ownerUsername = ownerUsername
         self.name = name
+        self.description = description
         self.places = places.compactMap { MKMapItem.Identifier(rawValue: $0) }
         self.preferences = preferences
         self.savedByUser = isSaved
@@ -83,7 +88,7 @@ struct Trip: Identifiable {
     }
     //FIXME: FOR TESTING PURPOSES ONLY (FOR NOW)
     func toString() -> String {
-        return "\(id) \(ownerId) \(ownerUsername) \(name) \(places) \(createdAt) \(preferences)"
+        return "\(id) \(ownerId) \(ownerUsername) \(name) \(description) \(places) \(createdAt) \(preferences)"
     }
     
 }

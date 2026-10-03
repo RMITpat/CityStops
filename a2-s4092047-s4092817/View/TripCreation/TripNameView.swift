@@ -18,15 +18,48 @@ struct TripNameView: View {
         @Bindable var tripCreationVM = tripCreationVM
         
         // MARK: Input fields
-        VStack {
+        VStack (alignment: .leading) {
+            // Title
+            Text("Title")
+                .font(.title2)
+            Text("What would you like your trip to be called?")
+                .font(.caption)
+                .foregroundStyle(.secondary)
             TextField("e.g. Asian Street Food Tour", text: $tripCreationVM.name)
                 .textFieldStyle(RoundedBorderTextFieldStyle())
-                .padding(.horizontal, 16)
             
-            TextField("e.g. A day out in the city to eat delicious Asian street food!", text: $tripCreationVM.description)
-                .textFieldStyle(RoundedBorderTextFieldStyle())
-                .padding(.horizontal, 16)
+                .padding(.bottom, 32)
+            
+            //Description
+            Text("Description")
+                .font(.title2)
+            Text("What is this trip about?")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+            
+            ZStack(alignment: .topLeading) {
+                TextEditor(text: $tripCreationVM.description)
+                    .frame(minHeight: 120)
+                    .padding(.horizontal, 2)
+                    .scrollContentBackground(.hidden)
+                    .background(.background)
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 8)
+                            .stroke(.secondary.opacity(0.15))
+                    }
+            
+            // Placeholder text; fixed padding to align with TextEditor
+            if tripCreationVM.description.isEmpty {
+                Text("e.g. A day out in the city to eat Asian street food!")
+                    .foregroundStyle(.opacity(0.25))
+                    .padding(.leading, 7)
+                    .padding(.top, 8)
+                    .allowsHitTesting(false)
+                }
+            }
         }
+        .padding(.horizontal, 16)
         
         Spacer()
         
@@ -38,10 +71,8 @@ struct TripNameView: View {
                 .modifier(ButtonFormat())
             }
         
-        .navigationTitle(Text("Name your Trip"))
-        .navigationSubtitle(Text("What would you like your trip to be called?"))
+        .navigationTitle(Text("Trip Details"))
         .toolbar(.hidden, for: .tabBar)
-
     }
 
 }

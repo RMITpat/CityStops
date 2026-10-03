@@ -22,12 +22,38 @@ import MapKit
     }
   
     
-    func request(prompt: String) async throws -> AIResult {
+//    func request(prompt: String) async throws -> AIResult {
+//        isLoading = true
+//        placesToRemove.removeAll()
+//        
+//       
+//        let aiTrip = try await geminiService.request(tripRequest: prompt)
+//            
+//        isLoading = false
+//    
+//        return aiTrip
+//        
+//            
+//        
+//    }
+    
+    func request(prompt: String, currentRegion: MKCoordinateRegion) async throws -> AIResult {
         isLoading = true
         placesToRemove.removeAll()
         
-       
-        let aiTrip = try await geminiService.request(tripRequest: prompt)
+        let request = MKLocalSearch.Request()
+        request.naturalLanguageQuery = "Burger"
+        request.region = currentRegion
+        
+        let response = try await MKLocalSearch(request: request).start()
+        
+        let places = response.mapItems.filter {
+            $0.identifier != nil
+        }
+        
+        
+      
+        let aiTrip = AIResult(tripName: "trip", description: "cool tripz", selectedPlaces: places)
             
         isLoading = false
     
@@ -36,11 +62,37 @@ import MapKit
             
         
     }
+//    
+//    func editTrip() async throws -> AIResult {
+//        isLoading = true
+//     
+//        let aiTrip = try await geminiService.editTrip(identifiers: placesToRemove)
+//            
+//        placesToRemove.removeAll()
+//       
+//        isLoading = false
+//        return aiTrip
+//        
+//    }
     
-    func editTrip() async throws -> AIResult {
+    func editTrip(currentRegion: MKCoordinateRegion) async throws -> AIResult {
         isLoading = true
      
-        let aiTrip = try await geminiService.editTrip(identifiers: placesToRemove)
+        
+       let request = MKLocalSearch.Request()
+       request.naturalLanguageQuery = "shopping"
+       request.region = currentRegion
+       
+       let response = try await MKLocalSearch(request: request).start()
+       
+       let places = response.mapItems.filter {
+           $0.identifier != nil
+       }
+       
+       
+     
+       let aiTrip = AIResult(tripName: "trip", description: "cool tripz", selectedPlaces: places)
+           
             
         placesToRemove.removeAll()
        

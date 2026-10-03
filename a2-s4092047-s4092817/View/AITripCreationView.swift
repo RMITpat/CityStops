@@ -10,12 +10,15 @@ import MapKit
 
 struct AITripCreationView: View {
     @Environment(TripCreationViewModel.self) var tripCreationVM: TripCreationViewModel
+    @Environment(LocationViewModel.self) var locationVM: LocationViewModel
+
     @State private var gemini: GeminiViewModel
     
     @State private var prompt: String = ""
     
     @State private var error: String?
-    
+    @State private var routes: [MKRoute] = []
+
     init(region: MKCoordinateRegion) {
         gemini = GeminiViewModel(region: region)
     }
@@ -51,11 +54,11 @@ struct AITripCreationView: View {
                     if let error {
                         Text(error)
                             .foregroundStyle(.red)
-                            .font(.title2)
+                            .font(.title3)
                     }
                 
                 } else {
-                    AITripOverview()
+                    AITripOverview(routes: $routes)
                         .environment(gemini)
                 }
             }
@@ -71,7 +74,9 @@ struct AITripCreationView: View {
                         Task {
                             do {
                                 self.error?.removeAll()
-                                try await tripCreationVM.fromAIResult(result: gemini.request(prompt: prompt))
+//                                try await tripCreationVM.fromAIResult(result: gemini.request(prompt: prompt))
+                                try await tripCreationVM.fromAIResult(result: gemini.request(prompt: prompt, currentRegion: locationVM.currentRegion))
+                                try await routes = locationVM.createRoute(selectedPlaces: tripCreationVM.selectedPlaces)
                             } catch {
                                 self.error = "Failed to generate a trip"
                             }

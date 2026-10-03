@@ -14,7 +14,7 @@ struct AITripOverview: View {
     @Environment(TripCreationViewModel.self) var tripCreationVM: TripCreationViewModel
     @Environment(Router.self) var router: Router
 
-    @State private var routes: [MKRoute] = []
+    @Binding var routes: [MKRoute]
 
     @State private var mode: Mode = .first
 
@@ -26,28 +26,22 @@ struct AITripOverview: View {
     }
     
     var body: some View {
+        @Bindable var locationVM = locationVM
+        
         ScrollView {
-            Map {
-                ForEach(tripCreationVM.selectedPlaces.indices, id: \.self) { index in
-                    Marker(item: tripCreationVM.selectedPlaces[index])
+            Map (position: $locationVM.currentLocation) {
+                ForEach(tripCreationVM.selectedPlaces, id: \.self) { place in
+                    Marker(item: place)
                         .mapItemDetailSelectionAccessory(.callout)
-                    ForEach(routes, id: \.self) { route in
-                        MapPolyline(route)
-                            .stroke(.blue, lineWidth: 5)
-                    }
                 }
+                ForEach(routes, id: \.self) { route in
+                    MapPolyline(route)
+                        .stroke(.blue, lineWidth: 5)
+                }
+                
             }
             .frame(height: 390)
-//            .onChange(of: tripCreationVM.selectedPlaces) {
-//                Task {
-//                    do {
-//                        print("gemini selected places changed")
-//                        routes = try await locationVM.createRoute(selectedPlaces: gemini.selectedPlaces)
-//                    } catch {
-//                        
-//                    }
-//                }
-//            }
+
             if gemini.isLoading {
                 ProgressView("Regenerating places...")
                     .progressViewStyle(.circular)
@@ -74,7 +68,10 @@ struct AITripOverview: View {
                             Button("Replace selected spots") {
                                 Task {
                                     do {
-                                        try await tripCreationVM.fromAIResult(result: gemini.editTrip())
+//                                        try await tripCreationVM.fromAIResult(result: gemini.editTrip())
+
+                                        try await tripCreationVM.fromAIResult(result: gemini.editTrip(currentRegion: locationVM.currentRegion))
+                                        routes = try await locationVM.createRoute(selectedPlaces: tripCreationVM.selectedPlaces)
                                     } catch {
                                         self.error = "Failed to regenerate stops"
                                     }
@@ -88,7 +85,7 @@ struct AITripOverview: View {
                             if let error {
                                 Text(error)
                                     .foregroundStyle(.red)
-                                    .font(.title2)
+                                    .font(.title3)
                             }
                         }
                         

@@ -35,9 +35,10 @@ struct AITripOverview: View {
                 }
             }
             .frame(height: 390)
-            .onAppear {
+            .onChange(of: gemini.selectedPlaces) {
                 Task {
                     do {
+                        print("gemini selected places changed")
                         routes = try await locationVM.createRoute(selectedPlaces: gemini.selectedPlaces)
                     } catch {
                         

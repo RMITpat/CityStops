@@ -14,7 +14,6 @@ import MapKit
 struct HomeView: View {
     @Environment(AppViewModel.self) var appVM: AppViewModel
     @Environment(Router.self) var router: Router
-
     var body: some View {
         @Bindable var appVM = appVM
         @Bindable var router = router

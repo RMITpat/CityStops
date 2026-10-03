@@ -9,17 +9,20 @@ import Foundation
 import FirebaseAILogic
 import MapKit
 
+/// The struct to decode the model's JSON response to
 struct AITripDetails: Codable {
     let trip_name: String
     let description: String
 }
 
+/// The AI Trip created
 struct AIResult {
     let tripName: String
     let description: String
     let selectedPlaces: [MKMapItem]
 }
 
+/// What model is currently being used. Switch when rate limited
 enum GeminiModel: String, CaseIterable, Identifiable {
     var id: Self {self}
     
@@ -30,6 +33,7 @@ enum GeminiModel: String, CaseIterable, Identifiable {
     
 }
 
+/// The GeminiService responsible for making requests to the model, conducting multi turn conversations and providing tools for function calling
 @MainActor
 protocol GeminiService {
     var modelName: GeminiModel { get }
@@ -49,22 +53,29 @@ protocol GeminiService {
     func setModel(newModel: GeminiModel)
 }
 
+
+
 @MainActor
 final class GeminiServiceImpl : GeminiService {
-    
+    /// Firebase backend
     let ai: FirebaseAI
+    
+    /// The model we chat to
     var model: GenerativeModel
     
+    /// The name of the model we are currently using
     var modelName: GeminiModel = .flash6
     
+    /// The current region, used for searching places with MapKit
     let currentRegion: MKCoordinateRegion
     
-    /// The selectedPlaces for the trip this
+    /// The selectedPlaces for the trip which the model has chosen
     var selectedPlaces: [MKMapItem] = []
     
     /// A cache of searched places so that when the model chooses a spot, we can use the identifier to retrieve its MKMapItem immediately without needing another search
     var searchedPlaces: [String : MKMapItem] = [:]
     
+    /// The current chat. Used to obtain past chat history when changing models
     var currentChat: Chat
     
     init(region: MKCoordinateRegion) {
@@ -84,6 +95,7 @@ final class GeminiServiceImpl : GeminiService {
         currentChat = model.startChat()
     }
     
+    /// The search places tool that allows the model to search for places local to the user. Provides the model with the name, location category and unique identifier of each place
     let searchPlaces = FunctionDeclaration(
       name: "search_places",
       description: """
@@ -100,6 +112,7 @@ final class GeminiServiceImpl : GeminiService {
       ]
     )
     
+    /// The select places tool that allows the model to add places to the trip using the identifiers of a place
     let selectPlaces = FunctionDeclaration(
       name: "select_places",
       description: """
@@ -115,16 +128,18 @@ final class GeminiServiceImpl : GeminiService {
       ]
     )
     
-    
+    /// The format by which the model returns the created trip's name and description
     let tripJSONSchema = Schema.object(
       properties: [
         "trip_name" : .string(),
         "description" : .string(),
       ]
     )
+    
+    /// The initial request for a trip. We provide the model with the user's inputted prompt and their selected preferences
     func request(tripRequest: String, preferences: [String]) async throws -> AIResult {
 
-        // Provide a prompt that contains text
+        // Tell the model to create a trip based off the prompt and explains to it the tools available.
         var prompt = """
         You are an expert at creating trips for users. 
         
@@ -142,7 +157,7 @@ final class GeminiServiceImpl : GeminiService {
         You can use tools to search for these places. Results from the search_places tool will always be local to the user's region. If a search fails, try modifying the query slightly. ONLY add a place
         to a trip if it came from the search tool. Try and make multiple search requests in one response instead of in individual responses.
         
-        When you have finished searching for places and have accumulated a list of stops for the trip, use the select_places tool to add all of them to the trip.
+        When you have finished searching for places and have accumulated a list of stops for the trip, use the select_places tool to add all of them to the trip using each place's identifier.
         
         After selecting your places, generate a name and description for the trip using the json schema. The description should be short and brief, outlining some of the places chosen. 
         A maximum of around 60 words. 
@@ -164,6 +179,7 @@ final class GeminiServiceImpl : GeminiService {
         
     }
     
+    /// Changes the current model and provides the new model with the old chat history so it has context about the created trip
     func setModel(newModel: GeminiModel) {
         let oldHistory = currentChat.history
         
@@ -180,6 +196,7 @@ final class GeminiServiceImpl : GeminiService {
         modelName = newModel
     }
     
+    /// A request that asks the model to edit the existing trip by replacing specific places.
     func editTrip(identifiers: [MKMapItem.Identifier]) async throws -> AIResult {
         selectedPlaces.removeAll()
         
@@ -199,6 +216,7 @@ final class GeminiServiceImpl : GeminiService {
         
     }
     
+    /// A request that asks the model to add additional stops to the trip
     func addStops() async throws -> AIResult {
         selectedPlaces.removeAll()
         let prompt = """
@@ -210,6 +228,7 @@ final class GeminiServiceImpl : GeminiService {
 
     }
     
+    /// Conduct the generation of the trip through conversing with the model
     func generateTrip(prompt: String) async throws -> AIResult {
         let firstResponse = try await currentChat.sendMessage(prompt)
     
@@ -221,11 +240,12 @@ final class GeminiServiceImpl : GeminiService {
         
     }
     
+    /// Manages the multi turn conversation with the model
     func multiTurn(firstResponse: GenerateContentResponse) async throws -> GenerateContentResponse {
         var response = firstResponse
         
         var iterations = 20
-
+        // While the model still wants to make function calls, provide it function responses
         while (!response.functionCalls.isEmpty && iterations > 0) {
             let functionResponses = await useTools(response: response)
             
@@ -235,11 +255,14 @@ final class GeminiServiceImpl : GeminiService {
             iterations -= 1
         }
         
+        // When no more function calls, return the final response which should be the created trip's name and description
         return response
         
     }
     
+    /// Decodes the json schema provided by the model which contains the created trip's name and description
     func decodeTrip(responseText: String?) throws -> AIResult {
+        // If fail to decode, return this default name and description
         let emptyTrip = AIResult(tripName: "Generated Trip", description: "This trip was generated by Dora", selectedPlaces: selectedPlaces)
         
         guard let text = responseText else {
@@ -255,15 +278,18 @@ final class GeminiServiceImpl : GeminiService {
         return AIResult(tripName: data.trip_name, description: data.description, selectedPlaces: selectedPlaces)
     }
     
-    
+    /// Provide the model with function responses based on its function call
     func useTools(response: GenerateContentResponse) async -> [FunctionResponsePart] {
         
         var functionResponses = [FunctionResponsePart]()
         
         for functionCall in response.functionCalls {
             
+            // If the model wants to search for places
             if functionCall.name == "search_places" {
                 print("searching places")
+                
+                // Extract the search query
                 guard case let .string(searchQuery) = functionCall.args["search_query"] else {
                     print("failed convert search_query to string")
                     fatalError()
@@ -273,15 +299,20 @@ final class GeminiServiceImpl : GeminiService {
                 do {
                     print("searching for: \(searchQuery)")
                     
+                    // Set a three second limit between each query to prevent throttling
                     try await Task.sleep(for: .seconds(3))
+                    
+                    // Conduct search
                     let places = try await searchPlaces(searchRequest: searchQuery)
                     
+                    // Return the search results
                     functionResponses.append(FunctionResponsePart(
                         name: functionCall.name,
                         response: places
                     ))
                     
                 } catch {
+                    // If the search fails, return an empty array and let the model know that the search failed
                     let fail: JSONObject = [
                         "places" : .array([]),
                         "search_success" : .bool(false)
@@ -293,23 +324,29 @@ final class GeminiServiceImpl : GeminiService {
                         ))
                                              
                 }
-                    
+            // If the model wants to choose a place for the trip
             } else if (functionCall.name == "select_places") {
                 print("Selecting a place")
+                
+                // Extract the MKMapItem identifiers
                 guard case let .array(placeIdentifiers) = functionCall.args["place_identifiers"] else {
                     print("failed convert placeids to array")
                     fatalError()
                     
-}
+                }
                 
                 for identifier in placeIdentifiers {
                     guard case let .string(stringId) = identifier else {
                         print("failed convert id to string")
                         fatalError()
                         
-}
+                    }
+                    
+                    // add the place to the trip's selected places
                     selectPlace(identifier: stringId)
                 }
+                
+                // Let the model know it succeeded
                 functionResponses.append(FunctionResponsePart(
                     name: functionCall.name,
                     response: [ "success" : .bool(true)]
@@ -322,7 +359,7 @@ final class GeminiServiceImpl : GeminiService {
         
     }
     
-    
+    /// Conduct a MapKit search for a place and return the results as a JSONObject
     func searchPlaces(searchRequest: String) async throws -> JSONObject {
         let request = MKLocalSearch.Request()
         request.naturalLanguageQuery = searchRequest
@@ -337,6 +374,7 @@ final class GeminiServiceImpl : GeminiService {
         
         for item in mapItems {
             if let id = item.identifier {
+                // Store the search result for retrieval in the future
                 searchedPlaces[id.rawValue] = item
                 placesResult.append(.object(item.toJSONObject()))
             }
@@ -350,9 +388,10 @@ final class GeminiServiceImpl : GeminiService {
         ]
     }
     
+    /// Select a place for the trip by retrieving it from the previously searched places dictionary and adding it to selectedPlaces
     func selectPlace(identifier: String) {
         if let selectedPlace = searchedPlaces[identifier] {
-            print(selectedPlace.name)
+            print(selectedPlace.name ?? "no name")
             selectedPlaces.append(selectedPlace)
         }
         
@@ -362,6 +401,7 @@ final class GeminiServiceImpl : GeminiService {
     
 }
 
+/// Turn a MKMapItem to a json object
 extension MKMapItem {
     func toJSONObject() -> JSONObject {
         return [

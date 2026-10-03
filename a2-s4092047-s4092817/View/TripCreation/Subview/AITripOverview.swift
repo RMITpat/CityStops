@@ -8,6 +8,7 @@
 import SwiftUI
 import MapKit
 
+/// The created AI Trip, with  buttons for editing and adding to the created trip
 struct AITripOverview: View {
     @Environment(GeminiViewModel.self) var geminiVM: GeminiViewModel
     @Environment(LocationViewModel.self) var locationVM: LocationViewModel

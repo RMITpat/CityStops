@@ -8,13 +8,18 @@
 import Foundation
 import MapKit
 
+/// The GeminIViewModel used during the AI trip creation process
 @Observable class GeminiViewModel {
+    /// Service used to communicate with Gemini
     let geminiService: GeminiService
     
+    /// Is gemini currently processing something
     var isLoading: Bool = false
     
+    /// The list of places to be replaced by the model, chosen by the user from a generated trip
     var placesToRemove: [MKMapItem.Identifier] = []
 
+    /// The current model being used
     var currentModelName: GeminiModel
     
     
@@ -23,9 +28,11 @@ import MapKit
         currentModelName = geminiService.modelName
     }
   
-    
+    /// Start trip creation by providing the model with a prompt and selected preferences
     func request(prompt: String, preferences: [Preference]) async throws -> AIResult {
         isLoading = true
+        
+        // Reset placesToRemove, this is a new trip
         placesToRemove.removeAll()
         
         let preferenceStrings = preferences.map {
@@ -42,7 +49,7 @@ import MapKit
         
     }
 
-    
+    /// Edit a created trip by asking the model to replace certain places with new ones
     func editTrip() async throws -> AIResult {
         isLoading = true
      
@@ -55,7 +62,7 @@ import MapKit
         
     }
   
-        
+    /// Ask the model to add more stops to a generated trip
     func addStops() async throws -> AIResult {
         isLoading = true
         
@@ -66,6 +73,7 @@ import MapKit
      
     }
     
+    /// Change the model being used if being rate limited
     func setModel(model: GeminiModel) {
         geminiService.setModel(newModel: model)
         currentModelName = model

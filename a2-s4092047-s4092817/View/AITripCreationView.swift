@@ -8,6 +8,7 @@
 import SwiftUI
 import MapKit
 
+/// The view on which users can input a prompt to ask our AI assistant Dora to create a trip
 struct AITripCreationView: View {
     @Environment(TripCreationViewModel.self) var tripCreationVM: TripCreationViewModel
     @Environment(LocationViewModel.self) var locationVM: LocationViewModel

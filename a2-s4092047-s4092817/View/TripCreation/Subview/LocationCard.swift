@@ -13,7 +13,6 @@ struct LocationCard: View {
     var selectedPlaces: Binding<[MKMapItem]>?
     var placesToRemove: Binding<[MKMapItem.Identifier]>?
     
-    let reRoute: (Int) -> Void
     
     /// Takes a ``Location`` to be  displayed.
     /// Optionally, takes a Binding for ``selectedPlaces`` when ``location`` can be added or deleted from a ``Trip``.
@@ -21,12 +20,10 @@ struct LocationCard: View {
     init(location: MKMapItem,
          selectedPlaces: Binding<[MKMapItem]>? = nil,
          placesToRemove: Binding<[MKMapItem.Identifier]>? = nil,
-         reRoute: @escaping (Int) -> Void
     ) {
         self.location = location
         self.selectedPlaces = selectedPlaces
         self.placesToRemove = placesToRemove
-        self.reRoute = reRoute
     }
     
     /// View-specific state to detect if location is part of ``Trip``.
@@ -76,13 +73,7 @@ struct LocationCard: View {
             if (selectedPlaces != nil) {
                 Button {
                     if let selectedPlaces, let id = location.identifier {
-                        if isSelected {
-                            let placeIndex = selectedPlaces.wrappedValue.firstIndex(where: {$0.identifier == id})
-                            selectedPlaces.wrappedValue.remove(at: placeIndex)
-                            reRoute(placeIndex)
-                        } else {
-                            selectedPlaces.wrappedValue.append(location)
-                        }
+                        isSelected ? selectedPlaces.wrappedValue.removeAll(where: { $0.identifier == id}) : selectedPlaces.wrappedValue.append(location)                        
                     }
                 } label: {
                     Image(systemName: isSelected ? "minus" : "plus")

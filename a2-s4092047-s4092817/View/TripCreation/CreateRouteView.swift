@@ -59,6 +59,7 @@ struct CreateRouteView: View {
                 .safeAreaInset(edge: .bottom) {
                     Button("Done") {
                         showStopsSheet.toggle()
+                        
                     }
                     .modifier(ButtonFormat())
                 }
@@ -70,6 +71,11 @@ struct CreateRouteView: View {
             .presentationDragIndicator(.visible)
             .interactiveDismissDisabled()
         }
+        .onChange(of: tripCreationVM.selectedPlaces) {
+            Task {
+                routes = try await locationVM.createTripRoutes(selectedPlaces: tripCreationVM.selectedPlaces)
+            }
+        }
         
         // MARK: Scroll View of chosen locations
         ScrollView {
@@ -77,11 +83,7 @@ struct CreateRouteView: View {
                  ForEach(tripCreationVM.selectedPlaces, id: \.identifier) { place in
                      VStack {
                          LocationCard(location: place,
-                                      selectedPlaces: $tripCreationVM.selectedPlaces) { index in
-                             Task {
-                                 routes = try await locationVM.reroute(route: routes, placeIndex: index, updatedSelectedPlaces: tripCreationVM.selectedPlaces)
-                             } 
-                         }
+                                      selectedPlaces: $tripCreationVM.selectedPlaces)
                         
                      }
                  }

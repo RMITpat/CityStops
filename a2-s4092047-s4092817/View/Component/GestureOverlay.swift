@@ -15,7 +15,7 @@ struct GestureOverlay: View {
             
             // MARK: Overlay background
             Rectangle()
-                .fill(.black.opacity(0.25))
+                .fill(.white.opacity(0.5))
                 .background(.ultraThinMaterial)
                 .opacity(0.75)
                 .ignoresSafeArea()

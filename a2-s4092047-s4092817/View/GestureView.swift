@@ -8,75 +8,71 @@
 import SwiftUI
 
 struct GestureView: View {
-
+ 
     @State private var viewModel = GestureViewModel()
     @GestureState private var gestureState = complexGestureState.inactive
-
+ 
     var body: some View {
-
         ZStack {
-
-            // Original background
             Color(.systemBackground)
                 .ignoresSafeArea()
-
-            // Original content
+ 
             VStack {
                 Text("hello")
-
+ 
                 RoundedRectangle(cornerRadius: 20)
-                    .fill(
-                        viewModel.showFailure
-                        ? .red
-                        : viewModel.swipeDirection != nil
-                            ? .green
-                            : .blue
-                    )
+                    .fill(viewModel.feedback.color)
                     .frame(width: 200, height: 120)
             }
-
-            // Overlay layer
+ 
             if gestureState.isLongPressComplete {
                 GestureOverlay()
             }
         }
-        .animation(
-            .easeInOut(duration: 0.3),
-            value: gestureState.isLongPressComplete
-        )
+        .animation(.easeInOut(duration: 0.3), value: gestureState.isLongPressComplete)
         .contentShape(Rectangle())
-        .gesture(
-            LongPressGesture(minimumDuration: 0.5)
-                .sequenced(
-                    before: DragGesture(minimumDistance: 0)
-                )
-                .updating($gestureState) { value, state, _ in
-
-                    switch value {
-
+        .gesture(longPressThenDrag)
+    }
+ 
+    // MARK: - Gesture
+    private var longPressThenDrag: some Gesture {
+        LongPressGesture(minimumDuration:               viewModel.longPressDuration)
+            .sequenced(before: DragGesture(minimumDistance: 0))
+            
+            // Detect the gesture state (pressing, dragging)
+            .updating($gestureState) { value, state, _ in
+                switch value {
                     case .first(true):
                         state = .pressing
-
                     case .second(true, let drag):
-
-                        let translation = drag?.translation ?? .zero
-
-                        state = .dragging(
-                            translation: translation
-                        )
-
-                        viewModel.updateDrag(
-                            translation: translation
-                        )
-
+                        state = .dragging(translation: drag?.translation ?? .zero)
                     default:
                         break
-                    }
                 }
-                .onEnded { _ in
-                    viewModel.endGesture()
+            }
+        
+            // Update swiping translation to gestureVM
+            .onChanged { value in
+                if case .second(true, let drag?) = value {
+                    viewModel.updateDragDirection(translation: drag.translation)
                 }
-        )
+            }
+        
+            .onEnded { _ in
+                viewModel.endGesture()
+            }
+    }
+}
+ 
+// MARK: - Presentation mapping
+ 
+private extension GestureViewModel.Feedback {
+    var color: Color {
+        switch self {
+        case .idle: .blue
+        case .swiping: .green
+        case .success: .red
+        }
     }
 }
 

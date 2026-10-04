@@ -13,6 +13,14 @@ struct TripDetailView: View {
     @Environment(LocationViewModel.self) var locationVM: LocationViewModel
     @State var routes: [MKRoute] = []
     
+    @State private var mode: Mode = .first
+
+    enum Mode: String, CaseIterable, Identifiable {
+        case first = "Details"
+        case second = "Places"
+        var id: Self { self }
+    }
+    
     var body: some View {
         if let trip = appVM.currentTrip {
             ScrollView {
@@ -43,24 +51,44 @@ struct TripDetailView: View {
                 }
                 
             }
+                
                 // MARK: Desc + Save button
                 VStack(alignment: .center) {
-                    Text(trip.description)
+                    
                     HStack() {
                         SaveTripButton(trip: trip)
                     }
                 }
                 .frame(maxWidth: .infinity, alignment: .center)
                 
-                // MARK: Location List
-                VStack {
-                    ForEach(trip.mkMapItemPlaces, id: \.identifier) { place in
-                        VStack {
-                            LocationCard(location: place)
-                           
-                        }
-                    }
+                
+                Picker("Mode", selection: $mode) {
+                    ForEach(Mode.allCases) { Text($0.rawValue).tag($0) }
                 }
+                .pickerStyle(.segmented)
+                .padding(.horizontal, 16)
+                
+                switch mode {
+                case .first:
+                    VStack(alignment: .leading) {
+                        Text(trip.description)
+                        Divider()
+                        Text("Created on \(trip.createdAt.formatted())")
+                            .font(.subheadline)
+                    }.padding()
+                case .second:
+                    // MARK: Location List
+                    VStack {
+                        ForEach(trip.mkMapItemPlaces, id: \.identifier) { place in
+                            VStack {
+                                LocationCard(location: place)
+                               
+                            }
+                        }
+                    }.padding()
+                }
+             
+                
             }
             Spacer()
             // TODO: Toolbar disappear / reappear animation?

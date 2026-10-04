@@ -42,4 +42,10 @@ final class TripCreationViewModel {
         selectedPlaces.removeAll()
         selectedPreferences.removeAll()
     }
+    
+    func fromAIResult(result: AIResult) {
+        name = result.tripName
+        description = result.description
+        selectedPlaces = result.selectedPlaces
+    }
 }

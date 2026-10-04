@@ -25,33 +25,38 @@ struct CreationChoiceView: View {
                     .bold()
                 
                 Button("Plan it myself") {
+                    tripCreationVM.clear()
                     router.tripCreationRoute.append(TripCreationRoute.name)
                 }
                 .buttonStyle(.glassProminent)
                 .controlSize(.large)
-                .navigationDestination(for: TripCreationRoute.self) { route in
-                switch route {
-                    case .name: TripNameView()
-                    case .preferences: TripPreferenceView()
-                    case .createRoute: CreateRouteView()
-                }
-            }
                 
                 Text("or")
                     .fontWeight(.light)
                 
-                //TODO: Implement AI / ML daytrip creation feature
-                NavigationLink(destination: CreateTripView(mode: .first)
-                ) {
-                    Text("Let AI decide for me")
+                
+                Button("Ask Dora to assist") {
+                    tripCreationVM.clear()
+                    router.tripCreationRoute.append(TripCreationRoute.preferences)
                 }
                 .buttonStyle(.glassProminent)
                 .controlSize(.large)
+                .tint(.dora)
                 
+            }
+            .onAppear {
+                locationVM.checkLocationAuthorization()
             }
             .navigationTitle(Text("Create a Daytrip"))
             .navigationBarTitleDisplayMode(.large)
-            
+            .navigationDestination(for: TripCreationRoute.self) { route in
+            switch route {
+                case .name: TripNameView()
+                case .preferences: TripPreferenceView()
+                case .createRoute: CreateRouteView()
+                case .aiTripCreation: AITripCreationView(region: locationVM.currentRegion)
+            }
+        }
         }
         .environment(tripCreationVM)
 

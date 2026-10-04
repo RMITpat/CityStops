@@ -39,6 +39,9 @@ import MapKit
     /// The current trip being viewed in TripDetailView
     var currentTrip: Trip? = nil
     
+    /// Is a trip currently being saved
+    var isSaving: Bool = false
+    
     /// Real init used in app
     init(user: AppUser) {
         let service = TripServiceImpl()
@@ -61,10 +64,11 @@ import MapKit
     }
     /// Saves a trip to Firestore
     func saveTrip(name: String, description: String, selectedPlaces: [MKMapItem], preferences: [String]) async throws {
-    
+        isSaving = true
         let placeIdentifiers = selectedPlaces.compactMap { $0.identifier }
         let newTrip = Trip(ownerUsername: user.username, ownerId: user.id, name: name, description: description, places: placeIdentifiers, preferences: preferences)
         try await tripService.saveTrip(trip: newTrip)
+        isSaving = false
 
     }
     

@@ -38,6 +38,8 @@ struct CreateTripView: View {
 
         VStack {
 
+
+
             // MARK: View Title
             Text("Select Stops")
                 .font(.largeTitle)

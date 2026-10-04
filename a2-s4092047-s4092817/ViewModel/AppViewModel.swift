@@ -99,9 +99,7 @@ import MapKit
     /// Function to start reading all trips from Firestore
     func loadTrips() {
         
-        if isLoadingTrips {
-            print("isloading trips")
-            return }
+        if isLoadingTrips { return }
         isLoadingTrips = true
         Task {
             do {

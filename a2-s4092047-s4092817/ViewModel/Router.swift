@@ -45,4 +45,7 @@ class Router {
     var tripCreationRoute: [TripCreationRoute] = [TripCreationRoute]()
     
     var feedRoute: [FeedRoute] = [FeedRoute]()
+    
+    var profileRoute: [FeedRoute] = [FeedRoute]()
+
 }

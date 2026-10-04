@@ -9,7 +9,7 @@ import SwiftUI
 
 struct ProfileView: View {
     @Environment(AppViewModel.self) var appVM: AppViewModel
-    
+    @Environment(Router.self) var router: Router
     @State private var mode: Mode = .first
 
     enum Mode: String, CaseIterable, Identifiable {
@@ -20,45 +20,53 @@ struct ProfileView: View {
     
     var body: some View {
         @Bindable var appVM = appVM
-        
-        VStack (alignment: .leading) {
-            Text(appVM.user.username).font(.largeTitle).padding()
+        @Bindable var router = router
+
+        NavigationStack(path: $router.profileRoute) {
             
-            Picker("Mode", selection: $mode) {
-                ForEach(Mode.allCases) { Text($0.rawValue).tag($0) }
-            }
-            .pickerStyle(.segmented)
-            .padding(.horizontal, 16)
-            
-            switch mode {
-            case .first:
-                if appVM.yourTrips.isEmpty {
-                    Text("You haven't created any trips")
-                        .font(.title2)
-                        .multilineTextAlignment(.center)
-                        .padding()
+            VStack (alignment: .leading) {
+                Text(appVM.user.username).font(.largeTitle).padding()
+                
+                Picker("Mode", selection: $mode) {
+                    ForEach(Mode.allCases) { Text($0.rawValue).tag($0) }
+                }
+                .pickerStyle(.segmented)
+                .padding(.horizontal, 16)
+                
+                switch mode {
+                case .first:
+                    if appVM.yourTrips.isEmpty {
+                        Text("You haven't created any trips")
+                            .font(.title2)
+                            .multilineTextAlignment(.center)
+                            .padding()
+                        
+                    }
+                    TripFeed(trips: appVM.yourTrips, isLoading: appVM.isLoadingUserTrips, route: $router.profileRoute) {
+                        appVM.refreshUserTrips()
+                    } loadTrips: {
+                        appVM.loadYourTrips()
+                    }
+                    
+                case .second:
+                    if appVM.savedTrips.isEmpty {
+                        Text("You haven't saved any trips")
+                            .font(.title2)
+                            .multilineTextAlignment(.center)
+                            .padding()
+                        
+                    }
+                    TripFeed(trips: appVM.savedTrips, isLoading: appVM.isLoadingSavedTrips, route: $router.profileRoute) {
+                        appVM.refreshSavedTrips()
+                    } loadTrips: {
+                        appVM.loadSavedTrips()
+                    }
                     
                 }
-                TripFeed(trips: appVM.yourTrips, isLoading: appVM.isLoadingUserTrips) {
-                    appVM.refreshUserTrips()
-                } loadTrips: {
-                    appVM.loadYourTrips()
+            }.navigationDestination(for: FeedRoute.self) { route in
+                switch route {
+                case .tripDetail: TripDetailView()
                 }
-                
-            case .second:
-                if appVM.savedTrips.isEmpty {
-                    Text("You haven't saved any trips")
-                        .font(.title2)
-                        .multilineTextAlignment(.center)
-                        .padding()
-                    
-                }
-                TripFeed(trips: appVM.savedTrips, isLoading: appVM.isLoadingSavedTrips) {
-                    appVM.refreshSavedTrips()
-                } loadTrips: {
-                    appVM.loadSavedTrips()
-                }
-                
             }
         }
     }

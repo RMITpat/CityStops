@@ -28,7 +28,7 @@ struct HomeView: View {
                       .padding(.horizontal, 16)
                       .padding(.top, 56)
                 
-                TripFeed(trips: appVM.tripFeed, isLoading: appVM.isLoadingTrips) {
+                TripFeed(trips: appVM.tripFeed, isLoading: appVM.isLoadingTrips, route: $router.feedRoute) {
                     appVM.refreshFeed()
                 } loadTrips: {
                     appVM.loadTrips()

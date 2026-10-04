@@ -70,8 +70,21 @@ struct AITripOverview: View {
                     switch mode {
                     case .first:
                         VStack(alignment: .leading) {
-                            Text(tripCreationVM.name).font(.title)
-                            Text(tripCreationVM.description).font(.default)
+                            TextField("e.g. Asian Street Food Tour", text: $tripCreationVM.name)
+                                .textFieldStyle(RoundedBorderTextFieldStyle())
+                                .padding(.bottom, 32)
+                                .font(.title)
+                            
+                            TextEditor(text: $tripCreationVM.description)
+                                .frame(minHeight: 120)
+                                .padding(.horizontal, 2)
+                                .scrollContentBackground(.hidden)
+                                .background(.background)
+                                .clipShape(RoundedRectangle(cornerRadius: 8))
+                                .overlay {
+                                    RoundedRectangle(cornerRadius: 8)
+                                        .stroke(.secondary.opacity(0.15))
+                                }
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding()

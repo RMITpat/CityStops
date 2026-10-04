@@ -258,6 +258,7 @@ import MapKit
         refreshFeed()
         refreshUserTrips()
         refreshSavedTrips()
+        
     }
     
     

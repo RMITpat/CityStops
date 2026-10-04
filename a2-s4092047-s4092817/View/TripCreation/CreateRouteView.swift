@@ -105,7 +105,9 @@ struct CreateRouteView: View {
                         
                         tripCreationVM.clear()
                         router.tripCreationRoute.removeAll()
-                        router.selectedTab = .create
+                        appVM.refreshFeed()
+                        appVM.refreshUserTrips()
+                        router.selectedTab = .home
                     } catch {
                         self.error = error.localizedDescription
                     }

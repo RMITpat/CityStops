@@ -41,7 +41,8 @@ struct CreateRouteView: View {
             // MARK: - Base View
             VStack {
                 // Map interface
-                Map (position: $locationVM.currentLocation) {
+                // prevent panning when long press is active
+                Map (position: $locationVM.currentLocation, interactionModes: gestureState.isLongPressComplete ? [] : .all) {
                     ForEach(tripCreationVM.selectedPlaces, id: \.self) { place in
                         Marker(item: place)
                             .mapItemDetailSelectionAccessory(.callout)
@@ -100,8 +101,11 @@ struct CreateRouteView: View {
                                 
                             }
                         }
-                    }.padding()
+                    }
+                    .padding()
                 }
+                // prevent scrolling when long press is active
+                .scrollDisabled(gestureState.isLongPressComplete)
                 Spacer()
                 
                 // MARK: "Open Sheet" button
@@ -144,7 +148,7 @@ struct CreateRouteView: View {
         // fade in when appearing
         .animation(.easeInOut(duration: 0.3), value: gestureState.isLongPressComplete)
         .contentShape(Rectangle())
-        .gesture(longPressThenDrag)
+        .simultaneousGesture(longPressThenDrag)
         }
     
     // MARK: Gesture definition

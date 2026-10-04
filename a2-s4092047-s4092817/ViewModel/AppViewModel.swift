@@ -99,7 +99,9 @@ import MapKit
     /// Function to start reading all trips from Firestore
     func loadTrips() {
         
-        if isLoadingTrips { return }
+        if isLoadingTrips {
+            print("isloading trips")
+            return }
         isLoadingTrips = true
         Task {
             do {
@@ -257,6 +259,16 @@ import MapKit
         refreshUserTrips()
         refreshSavedTrips()
         
+    }
+    
+    /// Delete a created trip
+    func deleteTrip(tripId: String) async throws {
+        try await tripService.deleteTrip(tripId: tripId)
+        
+        // Ensure feeds are refreshed so no stale trips are able to be interacted with by the user
+        refreshFeed()
+        refreshUserTrips()
+        refreshSavedTrips()
     }
     
     

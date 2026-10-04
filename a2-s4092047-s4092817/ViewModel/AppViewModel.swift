@@ -226,6 +226,8 @@ import MapKit
         if let savedSavedTrip = savedTrips.firstIndex(where: { $0.id == tripId}) {
             savedTrips[savedSavedTrip].savedByUser = true
         }
+        currentTrip?.savedByUser = true
+
     }
     
     func deleteTripBookmark(tripId: String) async throws {
@@ -245,6 +247,7 @@ import MapKit
             savedTrips[savedSavedTrip].savedByUser = false
         }
         
+        currentTrip?.savedByUser = false
         
     }
     

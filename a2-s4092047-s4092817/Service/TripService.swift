@@ -28,6 +28,8 @@ protocol TripService {
     
     func bookmarkTrip(ownerId: String, tripId: String) async throws
     func removeTripBookmark(ownerId: String, tripId: String) async throws
+    
+    func deleteTrip(tripId: String) async throws
 }
 
 ///
@@ -232,6 +234,7 @@ final class TripServiceImpl: TripService {
         try await ref.setData(data)
     }
     
+    /// Unsave a trip by deleting document from bookmarkedTrips collection
     func removeTripBookmark(ownerId: String, tripId: String) async throws {
         let dbCollection = db.collection("bookmarkedTrips")
         let snapshot = try await dbCollection
@@ -244,7 +247,7 @@ final class TripServiceImpl: TripService {
         }
         
     }
-    
+    /// Save a trip by adding document to bookmarkedTrips collection
     func checkIfTripIsSaved(ownerId: String, tripId: String) async throws -> Bool {
         let dbCollection = db.collection("bookmarkedTrips")
         let snapshot = try await dbCollection
@@ -252,6 +255,18 @@ final class TripServiceImpl: TripService {
             .whereField("tripId", isEqualTo: tripId)
             .getDocuments()
         return !snapshot.documents.isEmpty
+    }
+    
+    /// Delete a trip by deleting document from trips collection
+    func deleteTrip(tripId: String) async throws {
+        let dbCollection = db.collection("trips")
+        let snapshot = try await dbCollection
+            .whereField("tripId", isEqualTo: tripId)
+            .getDocuments()
+        
+        if let document = snapshot.documents.first {
+            try await document.reference.delete()
+        }
     }
     
 }

@@ -108,7 +108,7 @@ struct AITripCreationView: View {
                             do {
                                 self.error?.removeAll()
                                 try await tripCreationVM.fromAIResult(result: geminiVM.request(prompt: prompt, preferences: tripCreationVM.selectedPreferences))
-                                try await routes = locationVM.createRoute(selectedPlaces: tripCreationVM.selectedPlaces)
+                                try await routes = locationVM.createTripRoutes(selectedPlaces: tripCreationVM.selectedPlaces)
                             } catch {
                                 self.error = "Failed to generate a trip"
                             }

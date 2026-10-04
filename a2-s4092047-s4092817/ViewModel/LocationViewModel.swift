@@ -114,7 +114,7 @@ final class LocationViewModel: NSObject, CLLocationManagerDelegate {
     /// Creates a route between all the locations currently stored in selectedPlaces, in the order they were added.
     /// Begins by checking if there was a previous, ongoing route request occurring and
     /// cancelling it if there was and replacing it with the new one.
-    func createRoute(selectedPlaces: [MKMapItem], tripID: String = "") async throws -> [MKRoute] {
+    func createTripRoutes(selectedPlaces: [MKMapItem], tripID: String = "") async throws -> [MKRoute] {
         var routes: [MKRoute] = []
         
         if let cachedRoute = cachedRoutes[tripID] {
@@ -125,14 +125,9 @@ final class LocationViewModel: NSObject, CLLocationManagerDelegate {
             if Task.isCancelled {
                 break
             }
-            let directionsRequest: MKDirections.Request = MKDirections.Request()
-            directionsRequest.source = source
-            directionsRequest.destination = dest
-            directionsRequest.transportType = MKDirectionsTransportType.walking
             
-            let directions = MKDirections(request: directionsRequest)
-            let response = try await directions.calculate()
-            if let route = response.routes.first {
+            let route = try await createRoute(source: source, destination: dest)
+            if let route {
                 routes.append(route)
             }
         }
@@ -142,6 +137,70 @@ final class LocationViewModel: NSObject, CLLocationManagerDelegate {
             cachedRoutes[tripID] = routes
         }
         return routes
+        
+    }
+    
+    /// Create an MKRoute between 2
+    func createRoute(source: MKMapItem, destination: MKMapItem) async throws -> MKRoute? {
+        let directionsRequest: MKDirections.Request = MKDirections.Request()
+        directionsRequest.source = source
+        directionsRequest.destination = destination
+        directionsRequest.transportType = MKDirectionsTransportType.walking
+        
+        let directions = MKDirections(request: directionsRequest)
+        let response = try await directions.calculate()
+        
+        if let route = response.routes.first {
+            return route
+        }
+        return nil
+    }
+    ///
+    /// 0 1 2 3 4 count = 5
+    /// remove 4
+    /// 0 1 2 3 count = 4
+    func reroute(route: [MKRoute], placeIndex: Int, updatedSelectedPlaces: [MKMapItem] ) async throws ->  [MKRoute] {
+        
+        var route = route
+        // Protect against edge cases even though they shouldn't occur
+        if placeIndex > updatedSelectedPlaces.count || placeIndex < 0 {
+            return route
+        }
+        
+        // If the place removed was the last place in the list (with index of the updated selectedPlaces count since it's one smaller),
+        if placeIndex == updatedSelectedPlaces.count {
+            // Drop the route connecting to it
+            return route.dropLast()
+        }
+        
+        // If the place removed was the first place in the list,
+        if placeIndex == 0 {
+            // Drop the route connecting it to the second place
+            return Array(route.suffix(from: 0))
+        }
+        
+        // If the place removed was somewhere inside the list,
+        else {
+            // Mark the place before it as the source
+            let source = updatedSelectedPlaces[placeIndex - 1]
+            
+            // And the place after it that is now in its index as the destination
+            let destination = updatedSelectedPlaces[placeIndex]
+            
+            // And create a new route
+            if let replacementRoute = try await createRoute(source: source, destination: destination) {
+                // Remove the route from the deleted place to the place after it
+                route.remove(at: placeIndex)
+                
+                // Add in the replacement route that connects the place before the removed place to the place after
+                route.insert(replacementRoute, at: placeIndex - 1)
+                
+                return route
+            }
+            
+        }
+        return route
+        
         
     }
 }

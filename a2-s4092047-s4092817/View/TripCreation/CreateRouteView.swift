@@ -61,7 +61,7 @@ struct CreateRouteView: View {
         // MARK: Choose stops sheet
         .sheet(isPresented: $showStopsSheet) {
             VStack {
-                CreateTripView(mode: tripCreationVM.selectedPreferences.isEmpty ? .second : .first)
+                CreateTripSheet(mode: tripCreationVM.selectedPreferences.isEmpty ? .second : .first)
                 .padding(.top, 24)
                 
                 .safeAreaInset(edge: .bottom) {

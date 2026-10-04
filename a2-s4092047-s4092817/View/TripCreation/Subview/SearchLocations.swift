@@ -8,7 +8,7 @@
 import SwiftUI
 import MapKit
 
-/// Subview for ``CreateTripView`` that allows the user to search for locations in their
+/// Subview for ``CreateTripSheet`` that allows the user to search for locations in their
 /// Trip vicinity.
 struct SearchLocations: View {
     // MARK: View Models

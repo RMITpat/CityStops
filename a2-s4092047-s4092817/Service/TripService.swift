@@ -130,43 +130,62 @@ final class TripServiceImpl: TripService {
     /// Get saved trips from Firebase
     func loadSavedTrips(ownerId: String) async throws -> [Trip] {
         if reachedEndSavedTrips {
-            print("reached end")
             return []
         }
-        var queryDocuments: [QueryDocumentSnapshot] = []
         let query = db.collection("bookmarkedTrips")
             .whereField("ownerId", isEqualTo: ownerId)
             .order(by: "createdAt", descending: true)
             .limit(to: 4)
         
-        let savedTrips = try await loadFirst4Trips(query: query)
-        
-        
-        
+       
+        var savedTrips: [QueryDocumentSnapshot] = []
+
         if let lastSavedTripDocument {
-            print("loding next 4")
-            queryDocuments = try await loadNext4Trips(lastDocument: lastSavedTripDocument, query: query)
+            savedTrips = try await loadNext4Trips(lastDocument: lastSavedTripDocument, query: query)
+            
         } else {
-            print("loading first 4")
-            queryDocuments = try await loadFirst4Trips(query: query)
+            savedTrips = try await loadFirst4Trips(query: query)
+            
         }
         
-        lastSavedTripDocument = queryDocuments.last
+        lastSavedTripDocument = savedTrips.last
         
         // When we reach the end, the last document will be nil. To prevent the feed from starting again and loadFirst4UserTrips() being called, set this bool
         if lastSavedTripDocument == nil {
-            print("reached end, setting bool")
             reachedEndSavedTrips = true
         }
         
+        let convertedTrips: [QueryDocumentSnapshot] = try await lookupSavedTrips(savedTrips: savedTrips)
         
-        return try await retrieveTrips(queryDocuments: queryDocuments, ownerId: ownerId)
+        return try await retrieveTrips(queryDocuments: convertedTrips, ownerId: ownerId)
+    }
+    
+    /// Looks up the saved trip id in the trips collection manually since Firestore is NoSQL and has no table joins :(
+    func lookupSavedTrips(savedTrips: [QueryDocumentSnapshot]) async throws -> [QueryDocumentSnapshot] {
+        var queryDocuments: [QueryDocumentSnapshot] = []
+
+        for doc in savedTrips {
+            let data = doc.data()
+            if let tripId = data["tripId"] as? String {
+                
+                let getTripsFromId = db.collection("trips")
+                    .whereField("id", isEqualTo: tripId)
+                    .limit(to: 4)
+                
+                let trip = try await loadFirst4Trips(query: getTripsFromId)
+
+                queryDocuments.append(contentsOf: trip)
+                
+                
+            }
+            
+        }
+        return queryDocuments
     }
     
     
     /// Turn querydocuments into trips
     func retrieveTrips(queryDocuments: [QueryDocumentSnapshot], ownerId: String) async throws -> [Trip] {
-        print(queryDocuments.count)
         var trips: [Trip] = []
         for document in queryDocuments {
                 let isSaved = try await checkIfTripIsSaved(
@@ -179,7 +198,6 @@ final class TripServiceImpl: TripService {
                 }
             }
         
-        print(trips.count)
         return trips
     }
     
@@ -233,7 +251,6 @@ final class TripServiceImpl: TripService {
             .whereField("ownerId", isEqualTo: ownerId)
             .whereField("tripId", isEqualTo: tripId)
             .getDocuments()
-        print(snapshot.documents.count)
         return !snapshot.documents.isEmpty
     }
     

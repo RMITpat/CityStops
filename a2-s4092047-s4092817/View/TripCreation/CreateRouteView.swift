@@ -92,6 +92,9 @@ struct CreateRouteView: View {
                 }
                 
                 // MARK: Scroll View of chosen locations
+                Text("Long press for edit trip options")
+                    .font(.caption)
+                    .foregroundStyle(.gray)
                 ScrollView {
                     VStack {
                         ForEach(tripCreationVM.selectedPlaces, id: \.identifier) { place in

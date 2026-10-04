@@ -42,15 +42,7 @@ struct CreateRouteView: View {
             
         }
         .frame(height:400)
-        // Route between stops
-        .task {
-            do {
-                routes = try await locationVM.createRoute(selectedPlaces: tripCreationVM.selectedPlaces)
-            } catch {
-                self.error = error.localizedDescription
-            }
-
-        }
+     
         .task {
             await createRouteVM.preload(
                 preferences: tripCreationVM.selectedPreferences,
@@ -85,7 +77,11 @@ struct CreateRouteView: View {
                  ForEach(tripCreationVM.selectedPlaces, id: \.identifier) { place in
                      VStack {
                          LocationCard(location: place,
-                                          selectedPlaces: $tripCreationVM.selectedPlaces)
+                                      selectedPlaces: $tripCreationVM.selectedPlaces) { index in
+                             Task {
+                                 routes = try await locationVM.reroute(route: routes, placeIndex: index, updatedSelectedPlaces: tripCreationVM.selectedPlaces)
+                             } 
+                         }
                         
                      }
                  }

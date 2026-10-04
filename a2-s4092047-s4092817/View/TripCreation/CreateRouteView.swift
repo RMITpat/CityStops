@@ -26,7 +26,7 @@ struct CreateRouteView: View {
     @State private var showStopsSheet = true
     
     // Gesture states
-    @State private var viewModel = GestureViewModel()
+    @State private var gestureVM = GestureViewModel()
     @GestureState private var gestureState = ComplexGestureState.inactive
     
     var body: some View {
@@ -142,19 +142,33 @@ struct CreateRouteView: View {
             
             // MARK: - Gesture Overlay
             if gestureState.isLongPressComplete {
-                GestureOverlay()
+                GestureOverlay(vm: gestureVM)
             }
         }
         // fade in when appearing
         .animation(.easeInOut(duration: 0.3), value: gestureState.isLongPressComplete)
         .contentShape(Rectangle())
         .simultaneousGesture(longPressThenDrag)
+        .task {
+            // left swipe: cancel trip creation
+            // right swipe: clear all locations from list
+            gestureVM.onSuccessfulSwipe = { direction in
+                switch direction {
+                case .left:
+                    router.tripCreationRoute.removeAll()
+
+                case .right:
+                    tripCreationVM.selectedPlaces.removeAll()
+                }
+            }
         }
+        }
+
     
     // MARK: Gesture definition
     private var longPressThenDrag: some Gesture {
-        LongPressGesture(minimumDuration:               viewModel.longPressDuration)
-            .sequenced(before: DragGesture(minimumDistance: 0))
+        LongPressGesture(minimumDuration:               gestureVM.longPressDuration)
+            .sequenced(before: DragGesture(minimumDistance: 10))
             
             // Detect the gesture state (pressing, dragging)
             .updating($gestureState) { value, state, _ in
@@ -171,15 +185,17 @@ struct CreateRouteView: View {
             // Update swiping translation to gestureVM
             .onChanged { value in
                 if case .second(true, let drag?) = value {
-                    viewModel.updateDragDirection(translation: drag.translation)
+                    gestureVM.updateDragDirection(translation: drag.translation)
                 }
             }
         
             .onEnded { _ in
-                viewModel.endGesture()
+                gestureVM.endGesture()
             }
     }
+
 }
+
 
 #Preview {
     let user = AppUser(id: "Test", username: "test", email: "test@email.com")

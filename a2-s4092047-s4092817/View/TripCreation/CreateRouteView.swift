@@ -29,18 +29,24 @@ struct CreateRouteView: View {
         @Bindable var locationVM = locationVM
         @Bindable var tripCreationVM = tripCreationVM
 
-        // Map interface
-        Map (position: $locationVM.currentLocation) {
-            ForEach(tripCreationVM.selectedPlaces, id: \.self) { place in
-                Marker(item: place)
-                    .mapItemDetailSelectionAccessory(.callout)
-            }
-            ForEach(routes, id: \.self) { route in
-                MapPolyline(route)
-                    .stroke(.blue, lineWidth: 5)
-            }
-            
-        }
+        // MARK: Map interface - UIKit
+        UIKitMapView(
+            position: locationVM.currentLocation, places: tripCreationVM.selectedPlaces,
+            routes: routes
+        )
+        
+        // Map interface - Pure SwiftUI
+//        Map (position: $locationVM.currentLocation) {
+//            ForEach(tripCreationVM.selectedPlaces, id: \.self) { place in
+//                Marker(item: place)
+//                    .mapItemDetailSelectionAccessory(.callout)
+//            }
+//            ForEach(routes, id: \.self) { route in
+//                MapPolyline(route)
+//                    .stroke(.blue, lineWidth: 5)
+//            }
+//            
+//
         .frame(height:400)
         // Route between stops
         .onChange(of: tripCreationVM.selectedPlaces) {

@@ -95,7 +95,7 @@ struct SearchLocations: View {
                     ForEach(searchResults, id: \.identifier) { result in
                         LocationCard(location: result,
                                          selectedPlaces: $tripCreationVM.selectedPlaces
-                                    )
+                        ) 
                     }
                 }
             }

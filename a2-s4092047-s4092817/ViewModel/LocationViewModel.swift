@@ -10,6 +10,10 @@ import Observation
 import MapKit
 import _MapKit_SwiftUI
 
+struct CachedRoute : Hashable {
+    let source: String
+    let destination: String
+}
 ///
 /// ViewModel used for keeping track of the user's current location,
 /// and managing a trip's route based on the stops chosen.
@@ -33,8 +37,9 @@ final class LocationViewModel: NSObject, CLLocationManagerDelegate {
     /// The logged in user
     private let user: AppUser
     
-    private var cachedRoutes: [String : [MKRoute]] = [:]
+    private var cachedTripRoutes: [String : [MKRoute]] = [:]
     
+    private var cachedRoutes: [CachedRoute : MKRoute] = [:]
     
     init(user: AppUser) {
         let sydneyRegion = MKCoordinateRegion(
@@ -117,7 +122,7 @@ final class LocationViewModel: NSObject, CLLocationManagerDelegate {
     func createTripRoutes(selectedPlaces: [MKMapItem], tripID: String = "") async throws -> [MKRoute] {
         var routes: [MKRoute] = []
         
-        if let cachedRoute = cachedRoutes[tripID] {
+        if let cachedRoute = cachedTripRoutes[tripID] {
             return cachedRoute
         }
         for (source, dest) in zip(selectedPlaces, selectedPlaces.dropFirst()) {
@@ -134,14 +139,28 @@ final class LocationViewModel: NSObject, CLLocationManagerDelegate {
         
         // Cache the route for this trip so we can get it next time
         if (!tripID.isEmpty) {
-            cachedRoutes[tripID] = routes
+            cachedTripRoutes[tripID] = routes
         }
         return routes
         
     }
     
-    /// Create an MKRoute between 2
+    /// Create an MKRoute between 2 MKMapItems
     func createRoute(source: MKMapItem, destination: MKMapItem) async throws -> MKRoute? {
+        var newRoute: CachedRoute?
+        
+        // If both locations have an id
+        if let sourceID = source.identifier?.rawValue, let destID = destination.identifier?.rawValue {
+            
+            // Create a new cached route key
+            newRoute = CachedRoute(source: sourceID, destination: destID)
+            
+            // if the route for that key has been calculated previously, return it
+            if let newRoute, let cachedRoute = cachedRoutes[newRoute] {
+                return cachedRoute
+            }
+        }
+        
         let directionsRequest: MKDirections.Request = MKDirections.Request()
         directionsRequest.source = source
         directionsRequest.destination = destination
@@ -151,56 +170,15 @@ final class LocationViewModel: NSObject, CLLocationManagerDelegate {
         let response = try await directions.calculate()
         
         if let route = response.routes.first {
+            
+            // If newRoute was previously created, meaning the id's for source and dest exists, store it against the calculated route
+            if let newRoute {
+                cachedRoutes[newRoute] = route
+            }
             return route
         }
         return nil
     }
-    ///
-    /// 0 1 2 3 4 count = 5
-    /// remove 4
-    /// 0 1 2 3 count = 4
-    func reroute(route: [MKRoute], placeIndex: Int, updatedSelectedPlaces: [MKMapItem] ) async throws ->  [MKRoute] {
-        
-        var route = route
-        // Protect against edge cases even though they shouldn't occur
-        if placeIndex > updatedSelectedPlaces.count || placeIndex < 0 {
-            return route
-        }
-        
-        // If the place removed was the last place in the list (with index of the updated selectedPlaces count since it's one smaller),
-        if placeIndex == updatedSelectedPlaces.count {
-            // Drop the route connecting to it
-            return route.dropLast()
-        }
-        
-        // If the place removed was the first place in the list,
-        if placeIndex == 0 {
-            // Drop the route connecting it to the second place
-            return Array(route.suffix(from: 0))
-        }
-        
-        // If the place removed was somewhere inside the list,
-        else {
-            // Mark the place before it as the source
-            let source = updatedSelectedPlaces[placeIndex - 1]
-            
-            // And the place after it that is now in its index as the destination
-            let destination = updatedSelectedPlaces[placeIndex]
-            
-            // And create a new route
-            if let replacementRoute = try await createRoute(source: source, destination: destination) {
-                // Remove the route from the deleted place to the place after it
-                route.remove(at: placeIndex)
-                
-                // Add in the replacement route that connects the place before the removed place to the place after
-                route.insert(replacementRoute, at: placeIndex - 1)
-                
-                return route
-            }
-            
-        }
-        return route
-        
-        
-    }
+    
+    
 }

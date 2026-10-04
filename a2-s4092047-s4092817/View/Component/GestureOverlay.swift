@@ -31,14 +31,13 @@ struct GestureOverlay: View {
             HStack {
 
                 // MARK: Left action
-
                 VStack(spacing: 8) {
 
                     Image(systemName: "arrow.left")
                         .font(.title)
                         .scaleEffect(
                             vm.swipeDirection == .left
-                            ? 0.8 + (0.4 * vm.swipeProgress)
+                            ? 0.8 + (0.6 * vm.swipeProgress)
                             : 0.8
                         )
 
@@ -52,9 +51,8 @@ struct GestureOverlay: View {
                             ? .bold
                             : .regular
                         )
-
+                    // "Progress" bar
                     GeometryReader { geometry in
-
                         ZStack(alignment: .leading) {
 
                             Capsule()
@@ -62,6 +60,7 @@ struct GestureOverlay: View {
 
                             Capsule()
                                 .fill(.primary)
+                            // Show progress only when swipe is significant enough; UX feels better
                                 .frame(
                                     width: geometry.size.width * (
                                         (vm.swipeDirection == .left
@@ -70,6 +69,7 @@ struct GestureOverlay: View {
                                         : 0
                                     )
                                 )
+                            // Animation for smoothness when appearing
                                 .animation(
                                     .linear(duration: 0.05),
                                     value: vm.swipeProgress
@@ -89,7 +89,7 @@ struct GestureOverlay: View {
                         .font(.title)
                         .scaleEffect(
                             vm.swipeDirection == .right
-                            ? 0.8 + (0.4 * vm.swipeProgress)
+                            ? 0.8 + (0.6 * vm.swipeProgress)
                             : 0.8
                         )
 
@@ -103,7 +103,7 @@ struct GestureOverlay: View {
                             ? .bold
                             : .regular
                         )
-
+                    // "Progress" bar
                     GeometryReader { geometry in
 
                         ZStack(alignment: .trailing) {
@@ -113,6 +113,7 @@ struct GestureOverlay: View {
 
                             Capsule()
                                 .fill(.primary)
+                            // Show progress only when swipe is significant enough; UX feels better
                                 .frame(
                                     width: geometry.size.width * (
                                         (vm.swipeDirection == .right
@@ -121,6 +122,7 @@ struct GestureOverlay: View {
                                         : 0
                                     )
                                 )
+                            // Animation for smoothness when appearing
                                 .animation(
                                     .linear(duration: 0.05),
                                     value: vm.swipeProgress

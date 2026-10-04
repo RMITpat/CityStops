@@ -36,3 +36,9 @@ import SwiftUI
             }
         }
     }
+
+    /// ``enum`` defining the swipe direction of the sequential Gesture.
+    enum SwipeDirection {
+        case left
+        case right
+    }

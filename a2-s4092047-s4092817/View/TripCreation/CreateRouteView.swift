@@ -43,13 +43,16 @@ struct CreateRouteView: View {
         }
         .frame(height:400)
         // Route between stops
-        .task {
-            do {
-                routes = try await locationVM.createRoute(selectedPlaces: tripCreationVM.selectedPlaces)
-            } catch {
-                self.error = error.localizedDescription
+        .onChange(of: tripCreationVM.selectedPlaces) {
+            Task {
+                do {
+                    routes = try await locationVM.createRoute(
+                        selectedPlaces: tripCreationVM.selectedPlaces
+                    )
+                } catch {
+                    self.error = error.localizedDescription
+                }
             }
-
         }
         .task {
             await createRouteVM.preload(

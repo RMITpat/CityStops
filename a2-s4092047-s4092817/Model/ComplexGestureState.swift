@@ -8,7 +8,7 @@
 import SwiftUI
 
     /// ``enum`` that holds the sequential Gesture's current state.
-    enum complexGestureState {
+    enum ComplexGestureState {
         case inactive
         case pressing
         case dragging(translation: CGSize)

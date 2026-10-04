@@ -10,7 +10,7 @@ import SwiftUI
 struct GestureView: View {
  
     @State private var viewModel = GestureViewModel()
-    @GestureState private var gestureState = complexGestureState.inactive
+    @GestureState private var gestureState = ComplexGestureState.inactive
  
     var body: some View {
         ZStack {

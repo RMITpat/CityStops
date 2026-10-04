@@ -15,13 +15,12 @@ import _MapKit_SwiftUI
 struct TripCard: View {
     @Environment(LocationViewModel.self) var locationVM: LocationViewModel
     @Environment(AppViewModel.self) var appVM: AppViewModel
-    @Environment(Router.self) var router: Router
     
     /// The trip this card displays information for
     let trip: Trip
-    
-    
+    @Binding var navRoute: [FeedRoute]
     @State var routes: [MKRoute] = []
+    
     var body: some View {
         @Bindable var locationVM = locationVM        
 
@@ -67,7 +66,7 @@ struct TripCard: View {
         
         .contentShape(Rectangle())
         .onTapGesture {
-            router.feedRoute.append(.tripDetail)
+            navRoute.append(.tripDetail)
             appVM.currentTrip = trip
         }
         .padding(18)
@@ -77,16 +76,15 @@ struct TripCard: View {
 
 
 #Preview {
+    @Previewable @State var route: [FeedRoute] = []
     let user = AppUser(id: "Test", username: "test", email: "test@email.com")
     let trip = Trip(id: "1", ownerUsername: "conan", ownerId: "", name: "Cool trip", description: "Cool trip to go on!", places: [], preferences: ["Food", "Landmarks"])
     let trip2 = Trip(id: "", ownerUsername: "bob", ownerId: "", name: "Cool trip again", description: "Another cool trip to go on!", places: [], preferences: ["Food", "Sightseeing"])
-//
-//    TripCard(trip: trip)
-
-    TripFeed(trips: [trip, trip2], isLoading: false, onRefresh: {}, loadTrips: {})
-            .environment(LocationViewModel(user: user))
-            .environment(AppViewModel(user: user))
-            .environment(Router())
+    
+    TripFeed(trips: [trip, trip2], isLoading: false, route: $route, onRefresh: {}, loadTrips: {} )
+        .environment(LocationViewModel(user: user))
+        .environment(AppViewModel(user: user))
+        .environment(Router())
 
 
 }

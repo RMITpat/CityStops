@@ -259,12 +259,21 @@ final class TripServiceImpl: TripService {
     
     /// Delete a trip by deleting document from trips collection
     func deleteTrip(tripId: String) async throws {
-        let dbCollection = db.collection("trips")
-        let snapshot = try await dbCollection
+        
+        let tripsSnapshot = try await db.collection("trips")
+            .whereField("id", isEqualTo: tripId)
+            .getDocuments()
+        
+        for document in tripsSnapshot.documents {
+            try await document.reference.delete()
+        }
+        
+        // Delete any references to it in bookmarkedTrips
+        let savedTripsSnapshot = try await db.collection("bookmarkedTrips")
             .whereField("tripId", isEqualTo: tripId)
             .getDocuments()
         
-        if let document = snapshot.documents.first {
+        for document in savedTripsSnapshot.documents {
             try await document.reference.delete()
         }
     }

@@ -97,9 +97,11 @@ struct UIKitMapView: UIViewRepresentable {
     /// syncs the selected places with UIKit annotations.
     private func syncPlaces(on map: MKMapView) {
 
+        // >>> CHANGED: PlaceAnnotation -> MKMapItemAnnotation (3 spots in this function)
         let existing = map.annotations.compactMap {
-            $0 as? PlaceAnnotation
+            $0 as? MKMapItemAnnotation
         }
+        // <<< END CHANGED
 
         let existingItems = Set(
             existing.map(\.mapItem)
@@ -118,7 +120,7 @@ struct UIKitMapView: UIViewRepresentable {
                 .filter {
                     !existingItems.contains($0)
                 }
-                .map(PlaceAnnotation.init)
+                .compactMap { MKMapItemAnnotation(mapItem: $0) }
         )
     }
 
@@ -304,21 +306,19 @@ struct UIKitMapView: UIViewRepresentable {
             parent.onDetailTapped?(place.mapItem)
         }
 
-        // TODO: Delete this function if still unused (commented out for legacy reference)
         // Marker(item:) + .mapItemDetailSelectionAccessory(.callout)
-        // displays pin annotation when a chosen Location on the Map is tapped.
-        
-//        func mapView(
-//            _ mapView: MKMapView,
-//            selectionAccessoryFor annotation: MKAnnotation
-//        ) -> MKSelectionAccessory? {
-//
-//            guard annotation is MKMapItemAnnotation else {
-//                return nil
-//            }
-//
-//            return .mapItemDetail(.callout)
-//        }
+        /// displays pin annotation when a chosen Location on the Map is tapped.
+        func mapView(
+            _ mapView: MKMapView,
+            selectionAccessoryFor annotation: MKAnnotation
+        ) -> MKSelectionAccessory? {
+
+            guard annotation is MKMapItemAnnotation else {
+                return nil
+            }
+
+            return .mapItemDetail(.callout)
+        }
 
         // MapPolyline(route).stroke(.blue, lineWidth: 5)
         /// renders the Polyline route on the Map.
@@ -343,7 +343,8 @@ struct UIKitMapView: UIViewRepresentable {
     }
 }
 
-// MARK: - Usage
+// MARK: - Test Usage
+// Some parts don't appear because the MKMapItems are fabricated
 
 #Preview {
     let federationSquare = MKMapItem(

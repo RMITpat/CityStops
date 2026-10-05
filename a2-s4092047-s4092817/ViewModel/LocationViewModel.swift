@@ -19,7 +19,6 @@ final class LocationViewModel: NSObject, CLLocationManagerDelegate {
     
     /// The region of the user.
     /// When currentRegion updates:
-    /// - update currentLocation so that the map in CreateTripView updates
     /// - update request so that search results are relevant
     var currentRegion: MKCoordinateRegion {
         didSet {

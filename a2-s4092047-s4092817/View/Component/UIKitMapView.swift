@@ -97,11 +97,9 @@ struct UIKitMapView: UIViewRepresentable {
     /// syncs the selected places with UIKit annotations.
     private func syncPlaces(on map: MKMapView) {
 
-        // >>> CHANGED: PlaceAnnotation -> MKMapItemAnnotation (3 spots in this function)
         let existing = map.annotations.compactMap {
-            $0 as? MKMapItemAnnotation
+            $0 as? PlaceAnnotation
         }
-        // <<< END CHANGED
 
         let existingItems = Set(
             existing.map(\.mapItem)
@@ -120,7 +118,7 @@ struct UIKitMapView: UIViewRepresentable {
                 .filter {
                     !existingItems.contains($0)
                 }
-                .compactMap { MKMapItemAnnotation(mapItem: $0) }
+                .map { PlaceAnnotation($0) }
         )
     }
 
@@ -191,66 +189,83 @@ struct UIKitMapView: UIViewRepresentable {
 
         var isUpdatingFromMap = false
 
-        // NEW: Tracks whether the initial camera has been applied.
         var hasAppliedInitialCamera = false
 
         init(_ parent: UIKitMapView) {
             self.parent = parent
         }
 
-        /// builds the marker and its custom callout for each PlaceAnnotation.
+        /// Builds the pin's annotation view.
         func mapView(
             _ mapView: MKMapView,
             viewFor annotation: MKAnnotation
         ) -> MKAnnotationView? {
 
-            // Returning nil keeps the default blue user-location dot.
             guard let place = annotation as? PlaceAnnotation else {
                 return nil
             }
 
+            // reuse already rendered view if possible to optimise
             let view = mapView.dequeueReusableAnnotationView(
                 withIdentifier: Coordinator.markerID,
                 for: place
             ) as! MKMarkerAnnotationView
 
-            // Marker styling
-            view.markerTintColor = .systemOrange
-            view.glyphImage = UIImage(systemName: "mappin.and.ellipse")
-            view.titleVisibility = .visible
-            view.subtitleVisibility = .adaptive
-            view.displayPriority = .required
-            view.animatesWhenAdded = true
-
-            // Custom callout
+            // Custom annotation rendering
             view.canShowCallout = true
-            view.leftCalloutAccessoryView = makeIconView()
-            view.rightCalloutAccessoryView = UIButton(type: .detailDisclosure)
-            view.detailCalloutAccessoryView = makeDetailView(for: place.mapItem)
+            let stopNumber = parent.places.firstIndex(of: place.mapItem).map { $0 + 1 }
+            view.detailCalloutAccessoryView = makeDetailView(for: place.mapItem, stopNumber: stopNumber)
 
             return view
         }
-
-        /// small icon shown on the left of the callout header.
-        private func makeIconView() -> UIView {
-            let image = UIImageView(
-                image: UIImage(systemName: "mappin.circle.fill")
-            )
-            image.tintColor = .systemOrange
-            image.contentMode = .scaleAspectFit
-            image.frame = CGRect(x: 0, y: 0, width: 32, height: 32)
-            return image
+        
+        /// Rerenders the annotation when the order of the location in the ``Trip`` changes.
+        func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
+            guard let place = view.annotation as? PlaceAnnotation else { return }
+            let stopNumber = parent.places.firstIndex(of: place.mapItem).map { $0 + 1 }
+            view.detailCalloutAccessoryView = makeDetailView(for: place.mapItem, stopNumber: stopNumber)
         }
 
-        /// body of the callout: address, phone number, website.
-        /// Needs an explicit width or the callout collapses.
-        private func makeDetailView(for item: MKMapItem) -> UIView {
+        // MapPolyline(route).stroke(.blue, lineWidth: 5)
+        /// Renders the Polyline route on the Map.
+        func mapView(
+            _ mapView: MKMapView,
+            rendererFor overlay: MKOverlay
+        ) -> MKOverlayRenderer {
+
+            guard let polyline = overlay as? MKPolyline else {
+                return MKOverlayRenderer(overlay: overlay)
+            }
+
+            let renderer = MKPolylineRenderer(
+                polyline: polyline
+            )
+
+            renderer.strokeColor = .systemBlue
+            renderer.lineWidth = 5
+
+            return renderer
+        }
+        
+        // MARK: - Annotation render functions
+        /// Builds the annotation subview (the "bubble" that pops up when a pin is tapped).
+        private func makeDetailView(for item: MKMapItem, stopNumber: Int?) -> UIView {
             let stack = UIStackView()
             stack.axis = .vertical
             stack.spacing = 4
             stack.alignment = .leading
 
-            if let address = item.address?.fullAddress {
+            if let stopNumber {
+                let stopLabel = UILabel()
+                stopLabel.text = "\(ordinal(stopNumber)) stop"
+                stopLabel.font = .preferredFont(forTextStyle: .subheadline)
+                stopLabel.textColor = .secondaryLabel
+
+                stack.addArrangedSubview(stopLabel)
+                stack.setCustomSpacing(8, after: stopLabel)   // gap before the detail rows
+            }
+
+            if let address = item.address?.shortAddress {
                 stack.addArrangedSubview(
                     makeRow(symbol: "location.fill", text: address)
                 )
@@ -272,8 +287,8 @@ struct UIKitMapView: UIViewRepresentable {
 
             return stack
         }
-
-        /// one icon + text row inside the callout body.
+        
+        /// Formats an icon, then a text row inside the annotation body.
         private func makeRow(symbol: String, text: String) -> UIView {
             let icon = UIImageView(image: UIImage(systemName: symbol))
             icon.tintColor = .secondaryLabel
@@ -293,59 +308,20 @@ struct UIKitMapView: UIViewRepresentable {
             row.alignment = .firstBaseline
             return row
         }
-
-        /// called when the detail button in the callout is tapped.
-        func mapView(
-            _ mapView: MKMapView,
-            annotationView view: MKAnnotationView,
-            calloutAccessoryControlTapped control: UIControl
-        ) {
-            guard let place = view.annotation as? PlaceAnnotation else {
-                return
-            }
-            parent.onDetailTapped?(place.mapItem)
-        }
-
-        // Marker(item:) + .mapItemDetailSelectionAccessory(.callout)
-        /// displays pin annotation when a chosen Location on the Map is tapped.
-        func mapView(
-            _ mapView: MKMapView,
-            selectionAccessoryFor annotation: MKAnnotation
-        ) -> MKSelectionAccessory? {
-
-            guard annotation is MKMapItemAnnotation else {
-                return nil
-            }
-
-            return .mapItemDetail(.callout)
-        }
-
-        // MapPolyline(route).stroke(.blue, lineWidth: 5)
-        /// renders the Polyline route on the Map.
-        func mapView(
-            _ mapView: MKMapView,
-            rendererFor overlay: MKOverlay
-        ) -> MKOverlayRenderer {
-
-            guard let polyline = overlay as? MKPolyline else {
-                return MKOverlayRenderer(overlay: overlay)
-            }
-
-            let renderer = MKPolylineRenderer(
-                polyline: polyline
-            )
-
-            renderer.strokeColor = .systemBlue
-            renderer.lineWidth = 5
-
-            return renderer
+        
+        /// Turns integer values into ordinal values (i.e. 1st, 2nd, 3rd ...)
+        private func ordinal(_ n: Int) -> String {
+            let formatter = NumberFormatter()
+            formatter.numberStyle = .ordinal
+            return formatter.string(from: NSNumber(value: n)) ?? "\(n)"
         }
     }
+    
 }
 
 // MARK: - Test Usage
-// Some parts don't appear because the MKMapItems are fabricated
-
+// Some parts don't appear because the MKMapItems are fabricated.
+// Test fully using Simulator / on-device instead
 #Preview {
     let federationSquare = MKMapItem(
         location: CLLocation(latitude: -37.8180, longitude: 144.9691),

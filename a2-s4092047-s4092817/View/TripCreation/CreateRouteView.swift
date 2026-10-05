@@ -31,7 +31,8 @@ struct CreateRouteView: View {
 
         // MARK: Map interface - UIKit
         UIKitMapView(
-            position: locationVM.currentLocation, places: tripCreationVM.selectedPlaces,
+            position: locationVM.currentLocation,
+            places: tripCreationVM.selectedPlaces,
             routes: routes
         )
         

@@ -23,6 +23,11 @@ struct UIKitMapView: UIViewRepresentable {
     /// Routes between adjacent ``MKMapItems`` in `places`.
     var routes: [MKRoute]
 
+    // >>> ADDED: closure called when the (i) button in a callout is tapped
+    /// Called when the detail button in a custom callout is tapped.
+    var onDetailTapped: ((MKMapItem) -> Void)? = nil
+    // <<< END ADDED
+
     /// makes the UIView for the first time.
     func makeUIView(context: Context) -> MKMapView {
         let map = MKMapView()
@@ -156,7 +161,7 @@ struct UIKitMapView: UIViewRepresentable {
     }
 
     // MARK: Annotation type wrapping an MKMapItem
-    /// ``MKMapItem`` wrapper.
+    /// Adapts an ``MKMapItem`` for use as an ``MKAnnotation`` in ``MKMapView``.
     final class PlaceAnnotation: NSObject, MKAnnotation {
 
         let mapItem: MKMapItem
@@ -191,19 +196,129 @@ struct UIKitMapView: UIViewRepresentable {
             self.parent = parent
         }
 
-        // Marker(item:) + .mapItemDetailSelectionAccessory(.callout)
-        /// displays pin annotation when a chosen Location on the Map is tapped.
+        /// builds the marker and its custom callout for each PlaceAnnotation.
         func mapView(
             _ mapView: MKMapView,
-            selectionAccessoryFor annotation: MKAnnotation
-        ) -> MKSelectionAccessory? {
+            viewFor annotation: MKAnnotation
+        ) -> MKAnnotationView? {
 
-            guard annotation is MKMapItemAnnotation else {
+            // Returning nil keeps the default blue user-location dot.
+            guard let place = annotation as? PlaceAnnotation else {
                 return nil
             }
 
-            return .mapItemDetail(.callout)
+            let view = mapView.dequeueReusableAnnotationView(
+                withIdentifier: Coordinator.markerID,
+                for: place
+            ) as! MKMarkerAnnotationView
+
+            // Marker styling
+            view.markerTintColor = .systemOrange
+            view.glyphImage = UIImage(systemName: "mappin.and.ellipse")
+            view.titleVisibility = .visible
+            view.subtitleVisibility = .adaptive
+            view.displayPriority = .required
+            view.animatesWhenAdded = true
+
+            // Custom callout
+            view.canShowCallout = true
+            view.leftCalloutAccessoryView = makeIconView()
+            view.rightCalloutAccessoryView = UIButton(type: .detailDisclosure)
+            view.detailCalloutAccessoryView = makeDetailView(for: place.mapItem)
+
+            return view
         }
+
+        /// small icon shown on the left of the callout header.
+        private func makeIconView() -> UIView {
+            let image = UIImageView(
+                image: UIImage(systemName: "mappin.circle.fill")
+            )
+            image.tintColor = .systemOrange
+            image.contentMode = .scaleAspectFit
+            image.frame = CGRect(x: 0, y: 0, width: 32, height: 32)
+            return image
+        }
+
+        /// body of the callout: address, phone number, website.
+        /// Needs an explicit width or the callout collapses.
+        private func makeDetailView(for item: MKMapItem) -> UIView {
+            let stack = UIStackView()
+            stack.axis = .vertical
+            stack.spacing = 4
+            stack.alignment = .leading
+
+            if let address = item.address?.fullAddress {
+                stack.addArrangedSubview(
+                    makeRow(symbol: "location.fill", text: address)
+                )
+            }
+            if let phone = item.phoneNumber {
+                stack.addArrangedSubview(
+                    makeRow(symbol: "phone.fill", text: phone)
+                )
+            }
+            if let host = item.url?.host() {
+                stack.addArrangedSubview(
+                    makeRow(symbol: "globe", text: host)
+                )
+            }
+
+            stack.widthAnchor.constraint(
+                lessThanOrEqualToConstant: 240
+            ).isActive = true
+
+            return stack
+        }
+
+        /// one icon + text row inside the callout body.
+        private func makeRow(symbol: String, text: String) -> UIView {
+            let icon = UIImageView(image: UIImage(systemName: symbol))
+            icon.tintColor = .secondaryLabel
+            icon.contentMode = .scaleAspectFit
+            icon.setContentHuggingPriority(.required, for: .horizontal)
+            icon.widthAnchor.constraint(equalToConstant: 16).isActive = true
+
+            let label = UILabel()
+            label.text = text
+            label.numberOfLines = 0
+            label.font = .preferredFont(forTextStyle: .caption1)
+            label.textColor = .secondaryLabel
+
+            let row = UIStackView(arrangedSubviews: [icon, label])
+            row.axis = .horizontal
+            row.spacing = 6
+            row.alignment = .firstBaseline
+            return row
+        }
+
+        /// called when the detail button in the callout is tapped.
+        func mapView(
+            _ mapView: MKMapView,
+            annotationView view: MKAnnotationView,
+            calloutAccessoryControlTapped control: UIControl
+        ) {
+            guard let place = view.annotation as? PlaceAnnotation else {
+                return
+            }
+            parent.onDetailTapped?(place.mapItem)
+        }
+
+        // TODO: Delete this function if still unused (commented out for legacy reference)
+        // Marker(item:) + .mapItemDetailSelectionAccessory(.callout)
+        // displays pin annotation when a chosen Location on the Map is tapped.
+        
+//        func mapView(
+//            _ mapView: MKMapView,
+//            selectionAccessoryFor annotation: MKAnnotation
+//        ) -> MKSelectionAccessory? {
+//
+//            guard annotation is MKMapItemAnnotation else {
+//                return nil
+//            }
+//
+//            return .mapItemDetail(.callout)
+//        }
 
         // MapPolyline(route).stroke(.blue, lineWidth: 5)
         /// renders the Polyline route on the Map.
@@ -230,6 +345,30 @@ struct UIKitMapView: UIViewRepresentable {
 
 // MARK: - Usage
 
-// UIKitMapView(position: locationVM.currentLocation,
-//             places: tripCreationVM.selectedPlaces,
-//             routes: routes)
+#Preview {
+    let federationSquare = MKMapItem(
+        location: CLLocation(latitude: -37.8180, longitude: 144.9691),
+        address: nil
+    )
+    federationSquare.name = "Federation Square"
+
+    let flinders = MKMapItem(
+        location: CLLocation(latitude: -37.8183, longitude: 144.9671),
+        address: nil
+    )
+    flinders.name = "Flinders Street Station"
+
+    return UIKitMapView(
+        position: .region(
+            MKCoordinateRegion(
+                center: CLLocationCoordinate2D(latitude: -37.8180, longitude: 144.9680),
+                span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
+            )
+        ),
+        places: [federationSquare, flinders],
+        routes: [],
+        onDetailTapped: { item in
+            print("Tapped:", item.name ?? "unknown")
+        }
+    )
+}

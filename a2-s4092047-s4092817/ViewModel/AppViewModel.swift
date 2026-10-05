@@ -30,11 +30,17 @@ import MapKit
     /// Are trips currently loading for the user's created trips
     var isLoadingUserTrips: Bool = false
     
+    /// Are trips currently loading for the user's saved trips
+    var isLoadingSavedTrips: Bool = false
+    
     /// The feed of loaded trips
     var tripFeed: [Trip] = []
     
     /// The feed of user's created trips
     var yourTrips: [Trip] = []
+    
+    /// The feed of user's saved trips
+    var savedTrips: [Trip] = []
     
     /// The current trip being viewed in TripDetailView
     var currentTrip: Trip? = nil
@@ -84,6 +90,12 @@ import MapKit
         loadYourTrips()
     }
     
+    func refreshSavedTrips() {
+        tripService.clearLastSavedTripDocument()
+        savedTrips.removeAll()
+        loadSavedTrips()
+    }
+    
     /// Function to start reading all trips from Firestore
     func loadTrips() {
         
@@ -126,12 +138,10 @@ import MapKit
                 
                 // Call the service
                 let loadedTrips = try await tripService.loadUserTrips(ownerId: user.id )
-                
                 // For each trip,
                 for trip in loadedTrips {
                     // Convert its stops, stored as MKMapItem.Identifier's, to MKMapItems so they can be displayed.
                     let updatedTrip = try await getMKMapItemsForTrip(trip: trip)
-                    
                     // Only once all stops have been converted do we add the trip to the tripFeed, causing the fully loaded trip to appear in HomeView
                     yourTrips.append(updatedTrip)
                 }
@@ -141,6 +151,39 @@ import MapKit
                 
             }
             isLoadingUserTrips = false
+            
+            
+        }
+    }
+    
+    /// Function to start reading user's saved trips from Firestore
+    func loadSavedTrips() {
+        if isLoadingSavedTrips { return }
+        isLoadingSavedTrips = true
+        Task {
+            do {
+                // Artificial wait, can be removed but feels nice
+                try await Task.sleep(for: .seconds(1))
+                
+                // Call the service
+                let loadedTrips = try await tripService.loadSavedTrips(ownerId: user.id )
+                print("loaded \(loadedTrips.count)")
+
+                // For each trip,
+                for trip in loadedTrips {
+                    // Convert its stops, stored as MKMapItem.Identifier's, to MKMapItems so they can be displayed.
+                    let updatedTrip = try await getMKMapItemsForTrip(trip: trip)
+                    print("appending trip")
+
+                    // Only once all stops have been converted do we add the trip to the tripFeed, causing the fully loaded trip to appear in HomeView
+                    savedTrips.append(updatedTrip)
+                }
+             
+            } catch {
+                self.error = error.localizedDescription
+                
+            }
+            isLoadingSavedTrips = false
             
             
         }
@@ -171,20 +214,41 @@ import MapKit
     func bookmarkTrip(tripId: String) async throws {
 
         try await tripService.bookmarkTrip(ownerId: user.id, tripId: tripId)
-        guard let savedTrip = tripFeed.firstIndex(where: { $0.id == tripId}) else {
-            return
+        if let feedSavedTrip = tripFeed.firstIndex(where: { $0.id == tripId}) {
+            tripFeed[feedSavedTrip].savedByUser = true
+
         }
-        tripFeed[savedTrip].savedByUser = true
+        
+        if let userSavedTrip = yourTrips.firstIndex(where: { $0.id == tripId}) {
+            yourTrips[userSavedTrip].savedByUser = true
+        }
+        
+        if let savedSavedTrip = savedTrips.firstIndex(where: { $0.id == tripId}) {
+            savedTrips[savedSavedTrip].savedByUser = true
+        }
+        currentTrip?.savedByUser = true
+
     }
     
     func deleteTripBookmark(tripId: String) async throws {
         
         try await tripService.removeTripBookmark(ownerId: user.id, tripId: tripId)
       
-        guard let unsavedTrip = tripFeed.firstIndex(where: { $0.id == tripId}) else {
-            return
+        if let feedSavedTrip = tripFeed.firstIndex(where: { $0.id == tripId}) {
+            tripFeed[feedSavedTrip].savedByUser = false
+
         }
-        tripFeed[unsavedTrip].savedByUser = false
+        
+        if let userSavedTrip = yourTrips.firstIndex(where: { $0.id == tripId}) {
+            yourTrips[userSavedTrip].savedByUser = false
+        }
+        
+        if let savedSavedTrip = savedTrips.firstIndex(where: { $0.id == tripId}) {
+            savedTrips[savedSavedTrip].savedByUser = false
+        }
+        
+        currentTrip?.savedByUser = false
+        
     }
     
     

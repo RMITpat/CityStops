@@ -13,6 +13,7 @@ struct TripFeed: View {
     
     let trips: [Trip]
     let isLoading: Bool
+    @Binding var route: [FeedRoute]
     let onRefresh: () -> Void
     let loadTrips: () -> Void
     
@@ -21,7 +22,7 @@ struct TripFeed: View {
         ScrollView {
             LazyVStack {
                 ForEach(trips, id: \.id) { trip in
-                    TripCard(trip: trip)
+                    TripCard(trip: trip, navRoute: $route)
                     Divider()
                 }
                 

@@ -155,6 +155,7 @@ struct AITripOverview: View {
         HStack {
             Button("Start again") {
                 geminiVM.placesToRemove.removeAll()
+                geminiVM.resultReturned = false
                 tripCreationVM.clear()
                 router.tripCreationRoute = [TripCreationRoute.preferences]
                 

@@ -64,7 +64,7 @@ struct AITripCreationView: View {
             
             Spacer()
             VStack (alignment: .center) {
-                if tripCreationVM.selectedPlaces.isEmpty {
+                if !geminiVM.resultReturned {
                     if geminiVM.isLoading {
                         ProgressView("Curating the perfect trip...")
                             .progressViewStyle(.circular)
@@ -96,7 +96,7 @@ struct AITripCreationView: View {
                 }
             }
             Spacer()
-            if tripCreationVM.selectedPlaces.isEmpty && !geminiVM.isLoading {
+            if !geminiVM.resultReturned && !geminiVM.isLoading {
                 
                 HStack {
                     TextField("Create a trip through my local parks....", text: $prompt, axis: .vertical)

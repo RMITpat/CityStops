@@ -29,12 +29,18 @@ import Foundation
         self.signedInUser = service.currentUser
     }
     
-    // Init used by mocks
+    // Init used by mock
     init(service: AuthService, email: String, password: String, username: String) {
         self.authService = service
         self.email = email
         self.password = password
         self.username = username
+    }
+    
+    init(service: AuthService) {
+        let service = service
+        self.authService = service
+        self.signedInUser = service.currentUser
     }
     
     /// Sign up with email and password

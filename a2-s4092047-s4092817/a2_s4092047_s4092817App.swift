@@ -32,7 +32,13 @@ struct a2_s4092047_s4092817App: App {
             print("Firebase client ID could not be found.")
         }
         
+        #if DEBUG
+        let testMode = ProcessInfo.processInfo.arguments.contains("-ENABLE-MOCK-DATA")
+        let factory = ViewModelFactory(testMode: testMode)
+        
+        #else
         let factory = ViewModelFactory()
+        #endif
         vmFactory = factory
         _authVM = State(
             initialValue: factory.createAuthViewModel()

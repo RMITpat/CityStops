@@ -8,16 +8,19 @@
 import Foundation
 import CoreLocation
 
+@MainActor
 protocol CoreLocationService {
+    var onLocationUpdate: ((CLLocation) -> Void)? { get set }
+    
     func checkLocationAuthorization()
 }
 
 @MainActor
 final class CoreLocationServiceImpl : NSObject, CoreLocationService, CLLocationManagerDelegate {
     var manager = CLLocationManager()
-    var onLocationUpdate: ((CLLocation) -> Void)
+    var onLocationUpdate: ((CLLocation) -> Void)?
     
-    init(onLocationUpdate: @escaping ((CLLocation) -> Void)) {
+    init(onLocationUpdate: ((CLLocation) -> Void)? = nil) {
         self.onLocationUpdate = onLocationUpdate
     }
     
@@ -50,7 +53,7 @@ final class CoreLocationServiceImpl : NSObject, CoreLocationService, CLLocationM
     /// Called when manager.requestLocation() succeeds
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         if let location = locations.first {
-            onLocationUpdate(location)
+            onLocationUpdate?(location)
         }
      
         

@@ -16,8 +16,8 @@ struct CreateRouteView: View {
     @Environment(TripCreationViewModel.self) var tripCreationVM: TripCreationViewModel
     @Environment(Router.self) var router: Router
     
-    @State var createRouteVM = CreateRouteViewModel()
-
+    @State var otmVM = OpenTripMapViewModel()
+    
     // Routes between selectionPlaces
     @State var routes: [MKRoute] = []
     @State var error: String?
@@ -66,9 +66,9 @@ struct CreateRouteView: View {
                     }
                 }
                 .task {
-                    await createRouteVM.preload(
+                    await otmVM.generateSegments(
                         preferences: tripCreationVM.selectedPreferences,
-                        near: locationVM.currentRegion.center
+                        coordinate: locationVM.currentRegion.center
                     )
                 }
                 
@@ -84,8 +84,8 @@ struct CreateRouteView: View {
                                 }
                                 .modifier(ButtonFormat())
                             }
+                            .environment(otmVM)
                     }
-                    .environment(createRouteVM)
                     .presentationDetents([.large])
                     // Lets you pan/zoom the map while the sheet is at small/medium size
                     .presentationBackgroundInteraction(.enabled(upThrough: .medium))

@@ -257,6 +257,7 @@ import MapKit
         refreshUserTrips()
         refreshSavedTrips()
         
+
     }
     
     

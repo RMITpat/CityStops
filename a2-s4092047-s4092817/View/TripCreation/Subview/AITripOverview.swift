@@ -34,17 +34,12 @@ struct AITripOverview: View {
         @Bindable var tripCreationVM = tripCreationVM
         @Bindable var geminiVM = geminiVM
         ScrollView {
-            Map (position: $locationVM.currentLocation) {
-                ForEach(tripCreationVM.selectedPlaces, id: \.self) { place in
-                    Marker(item: place)
-                        .mapItemDetailSelectionAccessory(.callout)
-                }
-                ForEach(routes, id: \.self) { route in
-                    MapPolyline(route)
-                        .stroke(.blue, lineWidth: 5)
-                }
-                
-            }
+            UIKitMapView(
+                position: locationVM.currentLocation,
+                places: tripCreationVM.selectedPlaces,
+                routes: routes,
+                interactionModes: .all
+            )
             .frame(height: 390)
             .onChange(of: tripCreationVM.selectedPlaces) {
                 Task {

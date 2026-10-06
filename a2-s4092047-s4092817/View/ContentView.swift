@@ -12,16 +12,20 @@ import SwiftData
 struct ContentView: View {
     let signedInUser: AppUser
     @Environment(\.modelContext) private var modelContext
+
+    
     @State private var locationVM: LocationViewModel
     @State private var appVM: AppViewModel
     @State private var router: Router = Router()
     @State private var searchTermVM: SearchTermViewModel = SearchTermViewModel()
 
     // Initialise the vm's with the signedInUser's information for their internal use
-    init(signedInUser: AppUser) {
+    init(signedInUser: AppUser, vmFactory: ViewModelFactory) {
         self.signedInUser = signedInUser
-        locationVM = LocationViewModel(user: signedInUser)
-        appVM = AppViewModel(user: signedInUser)
+        
+        _locationVM = State(initialValue: vmFactory.createLocationViewModel(user: signedInUser))
+        _appVM = State(initialValue: vmFactory.createAppViewModel(user: signedInUser))
+        _searchTermVM = State(initialValue: vmFactory.createSearchTermViewModel())
     }
     
     var body: some View {
@@ -72,6 +76,6 @@ struct ContentView: View {
 
 #Preview {
     let user = AppUser(id: "Test", username: "test", email: "test@email.com")
-    ContentView(signedInUser: user)
+    ContentView(signedInUser: user, vmFactory: ViewModelFactory())
         
 }

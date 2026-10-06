@@ -22,16 +22,20 @@ final class OpenTripMapViewModel {
     private let limit = 15
     private let maxResults = 3
     
+    // MARK: - The MKMapItems for each of the preference segments
     var segmentLocations: [String : SegmentStatus] = [:]
     
+    // Mock init
     init (service: OpenTripMapService) {
         self.service = service
     }
     
+    // Real init
     init() {
         self.service = OpenTripMapServiceImpl()
     }
     
+    /// Populates segmentLocations with the converted opentripmap locations
     func generateSegments(preferences: [Preference], coordinate: CLLocationCoordinate2D) async {
         for preference in preferences {
             await loadLocations(for: preference, near: coordinate)
@@ -39,7 +43,7 @@ final class OpenTripMapViewModel {
         
     }
     
-    /// always fetches API response data; called directly by user interface when API call error occurs.
+    /// Loads the locations and converts them into MKMapItems for a preference
     func loadLocations(for preference: Preference,
                        near coordinate: CLLocationCoordinate2D) async {
         do {
@@ -67,6 +71,7 @@ final class OpenTripMapViewModel {
     }
     
     
+    /// Convert from ``OpenTripLocation`` to MKMapItem
     func convertResponseToMapItem(
         response: OpenTripLocation,
         searchRadius: CLLocationDistance = 500

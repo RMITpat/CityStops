@@ -63,7 +63,11 @@ struct TripDetailView: View {
                                 Task {
                                     do {
                                         try await appVM.deleteTrip(tripId: trip.id)
-                                        router.profileRoute.removeAll()
+                                        if router.feedRoute.contains(.tripDetail) {
+                                            router.feedRoute.removeAll()
+                                        } else {
+                                            router.profileRoute.removeAll()
+                                        }
                                     } catch {
                                         self.error = "Failed to delete trip"
                                     }

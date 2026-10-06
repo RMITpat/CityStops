@@ -28,17 +28,15 @@ struct TripCard: View {
             
             TripCardInfo(trip: trip)
             
-            Map(position: .constant(.automatic), interactionModes: []) {
-                ForEach(trip.mkMapItemPlaces, id: \.self) { place in
-                    Marker(item: place)
-                        .mapItemDetailSelectionAccessory(.callout)
-                    ForEach(routes, id: \.self) { route in
-                        MapPolyline(route)
-                            .stroke(.blue, lineWidth: 5)
-                    }
-                }
-                
-            }
+            UIKitMapView(
+                position: .framing(trip.mkMapItemPlaces),
+                places: trip.mkMapItemPlaces,
+                routes: routes,
+                showsUserLocation: false,
+                isPinSelectable: false,
+                interactionModes: []
+            )
+            
             .padding(5)
             .frame(height: 350)
             .clipShape(RoundedRectangle(cornerRadius: 50))

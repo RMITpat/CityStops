@@ -40,36 +40,28 @@ struct CreateRouteView: View {
             
             // MARK: - Base View
             VStack {
-                // Map interface
-                // prevent panning when long press is active
-                Map (position: $locationVM.currentLocation, interactionModes: gestureState.isLongPressComplete ? [] : .all) {
-                    ForEach(tripCreationVM.selectedPlaces, id: \.self) { place in
-                        Marker(item: place)
-                            .mapItemDetailSelectionAccessory(.callout)
-                    }
-                    ForEach(routes, id: \.self) { route in
-                        MapPolyline(route)
-                            .stroke(.blue, lineWidth: 5)
-                    }
-                    
-                }
-                .onChange(of: tripCreationVM.selectedPlaces) {
-                    Task {
-                        routes = try await locationVM.createTripRoutes(selectedPlaces: tripCreationVM.selectedPlaces)
-                    }
-                }
+                
+                // MARK: Map interface - UIKit
+                UIKitMapView(
+                    position: locationVM.currentLocation,
+                    places: tripCreationVM.selectedPlaces,
+                    routes: routes,
+                    showsUserLocation: true,
+                    isPinSelectable: true,
+                    interactionModes: gestureState.isLongPressComplete ? [] : .all
+                )
                 .frame(height:400)
                 // Route between stops
-                .onChange(of: tripCreationVM.selectedPlaces) {
-                    Task {
-                        routes = try await locationVM.createTripRoutes(selectedPlaces: tripCreationVM.selectedPlaces)
-                    }
-                }
                 .task {
                     await createRouteVM.preload(
                         preferences: tripCreationVM.selectedPreferences,
                         near: locationVM.currentRegion.center
                     )
+                }
+                .onChange(of: tripCreationVM.selectedPlaces) {
+                    Task {
+                        routes = try await locationVM.createTripRoutes(selectedPlaces: tripCreationVM.selectedPlaces)
+                    }
                 }
                 
                 // MARK: Choose stops sheet
@@ -175,7 +167,7 @@ struct CreateRouteView: View {
     
     // MARK: Gesture definition
     private var longPressThenDrag: some Gesture {
-        LongPressGesture(minimumDuration:               gestureVM.longPressDuration)
+        LongPressGesture(minimumDuration: gestureVM.longPressDuration)
             .sequenced(before: DragGesture(minimumDistance: 10))
             
             // Detect the gesture state (pressing, dragging)
@@ -196,7 +188,6 @@ struct CreateRouteView: View {
                     gestureVM.updateDragDirection(translation: drag.translation)
                 }
             }
-        
             .onEnded { _ in
                 gestureVM.endGesture()
             }

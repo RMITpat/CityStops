@@ -36,15 +36,16 @@ final class LocationViewModel {
     
     var coreLocationService: CoreLocationService
     
+    var mapKitService: MapKitService
+    
     /// The logged in user
     private let user: AppUser
     
     private var cachedTripRoutes: [String : [MKRoute]] = [:]
     
-    private var cachedRoutes: [CachedRoute : MKRoute] = [:]
     
     // Used in mocks to inject mock service
-    init(user: AppUser, coreLocationService: CoreLocationService) {
+    init(user: AppUser, coreLocationService: CoreLocationService, mapKitService: MapKitService) {
         let sydneyRegion = MKCoordinateRegion(
             center: CLLocationCoordinate2D(
                 latitude: -33.8688,
@@ -60,6 +61,9 @@ final class LocationViewModel {
         currentLocation = .region(sydneyRegion)
         
         self.user = user
+        
+        self.mapKitService = mapKitService
+
         self.coreLocationService = coreLocationService
         self.coreLocationService.onLocationUpdate = { [weak self] location in
             self?.currentRegion.center = location.coordinate
@@ -70,22 +74,15 @@ final class LocationViewModel {
     convenience init(user: AppUser) {
         self.init(
             user: user,
-            coreLocationService: CoreLocationServiceImpl()
+            coreLocationService: CoreLocationServiceImpl(),
+            mapKitService: MapKitServiceImpl()
         )
     }
     
     
     /// Conduct a search of places the currently set request
     func searchPlaces(searchRequest: String) async throws -> [MKMapItem] {
-        let request = MKLocalSearch.Request()
-        request.naturalLanguageQuery = searchRequest
-        request.region = currentRegion
-        
-        let response = try await MKLocalSearch(request: request).start()
-        
-        return response.mapItems.filter {
-            $0.identifier != nil
-        }
+        return try await mapKitService.searchPlaces(searchRequest: searchRequest, currentRegion: currentRegion)
     }
     
     
@@ -129,37 +126,7 @@ final class LocationViewModel {
     
     /// Create an MKRoute between 2 MKMapItems
     func createRoute(source: MKMapItem, destination: MKMapItem) async throws -> MKRoute? {
-        var newRoute: CachedRoute?
-        
-        // If both locations have an id
-        if let sourceID = source.identifier?.rawValue, let destID = destination.identifier?.rawValue {
-            
-            // Create a new cached route key
-            newRoute = CachedRoute(source: sourceID, destination: destID)
-            
-            // if the route for that key has been calculated previously, return it
-            if let newRoute, let cachedRoute = cachedRoutes[newRoute] {
-                return cachedRoute
-            }
-        }
-        
-        let directionsRequest: MKDirections.Request = MKDirections.Request()
-        directionsRequest.source = source
-        directionsRequest.destination = destination
-        directionsRequest.transportType = MKDirectionsTransportType.walking
-        
-        let directions = MKDirections(request: directionsRequest)
-        let response = try await directions.calculate()
-        
-        if let route = response.routes.first {
-            
-            // If newRoute was previously created, meaning the id's for source and dest exists, store it against the calculated route
-            if let newRoute {
-                cachedRoutes[newRoute] = route
-            }
-            return route
-        }
-        return nil
+        return try await mapKitService.createRoute(source: source, destination: destination)
     }
     
     

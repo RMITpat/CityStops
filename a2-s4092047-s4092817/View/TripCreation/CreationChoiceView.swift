@@ -10,6 +10,7 @@ import SwiftUI
 /// View that allows user to choose between manually creating a ``Trip``, or
 /// use ML features to plan a ``Trip``for them.
 struct CreationChoiceView: View {
+    @Environment(ViewModelFactory.self) var vmFactory: ViewModelFactory
     @Environment(LocationViewModel.self) var locationVM: LocationViewModel
     @Environment(Router.self) var router: Router
     @State var tripCreationVM: TripCreationViewModel = TripCreationViewModel()
@@ -53,8 +54,8 @@ struct CreationChoiceView: View {
             switch route {
                 case .name: TripNameView()
                 case .preferences: TripPreferenceView()
-                case .createRoute: CreateRouteView()
-                case .aiTripCreation: AITripCreationView(region: locationVM.currentRegion)
+                case .createRoute: CreateRouteView(vmFactory: vmFactory)
+            case .aiTripCreation: AITripCreationView(region: locationVM.currentRegion, vmFactory: vmFactory)
             }
         }
         }
@@ -72,6 +73,7 @@ struct CreationChoiceView: View {
         CreationChoiceView()
             .environment(LocationViewModel(user: user))
             .environment(Router())
+            .environment(ViewModelFactory())
 
     }
 }

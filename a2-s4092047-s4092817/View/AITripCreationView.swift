@@ -20,8 +20,8 @@ struct AITripCreationView: View {
     @State private var error: String?
     @State private var routes: [MKRoute] = []
 
-    init(region: MKCoordinateRegion) {
-        geminiVM = GeminiViewModel(region: region)
+    init(region: MKCoordinateRegion, vmFactory: ViewModelFactory) {
+        geminiVM = vmFactory.createGeminiViewModel(region: region)
     }
     
     
@@ -136,6 +136,6 @@ struct AITripCreationView: View {
     )
 
     let region = MKCoordinateRegion(center: location, span: MKCoordinateSpan())
-    AITripCreationView(region: region)
+    AITripCreationView(region: region, vmFactory: ViewModelFactory())
         .environment(LocationViewModel(user: user))
 }

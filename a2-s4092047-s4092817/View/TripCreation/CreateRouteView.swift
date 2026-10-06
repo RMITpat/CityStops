@@ -7,7 +7,6 @@
 
 import SwiftUI
 import MapKit
-
 /// View that displays the shortest route that visits all chosen ``Trip`` stops.
 /// Uses ``LocationViewModel`` to calculate route.
 struct CreateRouteView: View {
@@ -16,7 +15,11 @@ struct CreateRouteView: View {
     @Environment(TripCreationViewModel.self) var tripCreationVM: TripCreationViewModel
     @Environment(Router.self) var router: Router
     
-    @State var otmVM = OpenTripMapViewModel()
+    @State var otmVM: OpenTripMapViewModel
+    
+    init(vmFactory: ViewModelFactory) {
+        _otmVM = State(initialValue: vmFactory.createOpenTripMapViewModel())
+    }
     
     // Routes between selectionPlaces
     @State var routes: [MKRoute] = []
@@ -28,6 +31,7 @@ struct CreateRouteView: View {
     // Gesture states
     @State private var gestureVM = GestureViewModel()
     @GestureState private var gestureState = ComplexGestureState.inactive
+    
     
     var body: some View {
         @Bindable var locationVM = locationVM
@@ -200,7 +204,7 @@ struct CreateRouteView: View {
     let user = AppUser(id: "Test", username: "test", email: "test@email.com")
 
     NavigationStack {
-        CreateRouteView()
+        CreateRouteView(vmFactory: ViewModelFactory())
             .environment(LocationViewModel(user: user))
             .environment(AppViewModel(user: user))
             .environment(TripCreationViewModel())

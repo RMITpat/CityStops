@@ -38,7 +38,9 @@ final class OpenTripMapViewModel {
     /// Populates segmentLocations with the converted opentripmap locations
     func generateSegments(preferences: [Preference], coordinate: CLLocationCoordinate2D) async {
         for preference in preferences {
-            await loadLocations(for: preference, near: coordinate)
+            Task {
+                await loadLocations(for: preference, near: coordinate)
+            }
         }
         
     }

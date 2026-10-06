@@ -22,11 +22,9 @@ struct UIKitMapView: UIViewRepresentable {
     // Equivalent of the ForEach(routes) { MapPolyline(route) }
     /// Routes between adjacent ``MKMapItems`` in `places`.
     var routes: [MKRoute]
-
-    // >>> ADDED: closure called when the (i) button in a callout is tapped
-    /// Called when the detail button in a custom callout is tapped.
-    var onDetailTapped: ((MKMapItem) -> Void)? = nil
-    // <<< END ADDED
+    
+    /// Handles gesture interaction.
+    var interactionModes: MapInteractionModes = .all
 
     /// makes the UIView for the first time.
     func makeUIView(context: Context) -> MKMapView {
@@ -49,6 +47,7 @@ struct UIKitMapView: UIViewRepresentable {
         context.coordinator.parent = self
 
         applyCamera(to: map, context: context)
+        applyInteraction(to: map)
 
         syncPlaces(on: map)
         syncRoutes(on: map)
@@ -56,6 +55,15 @@ struct UIKitMapView: UIViewRepresentable {
 
     func makeCoordinator() -> Coordinator {
         Coordinator(self)
+    }
+    
+    // MARK: Interaction (MapInteractionModes -> MKMapView)
+    /// Enables or disables the map's gestures.
+    private func applyInteraction(to map: MKMapView) {
+        map.isScrollEnabled = interactionModes.contains(.pan)
+        map.isZoomEnabled   = interactionModes.contains(.zoom)
+        map.isRotateEnabled = interactionModes.contains(.rotate)
+        map.isPitchEnabled  = interactionModes.contains(.pitch)
     }
 
     // MARK: Camera (MapCameraPosition -> MKMapView)
@@ -213,12 +221,17 @@ struct UIKitMapView: UIViewRepresentable {
 
             // Custom annotation rendering
             view.canShowCallout = true
-            let stopNumber = parent.places.firstIndex(of: place.mapItem).map { $0 + 1 }
-            view.detailCalloutAccessoryView = makeDetailView(for: place.mapItem, stopNumber: stopNumber)
+            let stopNumber = parent.places
+                .firstIndex(of: place.mapItem)
+                .map { $0 + 1 }
+            view.detailCalloutAccessoryView = makeDetailView(
+                for: place.mapItem,
+                stopNumber: stopNumber
+            )
 
             return view
         }
-        
+
         /// Rerenders the annotation when the order of the location in the ``Trip`` changes.
         func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
             guard let place = view.annotation as? PlaceAnnotation else { return }
@@ -321,6 +334,7 @@ struct UIKitMapView: UIViewRepresentable {
 
 // MARK: - Test Usage
 // Some parts don't appear because the MKMapItems are fabricated.
+//
 // Test fully using Simulator / on-device instead
 #Preview {
     let federationSquare = MKMapItem(
@@ -343,9 +357,6 @@ struct UIKitMapView: UIViewRepresentable {
             )
         ),
         places: [federationSquare, flinders],
-        routes: [],
-        onDetailTapped: { item in
-            print("Tapped:", item.name ?? "unknown")
-        }
+        routes: []
     )
 }

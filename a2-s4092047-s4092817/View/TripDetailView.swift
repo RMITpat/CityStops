@@ -17,6 +17,7 @@ struct TripDetailView: View {
     
     @State private var mode: Mode = .first
     @State private var error: String?
+    
     enum Mode: String, CaseIterable, Identifiable {
         case first = "Details"
         case second = "Places"
@@ -32,17 +33,16 @@ struct TripDetailView: View {
                 
                 
             }.padding()
-            Map {
-                ForEach(trip.mkMapItemPlaces, id: \.self) { place in
-                    Marker(item: place)
-                        .mapItemDetailSelectionAccessory(.callout)
-                    ForEach(routes, id: \.self) { route in
-                        MapPolyline(route)
-                            .stroke(.blue, lineWidth: 5)
-                    }
-                }
+// MARK: UIKit Map
+                UIKitMapView(
+                    position: .framing(trip.mkMapItemPlaces),
+                    places: trip.mkMapItemPlaces,
+                    routes: routes,
+                    showsUserLocation: true,
+                    isPinSelectable: true,
+                    interactionModes: .all
+                )
                 
-            }
             
             .frame(height: 425)
             .task {

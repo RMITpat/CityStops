@@ -46,6 +46,8 @@ struct CreateRouteView: View {
                     position: locationVM.currentLocation,
                     places: tripCreationVM.selectedPlaces,
                     routes: routes,
+                    showsUserLocation: true,
+                    isPinSelectable: true,
                     interactionModes: gestureState.isLongPressComplete ? [] : .all
                 )
                 .frame(height:400)

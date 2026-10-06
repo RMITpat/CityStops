@@ -38,6 +38,8 @@ struct AITripOverview: View {
                 position: locationVM.currentLocation,
                 places: tripCreationVM.selectedPlaces,
                 routes: routes,
+                showsUserLocation: true,
+                isPinSelectable: true,
                 interactionModes: .all
             )
             .frame(height: 390)

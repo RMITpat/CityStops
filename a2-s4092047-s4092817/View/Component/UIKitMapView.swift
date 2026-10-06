@@ -23,6 +23,12 @@ struct UIKitMapView: UIViewRepresentable {
     /// Routes between adjacent ``MKMapItems`` in `places`.
     var routes: [MKRoute]
     
+    /// Whether the blue user-location dot is shown.
+    var showsUserLocation: Bool = true
+
+    /// Whether pins and the map respond to taps (selection, callouts).
+    var isPinSelectable: Bool = true
+    
     /// Handles gesture interaction.
     var interactionModes: MapInteractionModes = .all
 
@@ -31,7 +37,6 @@ struct UIKitMapView: UIViewRepresentable {
         let map = MKMapView()
 
         map.delegate = context.coordinator
-        map.showsUserLocation = true
 
         map.register(
             MKMarkerAnnotationView.self,
@@ -48,6 +53,9 @@ struct UIKitMapView: UIViewRepresentable {
 
         applyCamera(to: map, context: context)
         applyInteraction(to: map)
+        
+        map.showsUserLocation = showsUserLocation
+        map.isUserInteractionEnabled = isPinSelectable
 
         syncPlaces(on: map)
         syncRoutes(on: map)
@@ -72,22 +80,22 @@ struct UIKitMapView: UIViewRepresentable {
         to map: MKMapView,
         context: Context
     ) {
+        // Only re-apply when the position value actually changed
+        guard position != context.coordinator.lastAppliedPosition else { return }
 
-        // Only apply the initial camera once based on user location;
-        // otherwise camera is static
-        guard !context.coordinator.hasAppliedInitialCamera else {
-            return
-        }
+        let animated = context.coordinator.lastAppliedPosition != nil
 
         if let region = position.region {
+            map.setRegion(region, animated: animated)
 
-            map.setRegion(
-                region,
-                animated: false
+        } else if let rect = position.rect {
+            map.setVisibleMapRect(
+                rect,
+                edgePadding: UIEdgeInsets(top: 80, left: 60, bottom: 80, right: 60),
+                animated: animated
             )
 
         } else if let camera = position.camera {
-
             map.setCamera(
                 MKMapCamera(
                     lookingAtCenter: camera.centerCoordinate,
@@ -95,10 +103,14 @@ struct UIKitMapView: UIViewRepresentable {
                     pitch: camera.pitch,
                     heading: camera.heading
                 ),
-                animated: false
+                animated: animated
             )
+
+        } else {
+            return   // e.g. .automatic: nothing to apply, don't lock
         }
-        context.coordinator.hasAppliedInitialCamera = true
+
+        context.coordinator.lastAppliedPosition = position
     }
 
     // MARK: Markers
@@ -197,7 +209,8 @@ struct UIKitMapView: UIViewRepresentable {
 
         var isUpdatingFromMap = false
 
-        var hasAppliedInitialCamera = false
+        var lastAppliedPosition: MapCameraPosition?
+        
 
         init(_ parent: UIKitMapView) {
             self.parent = parent
@@ -357,6 +370,9 @@ struct UIKitMapView: UIViewRepresentable {
             )
         ),
         places: [federationSquare, flinders],
-        routes: []
+        routes: [],
+        showsUserLocation: true,
+        isPinSelectable: true,
+        interactionModes: []
     )
 }

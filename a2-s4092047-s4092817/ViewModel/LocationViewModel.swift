@@ -18,8 +18,9 @@ struct CachedRoute : Hashable {
 /// ViewModel used for keeping track of the user's current location,
 /// and managing a trip's route based on the stops chosen.
 ///
+@MainActor
 @Observable
-final class LocationViewModel: NSObject, CLLocationManagerDelegate {
+final class LocationViewModel {
     
     /// The region of the user.
     /// When currentRegion updates:
@@ -33,6 +34,8 @@ final class LocationViewModel: NSObject, CLLocationManagerDelegate {
     /// The current region, represented as MapCameraPosition so it can be displayed by Map
     var currentLocation: MapCameraPosition
     
+    var coreLocationService: CoreLocationService
+    
     /// The logged in user
     private let user: AppUser
     
@@ -40,7 +43,8 @@ final class LocationViewModel: NSObject, CLLocationManagerDelegate {
     
     private var cachedRoutes: [CachedRoute : MKRoute] = [:]
     
-    init(user: AppUser) {
+    // Used in mocks to inject mock service
+    init(user: AppUser, coreLocationService: CoreLocationService) {
         let sydneyRegion = MKCoordinateRegion(
             center: CLLocationCoordinate2D(
                 latitude: -33.8688,
@@ -56,9 +60,20 @@ final class LocationViewModel: NSObject, CLLocationManagerDelegate {
         currentLocation = .region(sydneyRegion)
         
         self.user = user
-        
-        super.init()
+        self.coreLocationService = coreLocationService
+        self.coreLocationService.onLocationUpdate = { [weak self] location in
+            self?.currentRegion.center = location.coordinate
+        }
     }
+    
+    // Used in real app to set CoreLocationServiceImpl
+    convenience init(user: AppUser) {
+        self.init(
+            user: user,
+            coreLocationService: CoreLocationServiceImpl()
+        )
+    }
+    
     
     /// Conduct a search of places the currently set request
     func searchPlaces(searchRequest: String) async throws -> [MKMapItem] {
@@ -73,47 +88,15 @@ final class LocationViewModel: NSObject, CLLocationManagerDelegate {
         }
     }
     
-    var manager = CLLocationManager()
+    
+    
     
     /// Sets the current location based off authorisation
     func checkLocationAuthorization() {
-        
-        // Sets delegate so that locationManagerDidChangeAuthorization and locationManager(didUpdateLocations) functions are called automatically
-        manager.delegate = self
-        
-        switch manager.authorizationStatus {
-            // If the user hasn't determined authorisation status, prompt it
-        case .notDetermined:
-            manager.requestWhenInUseAuthorization()
-            
-            // If the user has given authorisation, request location
-        case .authorizedAlways, .authorizedWhenInUse:
-            manager.requestLocation()
-            
-        default:
-            break
-            
-        }
+        coreLocationService.checkLocationAuthorization()
     }
     
-    /// Triggered every time authorization status changes
-    func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
-        checkLocationAuthorization()
-    }
-    
-    /// Called when manager.requestLocation() succeeds
-    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        currentRegion.center = locations.first?.coordinate ?? currentRegion.center
-        
-    }
-    
-    /// Called when manager.requestLocation() fails
-    func locationManager(
-        _ manager: CLLocationManager,
-        didFailWithError error: Error
-    ) {
-        print("Failed to get location:", error.localizedDescription)
-    }
+  
     
     /// Creates a route between all the locations currently stored in selectedPlaces, in the order they were added.
     /// Begins by checking if there was a previous, ongoing route request occurring and

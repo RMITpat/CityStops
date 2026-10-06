@@ -167,13 +167,11 @@ import MapKit
                 
                 // Call the service
                 let loadedTrips = try await tripService.loadSavedTrips(ownerId: user.id )
-                print("loaded \(loadedTrips.count)")
 
                 // For each trip,
                 for trip in loadedTrips {
                     // Convert its stops, stored as MKMapItem.Identifier's, to MKMapItems so they can be displayed.
                     let updatedTrip = try await getMKMapItemsForTrip(trip: trip)
-                    print("appending trip")
 
                     // Only once all stops have been converted do we add the trip to the tripFeed, causing the fully loaded trip to appear in HomeView
                     savedTrips.append(updatedTrip)
@@ -247,6 +245,18 @@ import MapKit
         }
         
         currentTrip?.savedByUser = false
+
+    }
+    
+    /// Delete a created trip
+    func deleteTrip(tripId: String) async throws {
+        try await tripService.deleteTrip(tripId: tripId)
+        
+        // Ensure feeds are refreshed so no stale trips are able to be interacted with by the user
+        refreshFeed()
+        refreshUserTrips()
+        refreshSavedTrips()
+        
 
     }
     

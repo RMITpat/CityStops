@@ -11,10 +11,12 @@ import MapKit
 struct TripDetailView: View {
     @Environment(AppViewModel.self) var appVM: AppViewModel
     @Environment(LocationViewModel.self) var locationVM: LocationViewModel
+    @Environment(Router.self) var router: Router
+
     @State var routes: [MKRoute] = []
     
     @State private var mode: Mode = .first
-
+    @State private var error: String?
     enum Mode: String, CaseIterable, Identifiable {
         case first = "Details"
         case second = "Places"
@@ -47,7 +49,7 @@ struct TripDetailView: View {
                 do {
                     routes = try await locationVM.createTripRoutes(selectedPlaces: trip.mkMapItemPlaces, tripID: trip.id)
                 } catch {
-                    // TODO: display error somewhere
+                    self.error = "Failed to create trip route"
                 }
                 
             }
@@ -55,9 +57,31 @@ struct TripDetailView: View {
                 // MARK: Desc + Save button
                 VStack(alignment: .center) {
                     
-                    HStack() {
+                    HStack {
+                        if (trip.ownerId == appVM.user.id) {
+                            Button("Delete", systemImage: "trash") {
+                                Task {
+                                    do {
+                                        try await appVM.deleteTrip(tripId: trip.id)
+                                        if router.feedRoute.contains(.tripDetail) {
+                                            router.feedRoute.removeAll()
+                                        } else {
+                                            router.profileRoute.removeAll()
+                                        }
+                                    } catch {
+                                        self.error = "Failed to delete trip"
+                                    }
+                                    
+                                }
+                                
+                            }
+                            .font(.title2)
+                            .foregroundStyle(.red)
+                            Spacer()
+                        }
                         SaveTripButton(trip: trip)
-                    }
+                       
+                    }.padding()
                 }
                 .frame(maxWidth: .infinity, alignment: .center)
                 
@@ -70,6 +94,7 @@ struct TripDetailView: View {
                 
                 switch mode {
                 case .first:
+                    
                     VStack(alignment: .leading) {
                         Text(trip.description)
                         Divider()
@@ -93,6 +118,11 @@ struct TripDetailView: View {
             Spacer()
             // TODO: Toolbar disappear / reappear animation?
                 .toolbar(.hidden, for: .tabBar)
+            if let error {
+                Text(error)
+                    .foregroundStyle(.red)
+            }
+        
 
             
         } else {

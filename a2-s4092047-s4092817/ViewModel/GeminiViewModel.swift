@@ -22,9 +22,15 @@ import MapKit
     /// The current model being used
     var currentModelName: GeminiModel
     
-    
+    /// Real init
     init(region: MKCoordinateRegion) {
         geminiService = GeminiServiceImpl(region: region)
+        currentModelName = geminiService.modelName
+    }
+    
+    ///Mock init
+    init(region: MKCoordinateRegion, geminiService: GeminiService) {
+        self.geminiService = geminiService
         currentModelName = geminiService.modelName
     }
   

@@ -41,14 +41,7 @@ protocol GeminiService {
     func request(tripRequest: String, preferences: [String]) async throws -> AIResult
     func editTrip(identifiers: [MKMapItem.Identifier]) async throws -> AIResult
     func addStops() async throws -> AIResult
-    func generateTrip(prompt: String) async throws -> AIResult
     
-    func decodeTrip(responseText: String?) throws -> AIResult
-    
-    func searchPlaces(searchRequest: String) async throws -> JSONObject
-    func useTools(response: GenerateContentResponse) async -> [FunctionResponsePart]
-    func multiTurn(firstResponse: GenerateContentResponse) async throws -> GenerateContentResponse
-    func selectPlace(identifier: String)
     
     func setModel(newModel: GeminiModel)
 }

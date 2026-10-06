@@ -1,5 +1,5 @@
 //
-//  CreateTripView.swift
+//  CreateTripSheet.swift
 //  a2-s4092047-s4092817
 //
 //  Created by Patrick Ly on 17/9/2026.
@@ -12,7 +12,7 @@ import MapKit
 /// View for adding stops to a ``Trip``. Contains a Map and search bar through which users can search for locations by name. Results can be added as pins on the map.
 /// - Uses ``LocationViewModel`` to pass stops to ``CreateRouteView``
 
-struct CreateTripView: View {
+struct CreateTripSheet: View {
     @Environment(LocationViewModel.self) var locationVM: LocationViewModel
     @Environment(TripCreationViewModel.self) var tripCreationVM: TripCreationViewModel
     @Environment(SearchTermViewModel.self) var searchTermVM: SearchTermViewModel
@@ -77,7 +77,7 @@ struct CreateTripView: View {
 #Preview {
     let user = AppUser(id: "Test", username: "test", email: "test@email.com")
     NavigationStack {
-        CreateTripView(mode: .first)
+        CreateTripSheet(mode: .first)
             .environment(LocationViewModel(user: user))
             .environment(TripCreationViewModel())
             .environment(SearchTermViewModel())

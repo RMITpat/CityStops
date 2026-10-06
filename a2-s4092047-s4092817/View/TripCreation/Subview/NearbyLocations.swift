@@ -9,7 +9,7 @@ import SwiftUI
 import CoreLocation
 import MapKit
 
-/// Subview for ``CreateTripView`` that shows nearby, relevant locations
+/// Subview for ``CreateTripSheet`` that shows nearby, relevant locations
 /// based on the user's ``Preference`` selections in ``TripPreferenceView``.
 struct NearbyLocations: View {
 

@@ -46,6 +46,11 @@ struct AITripOverview: View {
                 
             }
             .frame(height: 390)
+            .onChange(of: tripCreationVM.selectedPlaces) {
+                Task {
+                    routes = try await locationVM.createTripRoutes(selectedPlaces: tripCreationVM.selectedPlaces)
+                }
+            }
             
             if geminiVM.isLoading {
                 ProgressView("Tweaking trip...")
@@ -65,8 +70,21 @@ struct AITripOverview: View {
                     switch mode {
                     case .first:
                         VStack(alignment: .leading) {
-                            Text(tripCreationVM.name).font(.title)
-                            Text(tripCreationVM.description).font(.default)
+                            TextField("e.g. Asian Street Food Tour", text: $tripCreationVM.name)
+                                .textFieldStyle(RoundedBorderTextFieldStyle())
+                                .padding(.bottom, 32)
+                                .font(.title)
+                            
+                            TextEditor(text: $tripCreationVM.description)
+                                .frame(minHeight: 120)
+                                .padding(.horizontal, 2)
+                                .scrollContentBackground(.hidden)
+                                .background(.background)
+                                .clipShape(RoundedRectangle(cornerRadius: 8))
+                                .overlay {
+                                    RoundedRectangle(cornerRadius: 8)
+                                        .stroke(.secondary.opacity(0.15))
+                                }
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding()
@@ -78,8 +96,7 @@ struct AITripOverview: View {
                                     do {
                                         try await tripCreationVM.fromAIResult(result: geminiVM.editTrip())
                                         self.error?.removeAll()
-                                        
-                                        routes = try await locationVM.createRoute(selectedPlaces: tripCreationVM.selectedPlaces)
+
                                     } catch {
                                         self.error = "Failed to regenerate stops"
                                     }
@@ -97,7 +114,6 @@ struct AITripOverview: View {
                                         
                                         try await tripCreationVM.fromAIResult(result: geminiVM.addStops())
                                         
-                                        routes = try await locationVM.createRoute(selectedPlaces: tripCreationVM.selectedPlaces)
                                     } catch {
                                         self.error = "Failed to add more stops"
                                     }
@@ -155,7 +171,9 @@ struct AITripOverview: View {
                         
                         tripCreationVM.clear()
                         router.tripCreationRoute.removeAll()
-                        router.selectedTab = .create
+                        appVM.refreshFeed()
+                        appVM.refreshUserTrips()
+                        router.selectedTab = .home
                     } catch {
                         self.error = error.localizedDescription
                     }

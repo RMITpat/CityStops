@@ -10,6 +10,10 @@ import Observation
 import MapKit
 import _MapKit_SwiftUI
 
+struct CachedRoute : Hashable {
+    let source: String
+    let destination: String
+}
 ///
 /// ViewModel used for keeping track of the user's current location,
 /// and managing a trip's route based on the stops chosen.
@@ -19,7 +23,6 @@ final class LocationViewModel: NSObject, CLLocationManagerDelegate {
     
     /// The region of the user.
     /// When currentRegion updates:
-    /// - update currentLocation so that the map in CreateTripView updates
     /// - update request so that search results are relevant
     var currentRegion: MKCoordinateRegion {
         didSet {
@@ -33,8 +36,9 @@ final class LocationViewModel: NSObject, CLLocationManagerDelegate {
     /// The logged in user
     private let user: AppUser
     
-    private var cachedRoutes: [String : [MKRoute]] = [:]
+    private var cachedTripRoutes: [String : [MKRoute]] = [:]
     
+    private var cachedRoutes: [CachedRoute : MKRoute] = [:]
     
     init(user: AppUser) {
         let sydneyRegion = MKCoordinateRegion(
@@ -114,10 +118,10 @@ final class LocationViewModel: NSObject, CLLocationManagerDelegate {
     /// Creates a route between all the locations currently stored in selectedPlaces, in the order they were added.
     /// Begins by checking if there was a previous, ongoing route request occurring and
     /// cancelling it if there was and replacing it with the new one.
-    func createRoute(selectedPlaces: [MKMapItem], tripID: String = "") async throws -> [MKRoute] {
+    func createTripRoutes(selectedPlaces: [MKMapItem], tripID: String = "") async throws -> [MKRoute] {
         var routes: [MKRoute] = []
         
-        if let cachedRoute = cachedRoutes[tripID] {
+        if let cachedRoute = cachedTripRoutes[tripID] {
             return cachedRoute
         }
         for (source, dest) in zip(selectedPlaces, selectedPlaces.dropFirst()) {
@@ -125,23 +129,55 @@ final class LocationViewModel: NSObject, CLLocationManagerDelegate {
             if Task.isCancelled {
                 break
             }
-            let directionsRequest: MKDirections.Request = MKDirections.Request()
-            directionsRequest.source = source
-            directionsRequest.destination = dest
-            directionsRequest.transportType = MKDirectionsTransportType.walking
             
-            let directions = MKDirections(request: directionsRequest)
-            let response = try await directions.calculate()
-            if let route = response.routes.first {
+            let route = try await createRoute(source: source, destination: dest)
+            if let route {
                 routes.append(route)
             }
         }
         
         // Cache the route for this trip so we can get it next time
         if (!tripID.isEmpty) {
-            cachedRoutes[tripID] = routes
+            cachedTripRoutes[tripID] = routes
         }
         return routes
         
     }
+    
+    /// Create an MKRoute between 2 MKMapItems
+    func createRoute(source: MKMapItem, destination: MKMapItem) async throws -> MKRoute? {
+        var newRoute: CachedRoute?
+        
+        // If both locations have an id
+        if let sourceID = source.identifier?.rawValue, let destID = destination.identifier?.rawValue {
+            
+            // Create a new cached route key
+            newRoute = CachedRoute(source: sourceID, destination: destID)
+            
+            // if the route for that key has been calculated previously, return it
+            if let newRoute, let cachedRoute = cachedRoutes[newRoute] {
+                return cachedRoute
+            }
+        }
+        
+        let directionsRequest: MKDirections.Request = MKDirections.Request()
+        directionsRequest.source = source
+        directionsRequest.destination = destination
+        directionsRequest.transportType = MKDirectionsTransportType.walking
+        
+        let directions = MKDirections(request: directionsRequest)
+        let response = try await directions.calculate()
+        
+        if let route = response.routes.first {
+            
+            // If newRoute was previously created, meaning the id's for source and dest exists, store it against the calculated route
+            if let newRoute {
+                cachedRoutes[newRoute] = route
+            }
+            return route
+        }
+        return nil
+    }
+    
+    
 }

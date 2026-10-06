@@ -24,7 +24,7 @@ final class LocationSegmentViewModel {
 
     // MARK: - Dependencies
     private let converter = OpenTripMapConverter()
-    private let service = OpenTripMapService()
+    private let service = OpenTripMapServiceImpl()
 
     // MARK: - Preset REST API query values
     private let radius = 5000

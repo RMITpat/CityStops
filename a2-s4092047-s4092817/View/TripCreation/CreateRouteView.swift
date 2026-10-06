@@ -40,6 +40,7 @@ struct CreateRouteView: View {
             
             // MARK: - Base View
             VStack {
+                
                 // MARK: Map interface - UIKit
                 UIKitMapView(
                     position: locationVM.currentLocation,
@@ -60,17 +61,6 @@ struct CreateRouteView: View {
                         routes = try await locationVM.createTripRoutes(selectedPlaces: tripCreationVM.selectedPlaces)
                     }
                 }
-                
-//                Map (position: $locationVM.currentLocation, interactionModes: gestureState.isLongPressComplete ? [] : .all) {
-//                    ForEach(tripCreationVM.selectedPlaces, id: \.self) { place in
-//                        Marker(item: place)
-//                            .mapItemDetailSelectionAccessory(.callout)
-//                    }
-//                    ForEach(routes, id: \.self) { route in
-//                        MapPolyline(route)
-//                            .stroke(.blue, lineWidth: 5)
-//                    }
-//
                 
                 // MARK: Choose stops sheet
                 .sheet(isPresented: $showStopsSheet) {
@@ -175,7 +165,7 @@ struct CreateRouteView: View {
     
     // MARK: Gesture definition
     private var longPressThenDrag: some Gesture {
-        LongPressGesture(minimumDuration:               gestureVM.longPressDuration)
+        LongPressGesture(minimumDuration: gestureVM.longPressDuration)
             .sequenced(before: DragGesture(minimumDistance: 10))
             
             // Detect the gesture state (pressing, dragging)
@@ -196,7 +186,6 @@ struct CreateRouteView: View {
                     gestureVM.updateDragDirection(translation: drag.translation)
                 }
             }
-        
             .onEnded { _ in
                 gestureVM.endGesture()
             }

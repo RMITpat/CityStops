@@ -30,7 +30,7 @@ struct Trip: Identifiable {
     var savedByUser: Bool = false
     var mkMapItemPlaces: [MKMapItem] = []
     
-    init(id: String = "", ownerUsername:String, ownerId: String, name: String, description: String, places: [MKMapItem.Identifier], createdAt: Date = Date(), preferences: [String]) {
+    init(id: String = "", ownerUsername:String, ownerId: String, name: String, description: String, places: [MKMapItem.Identifier], createdAt: Date = Date(), preferences: [String], savedByUser: Bool = false) {
         self.id = id
         self.ownerId = ownerId
         self.ownerUsername = ownerUsername
@@ -39,6 +39,7 @@ struct Trip: Identifiable {
         self.places = places
         self.createdAt = createdAt
         self.preferences = preferences
+        self.savedByUser = savedByUser
         
     }
     

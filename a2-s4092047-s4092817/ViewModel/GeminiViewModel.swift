@@ -22,6 +22,8 @@ import MapKit
     /// The current model being used
     var currentModelName: GeminiModel
     
+    var resultReturned: Bool = false
+    
     /// Real init
     init(region: MKCoordinateRegion) {
         geminiService = GeminiServiceImpl(region: region)
@@ -48,7 +50,7 @@ import MapKit
         let aiTrip = try await geminiService.request(tripRequest: prompt, preferences: preferenceStrings)
             
         isLoading = false
-    
+        resultReturned = true
         return aiTrip
         
             

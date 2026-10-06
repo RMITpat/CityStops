@@ -8,31 +8,39 @@
 import Foundation
 import MapKit
 
+/// ViewModelFactory that allows us to have control over the services used by a viewmodel. Inject mocks if we are in testmode and running UI tests, otherwise provide a normal
+/// instance
 @MainActor
 @Observable
 final class ViewModelFactory {
+    let testMode: Bool
+    
+    init(testMode: Bool = false) {
+        self.testMode = testMode
+    }
+    
     func createAppViewModel(user: AppUser) -> AppViewModel {
-        return AppViewModel(user: user)
+        return testMode ? AppViewModel(service: MockTripService(), user: user) : AppViewModel(user: user)
     }
     
     func createAuthViewModel() -> AuthViewModel {
-        return AuthViewModel()
+        return testMode ? AuthViewModel(service: MockAuthService()) : AuthViewModel()
     }
     
     func createGeminiViewModel(region: MKCoordinateRegion) -> GeminiViewModel {
-        return GeminiViewModel(region: region)
+        return testMode ? GeminiViewModel(region: region, geminiService: MockGeminiService()) : GeminiViewModel(region: region)
     }
     
     func createLocationViewModel(user: AppUser) -> LocationViewModel {
-        return LocationViewModel(user: user)
+        return testMode ? LocationViewModel(user: user, coreLocationService: MockCoreLocationService(), mapKitService: MockMapKitService()) : LocationViewModel(user: user)
     }
     
     func createOpenTripMapViewModel() -> OpenTripMapViewModel {
-        return OpenTripMapViewModel()
+        return testMode ? OpenTripMapViewModel(service: MockOpenTripMapService()) : OpenTripMapViewModel()
     }
     
     func createSearchTermViewModel() -> SearchTermViewModel {
-        return SearchTermViewModel()
+        return testMode ? SearchTermViewModel(searchTermService: MockSearchTermService()) : SearchTermViewModel()
     }
     
     

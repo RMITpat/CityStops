@@ -8,7 +8,8 @@ final class MockTripService: TripService {
 
     private var dummyTrips: [Trip] = [
         Trip(
-            ownerUsername: "Test1",
+            id: "test1",
+            ownerUsername: "Tester",
             ownerId: "1",
             name: "Sydney Food Trail",
             description: "Explore cafés, restaurants and local food markets around Sydney.",
@@ -17,6 +18,7 @@ final class MockTripService: TripService {
         ),
 
         Trip(
+            id: "test2",
             ownerUsername: "Test2",
             ownerId: "test2",
             name: "Sydney Landmarks",
@@ -27,6 +29,7 @@ final class MockTripService: TripService {
         ),
 
         Trip(
+            id: "test3",
             ownerUsername: "Test3",
             ownerId: "test3",
             name: "Sydney Shopping Day",
@@ -37,7 +40,8 @@ final class MockTripService: TripService {
         ),
 
         Trip(
-            ownerUsername: "Test4",
+            id: "test4",
+            ownerUsername: "Tester",
             ownerId: "1",
             name: "Sydney Nature Escape",
             description: "Discover parks, gardens, beaches and scenic natural locations.",
@@ -46,6 +50,7 @@ final class MockTripService: TripService {
         ),
 
         Trip(
+            id: "test5",
             ownerUsername: "Test5",
             ownerId: "test5",
             name: "Sydney Sports and Fun",
@@ -55,6 +60,7 @@ final class MockTripService: TripService {
         ),
 
         Trip(
+            id: "test6",
             ownerUsername: "Test6",
             ownerId: "test6",
             name: "Complete Sydney Experience",
@@ -70,6 +76,7 @@ final class MockTripService: TripService {
         ),
 
         Trip(
+            id: "test7",
             ownerUsername: "Test7",
             ownerId: "test7",
             name: "Harbour and History",
@@ -82,7 +89,8 @@ final class MockTripService: TripService {
         ),
 
         Trip(
-            ownerUsername: "Test8",
+            id: "test8",
+            ownerUsername: "Tester",
             ownerId: "1",
             name: "Food and Shopping Weekend",
             description: "Enjoy local restaurants followed by a relaxed shopping trip.",

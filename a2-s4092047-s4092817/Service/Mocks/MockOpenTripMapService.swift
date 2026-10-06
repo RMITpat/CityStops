@@ -14,29 +14,29 @@ final class MockOpenTripMapService : OpenTripMapService {
     func fetchNearbyPointsByCategory(location: CLLocationCoordinate2D, radius: Int, filter: String, returnLimit: Int) async throws -> [OpenTripLocation] {
         return [
             OpenTripLocation(
-                    name: "Darling Harbour",
-                    lat: -33.8731,
-                    lon: 151.1982
+                    name: "Sydney Opera House",
+                    lat: -33.8568,
+                    lon: 151.2153
                 ),
                 OpenTripLocation(
-                    name: "Queen Victoria Building",
-                    lat: -33.8718,
-                    lon: 151.2067
+                    name: "Sydney Harbour Bridge",
+                    lat: -33.8523,
+                    lon: 151.2108
                 ),
                 OpenTripLocation(
-                    name: "St Mary's Cathedral",
-                    lat: -33.8711,
-                    lon: 151.2132
+                    name: "Royal Botanic Garden",
+                    lat: -33.8642,
+                    lon: 151.2166
                 ),
                 OpenTripLocation(
-                    name: "Art Gallery of New South Wales",
-                    lat: -33.8688,
-                    lon: 151.2173
+                    name: "The Rocks",
+                    lat: -33.8599,
+                    lon: 151.2090
                 ),
                 OpenTripLocation(
-                    name: "Australian Museum",
-                    lat: -33. filosofía,
-                    lon: 151.2167
+                    name: "Circular Quay",
+                    lat: -33.8610,
+                    lon: 151.2107
                 ),
         ]
     }

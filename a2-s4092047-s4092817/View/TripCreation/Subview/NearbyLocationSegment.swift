@@ -16,11 +16,16 @@ struct NearbyLocationSegment: View {
     let preference: Preference
     let coordinate: CLLocationCoordinate2D
     
+    @State private var locations: [MKMapItem] = []
+    @State private var isLoading = false
+    @State private var errorMessage: String?
+    
     @Binding var selectedPlaces: [MKMapItem]
     
     // MARK: View Models
     @Environment(CreateRouteViewModel.self) private var createRouteVM
-
+    @Environment(OpenTripMapViewModel.self) private var otmVM
+    
     var body: some View {
         let segmentVM = createRouteVM.segmentVM(for: preference)
         
@@ -39,12 +44,25 @@ struct NearbyLocationSegment: View {
                     
                     Spacer()
                 }
-            } else if let errorMessage = segmentVM.errorMessage {
+            } else if let errorMessage {
                 HStack(spacing: 8) {
                     Text(errorMessage)
                         .foregroundStyle(.secondary)
+                
                     Button("Retry") {
-                        Task { await segmentVM.loadLocations(for: preference, near: coordinate) }
+                        Task {
+                            
+                            do {
+                                isLoading = true
+                                locations = try await otmVM.loadLocations(for: preference, near: coordinate)
+                            } catch {
+                                self.errorMessage = """
+                                Couldn't load places for \(preference.preference).
+                                \(error.localizedDescription)
+                                """
+                            }
+                            isLoading = false
+                        }
                     }
                     Spacer()
                 }

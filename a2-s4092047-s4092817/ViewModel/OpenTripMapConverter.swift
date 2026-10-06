@@ -16,44 +16,6 @@ import MapKit
 @Observable
 class OpenTripMapConverter {
     
-    func convertResponseToMapItem(
-        response: OpenTripLocation,
-        searchRadius: CLLocationDistance = 500
-    ) async throws -> MKMapItem? {
-        let target = CLLocation(latitude: response.lat, longitude: response.lon)
-        
-        let request = MKLocalSearch.Request()
-        request.naturalLanguageQuery = response.name
-        request.region = MKCoordinateRegion(
-            center: target.coordinate,
-            latitudinalMeters: searchRadius * 2,
-            longitudinalMeters: searchRadius * 2
-        )
-        
-        let result = try await MKLocalSearch(request: request).start()
-        
-        let candidates = result.mapItems.filter {
-            $0.identifier != nil &&
-            $0.location.distance(from: target) <= searchRadius
-        }
-        
-        // Prefer a result whose name matches, ignoring punctuation and spaces
-        let wanted = response.name
-            .lowercased()
-            .filter { $0.isLetter || $0.isNumber }
-
-        let match = candidates.first {
-            guard let name = $0.name?.lowercased()
-                .filter({ $0.isLetter || $0.isNumber })
-            else {
-                return false
-            }
-
-            return name == wanted
-        }
-        
-        // Otherwise don't return anything
-        return match ?? nil
-    }
+    
 }
 

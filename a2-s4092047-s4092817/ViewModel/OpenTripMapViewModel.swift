@@ -1,0 +1,105 @@
+//
+//  OpenTripMapViewModel.swift
+//  a2-s4092047-s4092817
+//
+//  Created by Patrick Ly on 6/10/2026.
+//
+
+import Foundation
+import MapKit
+
+@MainActor
+@Observable
+final class OpenTripMapViewModel {
+    private let service: OpenTripMapService
+    
+    // MARK: - Preset REST API query values
+    private let radius = 5000
+    private let limit = 15
+    private let maxResults = 3
+    
+    private var segmentLocations: [String : [MKMapItem]] = [:]
+    
+    init (service: OpenTripMapService) {
+        self.service = service
+    }
+    
+    init() {
+        self.service = OpenTripMapServiceImpl()
+    }
+    
+    func generateSegments(preferences: [Preference], coordinate: CLLocationCoordinate2D) async throws {
+        for preference in preferences {
+            segmentLocations[preference.preference] = try await loadLocations(for: preference, near: coordinate)
+        }
+        
+    }
+    
+    /// always fetches API response data; called directly by user interface when API call error occurs.
+    func loadLocations(for preference: Preference,
+                       near coordinate: CLLocationCoordinate2D) async throws -> [MKMapItem] {
+
+        let results = try await service.fetchNearbyPointsByCategory(
+            location: coordinate,
+            radius: radius,
+            filter: preference.preferenceSearch,
+            returnLimit: limit
+        )
+
+        var mapItems: [MKMapItem] = []
+        for place in results where !place.name.isEmpty {
+            if mapItems.count >= maxResults { break }
+
+            if let item = try? await convertResponseToMapItem(response: place),
+               !mapItems.contains(where: { $0.identifier == item.identifier }) {
+                mapItems.append(item)
+            }
+        }
+        
+        return mapItems
+//            hasLoaded = true   // only mark "done" on success
+
+    
+    }
+    
+    
+    func convertResponseToMapItem(
+        response: OpenTripLocation,
+        searchRadius: CLLocationDistance = 500
+    ) async throws -> MKMapItem? {
+        let target = CLLocation(latitude: response.lat, longitude: response.lon)
+        
+        let request = MKLocalSearch.Request()
+        request.naturalLanguageQuery = response.name
+        request.region = MKCoordinateRegion(
+            center: target.coordinate,
+            latitudinalMeters: searchRadius * 2,
+            longitudinalMeters: searchRadius * 2
+        )
+        
+        let result = try await MKLocalSearch(request: request).start()
+        
+        let candidates = result.mapItems.filter {
+            $0.identifier != nil &&
+            $0.location.distance(from: target) <= searchRadius
+        }
+        
+        // Prefer a result whose name matches, ignoring punctuation and spaces
+        let wanted = response.name
+            .lowercased()
+            .filter { $0.isLetter || $0.isNumber }
+
+        let match = candidates.first {
+            guard let name = $0.name?.lowercased()
+                .filter({ $0.isLetter || $0.isNumber })
+            else {
+                return false
+            }
+
+            return name == wanted
+        }
+        
+        // Otherwise don't return anything
+        return match ?? nil
+    }
+}

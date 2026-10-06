@@ -39,7 +39,9 @@ struct NearbyLocations: View {
                         preference: preference,
                         coordinate: locationVM.currentRegion.center,
                         selectedPlaces: $tripCreationVM.selectedPlaces
-                    )
+                    ).task {
+                        
+                    }
                 }
             }
             .padding(.horizontal, 16)

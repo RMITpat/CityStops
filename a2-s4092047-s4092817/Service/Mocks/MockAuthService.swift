@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// Mock AuthService that does not call Firebase Auth methods. Used in UI Tests
 @MainActor
 final class MockAuthService : AuthService {
     var currentUser: AppUser? = AppUser(id: "1", username: "Tester", email: "test@email.com")

@@ -8,6 +8,7 @@
 import Foundation
 import CoreLocation
 
+/// Service protocol to be implemented
 @MainActor
 protocol CoreLocationService {
     var onLocationUpdate: ((CLLocation) -> Void)? { get set }
@@ -15,6 +16,7 @@ protocol CoreLocationService {
     func checkLocationAuthorization()
 }
 
+/// Service for requesting and returning the user's location
 @MainActor
 final class CoreLocationServiceImpl : NSObject, CoreLocationService, CLLocationManagerDelegate {
     var manager = CLLocationManager()

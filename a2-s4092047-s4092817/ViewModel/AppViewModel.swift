@@ -227,7 +227,6 @@ import MapKit
             savedTrips[savedSavedTrip].savedByUser = true
         }
         currentTrip?.savedByUser = true
-
     }
     
     func deleteTripBookmark(tripId: String) async throws {
@@ -248,7 +247,7 @@ import MapKit
         }
         
         currentTrip?.savedByUser = false
-        
+
     }
     
     

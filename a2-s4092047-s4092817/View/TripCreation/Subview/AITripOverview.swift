@@ -46,6 +46,11 @@ struct AITripOverview: View {
                 
             }
             .frame(height: 390)
+            .onChange(of: tripCreationVM.selectedPlaces) {
+                Task {
+                    routes = try await locationVM.createTripRoutes(selectedPlaces: tripCreationVM.selectedPlaces)
+                }
+            }
             
             if geminiVM.isLoading {
                 ProgressView("Tweaking trip...")
@@ -78,8 +83,7 @@ struct AITripOverview: View {
                                     do {
                                         try await tripCreationVM.fromAIResult(result: geminiVM.editTrip())
                                         self.error?.removeAll()
-                                        
-                                        routes = try await locationVM.createRoute(selectedPlaces: tripCreationVM.selectedPlaces)
+
                                     } catch {
                                         self.error = "Failed to regenerate stops"
                                     }
@@ -97,7 +101,6 @@ struct AITripOverview: View {
                                         
                                         try await tripCreationVM.fromAIResult(result: geminiVM.addStops())
                                         
-                                        routes = try await locationVM.createRoute(selectedPlaces: tripCreationVM.selectedPlaces)
                                     } catch {
                                         self.error = "Failed to add more stops"
                                     }

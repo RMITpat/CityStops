@@ -61,8 +61,8 @@ struct NearbyLocationSegment: View {
                     ForEach(segmentVM.locations, id: \.identifier) { item in
                         LocationCard(
                             location: item,
-                            selectedPlaces: $selectedPlaces
-                        )
+                            selectedPlaces: $selectedPlaces )
+                        
                     }
                 }
             }

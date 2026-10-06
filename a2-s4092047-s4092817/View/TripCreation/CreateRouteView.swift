@@ -53,15 +53,17 @@ struct CreateRouteView: View {
                     }
                     
                 }
+                .onChange(of: tripCreationVM.selectedPlaces) {
+                    Task {
+                        routes = try await locationVM.createTripRoutes(selectedPlaces: tripCreationVM.selectedPlaces)
+                    }
+                }
                 .frame(height:400)
                 // Route between stops
-                .task {
-                    do {
-                        routes = try await locationVM.createRoute(selectedPlaces: tripCreationVM.selectedPlaces)
-                    } catch {
-                        self.error = error.localizedDescription
+                .onChange(of: tripCreationVM.selectedPlaces) {
+                    Task {
+                        routes = try await locationVM.createTripRoutes(selectedPlaces: tripCreationVM.selectedPlaces)
                     }
-                    
                 }
                 .task {
                     await createRouteVM.preload(

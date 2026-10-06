@@ -8,6 +8,10 @@
 import Foundation
 import MapKit
 
+enum SegmentStatus {
+    case success([MKMapItem])
+    case error(Error)
+}
 @MainActor
 @Observable
 final class OpenTripMapViewModel {
@@ -18,7 +22,7 @@ final class OpenTripMapViewModel {
     private let limit = 15
     private let maxResults = 3
     
-    private var segmentLocations: [String : [MKMapItem]] = [:]
+    var segmentLocations: [String : SegmentStatus] = [:]
     
     init (service: OpenTripMapService) {
         self.service = service
@@ -28,37 +32,37 @@ final class OpenTripMapViewModel {
         self.service = OpenTripMapServiceImpl()
     }
     
-    func generateSegments(preferences: [Preference], coordinate: CLLocationCoordinate2D) async throws {
+    func generateSegments(preferences: [Preference], coordinate: CLLocationCoordinate2D) async {
         for preference in preferences {
-            segmentLocations[preference.preference] = try await loadLocations(for: preference, near: coordinate)
+            await loadLocations(for: preference, near: coordinate)
         }
         
     }
     
     /// always fetches API response data; called directly by user interface when API call error occurs.
     func loadLocations(for preference: Preference,
-                       near coordinate: CLLocationCoordinate2D) async throws -> [MKMapItem] {
+                       near coordinate: CLLocationCoordinate2D) async {
+        do {
+            let results = try await service.fetchNearbyPointsByCategory(
+                location: coordinate,
+                radius: radius,
+                filter: preference.preferenceSearch,
+                returnLimit: limit
+            )
+            var mapItems: [MKMapItem] = []
+            for place in results where !place.name.isEmpty {
+                if mapItems.count >= maxResults { break }
 
-        let results = try await service.fetchNearbyPointsByCategory(
-            location: coordinate,
-            radius: radius,
-            filter: preference.preferenceSearch,
-            returnLimit: limit
-        )
-
-        var mapItems: [MKMapItem] = []
-        for place in results where !place.name.isEmpty {
-            if mapItems.count >= maxResults { break }
-
-            if let item = try? await convertResponseToMapItem(response: place),
-               !mapItems.contains(where: { $0.identifier == item.identifier }) {
-                mapItems.append(item)
+                if let item = try? await convertResponseToMapItem(response: place),
+                   !mapItems.contains(where: { $0.identifier == item.identifier }) {
+                    mapItems.append(item)
+                }
             }
+            
+            segmentLocations[preference.preference] =  .success(mapItems)
+        } catch {
+            segmentLocations[preference.preference] = .error(error)
         }
-        
-        return mapItems
-//            hasLoaded = true   // only mark "done" on success
-
     
     }
     

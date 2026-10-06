@@ -37,9 +37,6 @@ struct CreateTripSheet: View {
         @Bindable var tripCreationVM = tripCreationVM
 
         VStack {
-
-
-
             // MARK: View Title
             Text("Select Stops")
                 .font(.largeTitle)

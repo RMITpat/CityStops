@@ -29,14 +29,13 @@ struct TripCard: View {
             TripCardInfo(trip: trip)
             
             UIKitMapView(
-                position: .framing(trip.mkMapItemPlaces),
-                places: trip.mkMapItemPlaces,
+                position: .framing(trip.mkMapItemPlaces.map({$0.mkMapItem})),
+                places: trip.mkMapItemPlaces.map({$0.mkMapItem}),
                 routes: routes,
                 showsUserLocation: false,
                 isPinSelectable: false,
                 interactionModes: []
             )
-            
             .padding(5)
             .frame(height: 350)
             .clipShape(RoundedRectangle(cornerRadius: 50))

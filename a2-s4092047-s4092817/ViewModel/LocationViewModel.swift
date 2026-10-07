@@ -81,7 +81,7 @@ final class LocationViewModel {
     
     
     /// Conduct a search of places the currently set request
-    func searchPlaces(searchRequest: String) async throws -> [MKMapItem] {
+    func searchPlaces(searchRequest: String) async throws -> [MapItem] {
         return try await mapKitService.searchPlaces(searchRequest: searchRequest, currentRegion: currentRegion)
     }
     
@@ -98,7 +98,7 @@ final class LocationViewModel {
     /// Creates a route between all the locations currently stored in selectedPlaces, in the order they were added.
     /// Begins by checking if there was a previous, ongoing route request occurring and
     /// cancelling it if there was and replacing it with the new one.
-    func createTripRoutes(selectedPlaces: [MKMapItem], tripID: String = "") async throws -> [MKRoute] {
+    func createTripRoutes(selectedPlaces: [MapItem], tripID: String = "") async throws -> [MKRoute] {
         var routes: [MKRoute] = []
         
         if let cachedRoute = cachedTripRoutes[tripID] {
@@ -110,7 +110,7 @@ final class LocationViewModel {
                 break
             }
             
-            let route = try await createRoute(source: source, destination: dest)
+            let route = try await createRoute(source: source.mkMapItem, destination: dest.mkMapItem)
             if let route {
                 routes.append(route)
             }

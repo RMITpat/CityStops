@@ -20,7 +20,7 @@ final class ViewModelFactory {
     }
     
     func createAppViewModel(user: AppUser) -> AppViewModel {
-        return testMode ? AppViewModel(service: MockTripService(), user: user) : AppViewModel(user: user)
+        return testMode ? AppViewModel(service: MockTripService(), user: user, mkservice: MockMapKitService()) : AppViewModel(user: user)
     }
     
     func createAuthViewModel() -> AuthViewModel {

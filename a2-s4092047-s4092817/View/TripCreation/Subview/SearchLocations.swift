@@ -20,7 +20,7 @@ struct SearchLocations: View {
     @State var searchRequest: String = ""
     
     // The results of a place search
-    @State var searchResults: [MKMapItem] = []
+    @State var searchResults: [MapItem] = []
     
     var body: some View {
         @Bindable var locationVM = locationVM
@@ -34,6 +34,7 @@ struct SearchLocations: View {
 
                 TextField("Search for a place", text: $searchRequest)
                     .textFieldStyle(.plain)
+                    .accessibilityIdentifier("search.places")
 
                 if !searchRequest.isEmpty {
                     Button {
@@ -87,6 +88,7 @@ struct SearchLocations: View {
                 startSearch()
             }
             .buttonStyle(.glassProminent)
+            .accessibilityIdentifier("search.button")
             
             // MARK: Location search results
             ScrollView {

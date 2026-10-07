@@ -22,7 +22,7 @@ struct CreateTripSheet: View {
     @State var searchRequest: String = ""
     
     // The results of a place search
-    @State var searchResults: [MKMapItem] = []
+    @State var searchResults: [MapItem] = []
     
     enum Mode: String, CaseIterable, Identifiable {
         case first = "Nearby Stops"

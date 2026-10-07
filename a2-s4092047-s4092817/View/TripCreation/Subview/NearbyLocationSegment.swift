@@ -16,7 +16,7 @@ struct NearbyLocationSegment: View {
     let preference: Preference
     let coordinate: CLLocationCoordinate2D
         
-    @Binding var selectedPlaces: [MKMapItem]
+    @Binding var selectedPlaces: [MapItem]
     
     // MARK: View Models
     @Environment(OpenTripMapViewModel.self) private var otmVM

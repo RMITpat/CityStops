@@ -35,32 +35,43 @@ struct ContentView: View {
             HomeView()
                 .tabItem {
                     Label("Home", systemImage: "house")
+                        .accessibilityIdentifier("tab.home")
+                        .accessibilityLabel("Home tab")
                 }
                 .tag(AppTab.home)
+                
             
             // Create Trip
-                CreationChoiceView()
-                 
-            
+            CreationChoiceView()
             .tabItem {
                 Label("Create Trip", systemImage: "plus")
+                    .accessibilityLabel("Trip creation tab")
+                    .accessibilityIdentifier("tab.create.trip")
+
             }
             .tag(AppTab.create)
+           
 
             
             // Settings
             SettingsView()
-                .tabItem {
-                    Label("Settings", systemImage: "gear")
-                }
-                .tag(AppTab.settings)
+            .tabItem {
+                Label("Settings", systemImage: "gear")
+                    .accessibilityIdentifier("tab.settings")
+                    .accessibilityLabel("Settings tab")
+            }
+            .tag(AppTab.settings)
+           
             
             // Profile
             ProfileView()
-                .tabItem {
-                    Label("Profile", systemImage: "person.crop.circle")
-                }
-                .tag(AppTab.profile)
+            .tabItem {
+                Label("Profile", systemImage: "person.crop.circle")
+                    .accessibilityIdentifier("tab.profile")
+                    .accessibilityLabel("Profile tab")
+            }
+            .tag(AppTab.profile)
+       
 
         }
         .environment(locationVM)

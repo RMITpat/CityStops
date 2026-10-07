@@ -44,6 +44,7 @@ struct CreateRouteView: View {
             
             // MARK: - Base View
             VStack {
+<<<<<<< HEAD
                 
                 // MARK: Map interface - UIKit
                 UIKitMapView(
@@ -54,6 +55,26 @@ struct CreateRouteView: View {
                     isPinSelectable: true,
                     interactionModes: gestureState.isLongPressComplete ? [] : .all
                 )
+=======
+                // Map interface
+                // prevent panning when long press is active
+                Map (position: $locationVM.currentLocation, interactionModes: gestureState.isLongPressComplete ? [] : .all) {
+                    ForEach(tripCreationVM.selectedPlaces, id: \.self) { place in
+                        Marker(item: place.mkMapItem)
+                            .mapItemDetailSelectionAccessory(.callout)
+                    }
+                    ForEach(routes, id: \.self) { route in
+                        MapPolyline(route)
+                            .stroke(.blue, lineWidth: 5)
+                    }
+                    
+                }
+                .onChange(of: tripCreationVM.selectedPlaces) {
+                    Task {
+                        routes = try await locationVM.createTripRoutes(selectedPlaces: tripCreationVM.selectedPlaces)
+                    }
+                }
+>>>>>>> bdb3a13 (Refactor to mapitem)
                 .frame(height:400)
                 // Route between stops
                 .task {
@@ -62,11 +83,15 @@ struct CreateRouteView: View {
                         coordinate: locationVM.currentRegion.center
                     )
                 }
+<<<<<<< HEAD
                 .onChange(of: tripCreationVM.selectedPlaces) {
                     Task {
                         routes = try await locationVM.createTripRoutes(selectedPlaces: tripCreationVM.selectedPlaces)
                     }
                 }
+=======
+                .accessibilityLabel("Map of your route")
+>>>>>>> bdb3a13 (Refactor to mapitem)
                 
                 // MARK: Choose stops sheet
                 .sheet(isPresented: $showStopsSheet) {
@@ -113,6 +138,7 @@ struct CreateRouteView: View {
                 Button("Choose Locations") {
                     showStopsSheet = true
                 }
+                .accessibilityIdentifier("choose.locations")
                 
                 // MARK: "Finish" button
                 .safeAreaInset(edge: .bottom) {

@@ -11,8 +11,10 @@ import MapKit
 @MainActor
 protocol MapKitService {
 
-    func searchPlaces(searchRequest: String, currentRegion: MKCoordinateRegion) async throws -> [MKMapItem]
+    func searchPlaces(searchRequest: String, currentRegion: MKCoordinateRegion) async throws -> [MapItem]
     func createRoute(source: MKMapItem, destination: MKMapItem) async throws -> MKRoute?
+    
+    func getMKMapItemFromId(identifier: MKMapItem.Identifier) async throws -> MapItem?
 }
 
 @MainActor
@@ -20,19 +22,26 @@ final class MapKitServiceImpl : MapKitService {
     private var cachedRoutes: [CachedRoute : MKRoute] = [:]
 
     /// Conduct a search of places using a search request string
-    func searchPlaces(searchRequest: String, currentRegion: MKCoordinateRegion) async throws -> [MKMapItem] {
+    func searchPlaces(searchRequest: String, currentRegion: MKCoordinateRegion) async throws -> [MapItem] {
         let request = MKLocalSearch.Request()
         request.naturalLanguageQuery = searchRequest
         request.region = currentRegion
         
         let response = try await MKLocalSearch(request: request).start()
         
-        return response.mapItems.filter {
-            $0.identifier != nil
+        return response.mapItems.compactMap { item in
+            guard let identifier = item.identifier else {
+                return nil
+            }
+
+            return MapItem(
+                identifier: identifier.rawValue,
+                mkMapItem: item
+            )
         }
     }
     
-    /// Create an MKRoute between 2 MKMapItems
+    /// Create an MKRoute between 2 MapItems
     func createRoute(source: MKMapItem, destination: MKMapItem) async throws -> MKRoute? {
         var newRoute: CachedRoute?
         
@@ -65,6 +74,14 @@ final class MapKitServiceImpl : MapKitService {
             return route
         }
         return nil
+    }
+    
+    /// Request MKMapItem from identifier
+    func getMKMapItemFromId(identifier: MKMapItem.Identifier) async throws -> MapItem? {
+        let request = MKMapItemRequest(mapItemIdentifier: identifier)
+        
+        let mkItem = try await request.mapItem
+        return MapItem(identifier: mkItem.identifier?.rawValue ?? "", mkMapItem: mkItem)
     }
     
 }

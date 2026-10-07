@@ -16,7 +16,7 @@ enum SegmentStatus {
 @Observable
 final class OpenTripMapViewModel {
     private let service: OpenTripMapService
-    
+    private let mapKitService: MapKitService
     // MARK: - Preset REST API query values
     private let radius = 5000
     private let limit = 15
@@ -26,13 +26,15 @@ final class OpenTripMapViewModel {
     var segmentLocations: [String : SegmentStatus] = [:]
     
     // Mock init
-    init (service: OpenTripMapService) {
+    init (service: OpenTripMapService, mkService: MapKitService) {
         self.service = service
+        self.mapKitService = mkService
     }
     
     // Real init
     init() {
         self.service = OpenTripMapServiceImpl()
+        self.mapKitService = MapKitServiceImpl()
     }
     
     /// Populates segmentLocations with the converted opentripmap locations
@@ -82,16 +84,15 @@ final class OpenTripMapViewModel {
         
         let request = MKLocalSearch.Request()
         request.naturalLanguageQuery = response.name
-        request.region = MKCoordinateRegion(
+        let region = MKCoordinateRegion(
             center: target.coordinate,
             latitudinalMeters: searchRadius * 2,
             longitudinalMeters: searchRadius * 2
         )
+
+        let result = try await mapKitService.searchPlaces(searchRequest: response.name, currentRegion: region)
         
-        let result = try await MKLocalSearch(request: request).start()
-        
-        let candidates = result.mapItems.filter {
-            $0.identifier != nil &&
+        let candidates = result.filter {
             $0.location.distance(from: target) <= searchRadius
         }
         

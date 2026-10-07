@@ -36,7 +36,7 @@ final class ViewModelFactory {
     }
     
     func createOpenTripMapViewModel() -> OpenTripMapViewModel {
-        return testMode ? OpenTripMapViewModel(service: MockOpenTripMapService()) : OpenTripMapViewModel()
+        return testMode ? OpenTripMapViewModel(service: MockOpenTripMapService(), mkService: MockMapKitService()) : OpenTripMapViewModel()
     }
     
     func createSearchTermViewModel() -> SearchTermViewModel {

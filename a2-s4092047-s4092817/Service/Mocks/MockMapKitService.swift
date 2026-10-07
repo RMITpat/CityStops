@@ -12,51 +12,79 @@ import MapKit
 @MainActor
 final class MockMapKitService : MapKitService {
     
-    func searchPlaces(searchRequest: String, currentRegion: MKCoordinateRegion) async throws -> [MKMapItem] {
-        return [makeDummyMapItem(
-            latitude: -33.8568,
-            longitude: 151.2153,
-            address: "Sydney Opera House, Bennelong Point, Sydney NSW"
-        ),
-        makeDummyMapItem(
-            latitude: -33.8523,
-            longitude: 151.2108,
-            address: "Sydney Harbour Bridge, Sydney NSW"
-        ),
-        makeDummyMapItem(
-            latitude: -33.8642,
-            longitude: 151.2166,
-            address: "Royal Botanic Garden, Mrs Macquaries Road, Sydney NSW"
-        ),
-        makeDummyMapItem(
-            latitude: -33.8696,
-            longitude: 151.2069,
-            address: "The Rocks, Sydney NSW"
-        ),
-        makeDummyMapItem(
-            latitude: -33.8731,
-            longitude: 151.2065,
-            address: "Museum of Contemporary Art Australia, George Street, Sydney NSW"
-        )]
+    let dummyResults: [MapItem]
+    
+    init() {
+        self.dummyResults = [
+            Self.makeDummyMapItem(
+                identifier: "mock-sydney-opera-house",
+                name: "Sydney Opera House",
+                latitude: -33.8568,
+                longitude: 151.2153,
+                address: "Bennelong Point, Sydney NSW"
+            ),
+            Self.makeDummyMapItem(
+                identifier: "mock-sydney-harbour-bridge",
+                name: "Sydney Harbour Bridge",
+                latitude: -33.8523,
+                longitude: 151.2108,
+                address: "Sydney Harbour Bridge, Sydney NSW"
+            ),
+            Self.makeDummyMapItem(
+                identifier: "mock-royal-botanic-garden",
+                name: "Royal Botanic Garden",
+                latitude: -33.8642,
+                longitude: 151.2166,
+                address: "Mrs Macquaries Road, Sydney NSW"
+            ),
+            Self.makeDummyMapItem(
+                identifier: "mock-the-rocks",
+                name: "The Rocks",
+                latitude: -33.8696,
+                longitude: 151.2069,
+                address: "The Rocks, Sydney NSW"
+            ),
+            Self.makeDummyMapItem(
+                identifier: "mock-mca-australia",
+                name: "Museum of Contemporary Art Australia",
+                latitude: -33.8731,
+                longitude: 151.2065,
+                address: "George Street, Sydney NSW"
+            )
+        
+        ]
+    }
+    
+    func getMKMapItemFromId(identifier: MKMapItem.Identifier) async throws -> MapItem? {
+        return dummyResults.first(where: {$0.identifier == identifier.rawValue} )
+    }
+    
+    
+    func searchPlaces(searchRequest: String, currentRegion: MKCoordinateRegion) async throws -> [MapItem] {
+        return dummyResults
     }
     
     func createRoute(source: MKMapItem, destination: MKMapItem) async throws -> MKRoute? {
         return nil
     }
     
-    private func makeDummyMapItem(
+    private static func makeDummyMapItem(
+        identifier: String,
+        name: String,
         latitude: CLLocationDegrees,
         longitude: CLLocationDegrees,
-        address: String
-    ) -> MKMapItem {
+        address: String,
+    ) -> MapItem {
        
         let location = CLLocation(
             latitude: latitude,
             longitude: longitude
         )
 
-        let mapItem = MKMapItem(location: location, address: MKAddress(fullAddress: address, shortAddress: address))
-
+        let mkmapItem = MKMapItem(location: location, address: MKAddress(fullAddress: address, shortAddress: address))
+        mkmapItem.name = name
+        
+        let mapItem = MapItem(identifier: identifier, mkMapItem: mkmapItem)
         return mapItem
     }
     

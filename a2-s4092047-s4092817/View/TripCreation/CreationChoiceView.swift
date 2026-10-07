@@ -29,6 +29,7 @@ struct CreationChoiceView: View {
                     tripCreationVM.clear()
                     router.tripCreationRoute.append(TripCreationRoute.name)
                 }
+                .accessibilityIdentifier("plan.myself")
                 .buttonStyle(.glassProminent)
                 .controlSize(.large)
                 

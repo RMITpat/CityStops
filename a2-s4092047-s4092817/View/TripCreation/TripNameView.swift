@@ -27,8 +27,8 @@ struct TripNameView: View {
                 .foregroundStyle(.secondary)
             TextField("e.g. Asian Street Food Tour", text: $tripCreationVM.name)
                 .textFieldStyle(RoundedBorderTextFieldStyle())
-            
                 .padding(.bottom, 32)
+                .accessibilityIdentifier("trip.title.input")
             
             //Description
             Text("Description")
@@ -48,6 +48,7 @@ struct TripNameView: View {
                         RoundedRectangle(cornerRadius: 8)
                             .stroke(.secondary.opacity(0.15))
                     }
+                    .accessibilityIdentifier("trip.description.input")
             
             // Placeholder text; fixed padding to align with TextEditor
             if tripCreationVM.description.isEmpty {
@@ -69,6 +70,7 @@ struct TripNameView: View {
                     router.tripCreationRoute.append(TripCreationRoute.preferences)
                 }
                 .modifier(ButtonFormat())
+                .accessibilityIdentifier("confirm.trip.details")
             }
         
         .navigationTitle(Text("Trip Details"))

@@ -30,7 +30,7 @@ struct TripCard: View {
             
             Map(position: .constant(.automatic), interactionModes: []) {
                 ForEach(trip.mkMapItemPlaces, id: \.self) { place in
-                    Marker(item: place)
+                    Marker(item: place.mkMapItem)
                         .mapItemDetailSelectionAccessory(.callout)
                     ForEach(routes, id: \.self) { route in
                         MapPolyline(route)

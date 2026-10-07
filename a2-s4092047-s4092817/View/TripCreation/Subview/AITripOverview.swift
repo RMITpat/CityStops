@@ -36,7 +36,7 @@ struct AITripOverview: View {
         ScrollView {
             Map (position: $locationVM.currentLocation) {
                 ForEach(tripCreationVM.selectedPlaces, id: \.self) { place in
-                    Marker(item: place)
+                    Marker(item: place.mkMapItem)
                         .mapItemDetailSelectionAccessory(.callout)
                 }
                 ForEach(routes, id: \.self) { route in

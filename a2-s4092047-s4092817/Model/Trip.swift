@@ -28,7 +28,7 @@ struct Trip: Identifiable {
     let preferences: [String]
     
     var savedByUser: Bool = false
-    var mkMapItemPlaces: [MKMapItem] = []
+    var mkMapItemPlaces: [MapItem] = []
     
     init(id: String = "", ownerUsername:String, ownerId: String, name: String, description: String, places: [MKMapItem.Identifier], createdAt: Date = Date(), preferences: [String], savedByUser: Bool = false) {
         self.id = id

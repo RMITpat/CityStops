@@ -31,6 +31,8 @@ struct TripPreferenceView: View {
 
                     // Preference name
                     Text(item.preference)
+                        .accessibilityIdentifier(item.preference + ".label")
+                        
                     
                     Spacer()
                     
@@ -39,6 +41,7 @@ struct TripPreferenceView: View {
                           "checkmark.circle.fill" : "circle")
                         .foregroundColor(isSelected ?
                                         .accentColor : .gray)
+                        
                 }
                 // allows Spacer() content to register a tap
                 .contentShape(Rectangle())
@@ -64,6 +67,7 @@ struct TripPreferenceView: View {
                     }
                 }
                 .modifier(ButtonFormat())
+                .accessibilityIdentifier("preferences.next")
             }
         
             // MARK: View Title

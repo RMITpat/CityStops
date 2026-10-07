@@ -34,7 +34,7 @@ struct TripDetailView: View {
             }.padding()
             Map {
                 ForEach(trip.mkMapItemPlaces, id: \.self) { place in
-                    Marker(item: place)
+                    Marker(item: place.mkMapItem)
                         .mapItemDetailSelectionAccessory(.callout)
                     ForEach(routes, id: \.self) { route in
                         MapPolyline(route)
@@ -104,7 +104,7 @@ struct TripDetailView: View {
                 case .second:
                     // MARK: Location List
                     VStack {
-                        ForEach(trip.mkMapItemPlaces, id: \.identifier) { place in
+                        ForEach(trip.mkMapItemPlaces, id: \.self) { place in
                             VStack {
                                 LocationCard(location: place)
                                

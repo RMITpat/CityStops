@@ -17,6 +17,8 @@ import MapKit
     
     /// Tripservice used for getting trip data from firebase
     private let tripService: TripService
+    /// MK service for working with mapkit
+    private let mkMapService: MapKitService
     
     /// The currently logged in user
     let user: AppUser
@@ -51,27 +53,30 @@ import MapKit
     /// Real init used in app
     init(user: AppUser) {
         let service = TripServiceImpl()
+        self.mkMapService = MapKitServiceImpl()
         self.tripService = service
         self.user = user
     }
     
     /// Init used by mock in tests
-    init(service: TripService, user: AppUser) {
+    init(service: TripService, user: AppUser, mkservice: MapKitService) {
         self.tripService = service
+        self.mkMapService = mkservice
         self.user = user
     }
     
     /// Init used by preview
     init(user: AppUser, currentTrip: Trip) {
-        let service = TripServiceImpl()
-        self.tripService = service
+        self.mkMapService = MapKitServiceImpl()
+        self.tripService = TripServiceImpl()
         self.user = user
         self.currentTrip = currentTrip
     }
+    
     /// Saves a trip to Firestore
-    func saveTrip(name: String, description: String, selectedPlaces: [MKMapItem], preferences: [String]) async throws {
+    func saveTrip(name: String, description: String, selectedPlaces: [MapItem], preferences: [String]) async throws {
         isSaving = true
-        let placeIdentifiers = selectedPlaces.compactMap { $0.identifier }
+        let placeIdentifiers = selectedPlaces.compactMap { $0.mkMapItem.identifier }
         let newTrip = Trip(ownerUsername: user.username, ownerId: user.id, name: name, description: description, places: placeIdentifiers, preferences: preferences)
         try await tripService.saveTrip(trip: newTrip)
         isSaving = false
@@ -110,7 +115,7 @@ import MapKit
                 
                 // For each trip,
                 for trip in loadedTrips {
-                    // Convert its stops, stored as MKMapItem.Identifier's, to MKMapItems so they can be displayed.
+                    // Convert its stops, stored as MKMapItem.Identifier's, to MapItems so they can be displayed.
                     let updatedTrip = try await getMKMapItemsForTrip(trip: trip)
                     
                     // Only once all stops have been converted do we add the trip to the tripFeed, causing the fully loaded trip to appear in HomeView
@@ -191,21 +196,19 @@ import MapKit
     func getMKMapItemsForTrip(trip: Trip) async throws -> Trip {
         var trip = trip
         for identifier in trip.places {
-            let place = try await getMKMapItemFromId(identifier: identifier)
-            trip.mkMapItemPlaces.append(place)
+            if let place = try await getMKMapItemFromId(identifier: identifier) {
+                trip.mkMapItemPlaces.append(place)
+            }
 
         }
         return trip
     }
     
     /// Function for converting a singular Identifier to an MKMapItem
-    func getMKMapItemFromId(identifier: MKMapItem.Identifier) async throws -> MKMapItem {
+    func getMKMapItemFromId(identifier: MKMapItem.Identifier) async throws -> MapItem? {
         
-        let request = MKMapItemRequest(mapItemIdentifier: identifier)
-    
-        return try await request.mapItem
+        return try await mkMapService.getMKMapItemFromId(identifier: identifier)
       
-        
     }
     
     /// Calls service to save a document which contains the user's id and the id of the trip they are bookmarking

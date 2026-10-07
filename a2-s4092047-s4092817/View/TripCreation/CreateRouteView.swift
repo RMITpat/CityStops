@@ -48,7 +48,7 @@ struct CreateRouteView: View {
                 // prevent panning when long press is active
                 Map (position: $locationVM.currentLocation, interactionModes: gestureState.isLongPressComplete ? [] : .all) {
                     ForEach(tripCreationVM.selectedPlaces, id: \.self) { place in
-                        Marker(item: place)
+                        Marker(item: place.mkMapItem)
                             .mapItemDetailSelectionAccessory(.callout)
                     }
                     ForEach(routes, id: \.self) { route in
@@ -75,6 +75,7 @@ struct CreateRouteView: View {
                         coordinate: locationVM.currentRegion.center
                     )
                 }
+                .accessibilityLabel("Map of your route")
                 
                 // MARK: Choose stops sheet
                 .sheet(isPresented: $showStopsSheet) {
@@ -121,6 +122,7 @@ struct CreateRouteView: View {
                 Button("Choose Locations") {
                     showStopsSheet = true
                 }
+                .accessibilityIdentifier("choose.locations")
                 
                 // MARK: "Finish" button
                 .safeAreaInset(edge: .bottom) {

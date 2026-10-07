@@ -64,6 +64,7 @@ struct CreateTripSheet: View {
                     ForEach(Mode.allCases) { Text($0.rawValue).tag($0) }
                 }
                 .pickerStyle(.segmented)
+                .background(Color(.systemBackground))
                 .padding(.horizontal, 16)
             }
         }

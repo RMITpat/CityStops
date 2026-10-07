@@ -16,6 +16,7 @@ struct NearbyLocations: View {
     // MARK: View Models
     @Environment(LocationViewModel.self) var locationVM: LocationViewModel
     @Environment(TripCreationViewModel.self) var tripCreationVM: TripCreationViewModel
+    @Environment(OpenTripMapViewModel.self) var otmVM: OpenTripMapViewModel
 
     var body: some View {
         @Bindable var tripCreationVM = tripCreationVM

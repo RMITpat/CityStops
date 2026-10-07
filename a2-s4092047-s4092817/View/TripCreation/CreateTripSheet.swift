@@ -37,9 +37,6 @@ struct CreateTripSheet: View {
         @Bindable var tripCreationVM = tripCreationVM
 
         VStack {
-
-
-
             // MARK: View Title
             Text("Select Stops")
                 .font(.largeTitle)
@@ -67,6 +64,7 @@ struct CreateTripSheet: View {
                     ForEach(Mode.allCases) { Text($0.rawValue).tag($0) }
                 }
                 .pickerStyle(.segmented)
+                .background(Color(.systemBackground))
                 .padding(.horizontal, 16)
             }
         }

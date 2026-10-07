@@ -13,7 +13,15 @@
 import SwiftUI
 import CoreLocation
 
-class OpenTripMapService {
+protocol OpenTripMapService {
+    func fetchNearbyPointsByCategory(location: CLLocationCoordinate2D,
+                                     radius: Int,
+                                     filter: String,
+                                     returnLimit: Int) async throws -> [OpenTripLocation]
+}
+
+
+class OpenTripMapServiceImpl : OpenTripMapService {
     private let apiKey: String
     
     init() {

@@ -36,4 +36,11 @@ struct OpenTripLocation: Identifiable, Decodable {
         lat = try point.decode(Double.self, forKey: .lat)
         lon = try point.decode(Double.self, forKey: .lon)
     }
+    
+    // Mock init
+    init(name: String, lat: Double, lon: Double) {
+        self.name = name
+        self.lat = lat
+        self.lon = lon
+    }
 }

@@ -23,6 +23,7 @@ struct TripFeed: View {
             LazyVStack {
                 ForEach(trips, id: \.id) { trip in
                     TripCard(trip: trip, navRoute: $route)
+                    
                     Divider()
                 }
                 

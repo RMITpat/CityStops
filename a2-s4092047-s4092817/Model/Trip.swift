@@ -18,7 +18,7 @@ import MapKit
 /// - preferences: [String] a list of preferences that hold the trip's categories
 struct Trip: Identifiable {
     
-    let id: String
+    var id: String
     let ownerId: String
     let ownerUsername: String
     let name: String

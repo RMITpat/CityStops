@@ -16,9 +16,11 @@ struct TripCardInfo: View {
                     Text(trip.name)
                         .font(.title2)
                         .bold()
+                        .accessibilityIdentifier("\(trip.id).title")
                     Text(trip.preferences.sorted().joined(separator: ", "))
                         .font(.subheadline)
                         .foregroundStyle(.gray)
+                        .accessibilityIdentifier("\(trip.id).preferences")
                 }
                 Spacer()
                 Text("By \(trip.ownerUsername)")

@@ -17,8 +17,8 @@ final class a2_s4092047_s4092817UITests: XCTestCase {
         app.launch()
     }
 
-    
-    func testExample() throws {
+    /// Test that creating a trip works. Involves adding a trip name, description, preferences and selecting places from the api as well as searching. Verifies it appears in the trip feed afterwards with the inputted information.
+    func testCreateTripFlowSuccess() throws {
         let createTripTab = app.tabBars.buttons["Trip creation tab"]
         XCTAssert(createTripTab.exists, "Create trip tab should exist")
         createTripTab.tap()
@@ -86,21 +86,63 @@ final class a2_s4092047_s4092817UITests: XCTestCase {
         let addPlace3 = app.buttons["add.remove.Royal Botanic Garden"].firstMatch
         addPlace3.tap()
         
-        let addPlace3 = app.buttons["add.remove.Royal Botanic Garden"].firstMatch
-        addPlace3.tap()
+       
        
         search.tap()
         
-        let searchPlaces = app.textViews["search.places"]
+        let searchPlaces = app.textFields["search.places"]
         XCTAssert(searchPlaces.exists, "The search bar should exist")
         searchPlaces.tap()
         searchPlaces.typeText("Restaurants")
         
         
         let searchButton = app.buttons["search.button"].firstMatch
+        XCTAssert(searchButton.exists, "Search button should exist")
         searchButton.tap()
         
         
+        let addPlace4 = app.buttons["add.remove.The Rocks"].firstMatch
+        addPlace4.tap()
+        
+        
+        let doneButton = app.buttons["done.button"].firstMatch
+        XCTAssert(doneButton.exists, "Done button should exist")
+        doneButton.tap()
+        
+        
+        let places = app.staticTexts.allElementsBoundByIndex
+
+        XCTAssert(places.contains(where: {$0.label ==  "Sydney Opera House"}))
+        XCTAssert(places.contains(where: {$0.label ==  "Sydney Harbour Bridge"}))
+        XCTAssert(places.contains(where: {$0.label ==  "Royal Botanic Garden"}))
+        XCTAssert(places.contains(where: {$0.label ==  "The Rocks"}))
+        
+        
+        XCTAssertTrue(places.contains { $0.label == "Bennelong Point, Sydney NSW" })
+        XCTAssertTrue(places.contains { $0.label == "Sydney Harbour Bridge, Sydney NSW" })
+        XCTAssertTrue(places.contains { $0.label == "Mrs Macquaries Road, Sydney NSW" })
+        XCTAssertTrue(places.contains { $0.label == "The Rocks, Sydney NSW" })
+        
+        let finishButton = app.buttons["finish.button"].firstMatch
+        XCTAssert(finishButton.exists, "Finish button should exist")
+        finishButton.tap()
+        
+        
+        
+        let createdTitle = app.staticTexts["test9.title"]
+        
+        print(app.staticTexts.allElementsBoundByIndex)
+        XCTAssertEqual(createdTitle.label, "Test title")
+        
+        
+        let createdPrefs = app.staticTexts["test9.preferences"]
+        XCTAssertEqual(createdPrefs.label, "Food, Landmarks and Sightseeing, Nature, Shopping, Sports and Amusement")
+        
+        
+        createdTitle.tap()
+        
+        let description = app.staticTexts["trip.description"]
+        XCTAssertEqual(description.label, "Test description")
         
         
     }

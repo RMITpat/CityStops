@@ -98,6 +98,7 @@ struct TripDetailView: View {
                     
                     VStack(alignment: .leading) {
                         Text(trip.description)
+                            .accessibilityIdentifier("trip.description")
                         Divider()
                         Text("Created on \(trip.createdAt.formatted())")
                             .font(.subheadline)

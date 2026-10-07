@@ -104,6 +104,7 @@ struct CreateRouteView: View {
                                     showStopsSheet.toggle()
                                 }
                                 .modifier(ButtonFormat())
+                                .accessibilityIdentifier("done.button")
                             }
                             .environment(otmVM)
                     }
@@ -158,6 +159,7 @@ struct CreateRouteView: View {
                             }
                         }
                     }
+                    .accessibilityIdentifier("finish.button")
                     .disabled(appVM.isSaving)
                     .modifier(ButtonFormat())
                 }

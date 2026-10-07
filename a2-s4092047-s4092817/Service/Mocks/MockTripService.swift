@@ -154,7 +154,9 @@ final class MockTripService: TripService {
     }
 
     func saveTrip(trip: Trip) async throws {
-        dummyTrips.insert(trip, at: 0)
+        var newTrip = trip
+        newTrip.id = "test\(dummyTrips.count+1)"
+        dummyTrips.insert(newTrip, at: 0)
         resetPagination()
     }
 

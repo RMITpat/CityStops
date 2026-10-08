@@ -65,7 +65,7 @@ final class TripCreationViewModel {
     func validateNameDesc() -> Bool {
         clearErrors()
         if name.isEmpty {
-            nameError = "Please provide a name"
+            nameError = "Please provide a title"
         }
         if description.isEmpty {
             descriptionError = "Please provide a description"

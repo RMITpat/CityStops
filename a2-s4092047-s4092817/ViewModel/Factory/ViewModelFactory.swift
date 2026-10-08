@@ -15,8 +15,12 @@ import MapKit
 final class ViewModelFactory {
     let arguments: [String]
     
+    let RETURN_EMPTY: Bool
+    
     init(arguments: [String] = []) {
         self.arguments = arguments
+        
+        self.RETURN_EMPTY = arguments.contains("-ENABLE-EMPTY-DATA")
     }
     
     func createAppViewModel(user: AppUser) -> AppViewModel {
@@ -27,7 +31,7 @@ final class ViewModelFactory {
         return AppViewModel(
             service: MockTripService(),
             user: user,
-            mkservice: MockMapKitService()
+            mkservice: MockMapKitService(RETURN_EMPTY: RETURN_EMPTY)
         )
     }
     
@@ -50,14 +54,20 @@ final class ViewModelFactory {
         if arguments.isEmpty {
             return LocationViewModel(user: user)
         }
-        return LocationViewModel(user: user, coreLocationService: MockCoreLocationService(), mapKitService: MockMapKitService())
+        return LocationViewModel(
+            user: user,
+            coreLocationService: MockCoreLocationService(),
+            mapKitService: MockMapKitService(RETURN_EMPTY: RETURN_EMPTY)
+        )
     }
     
     func createOpenTripMapViewModel() -> OpenTripMapViewModel {
         if arguments.isEmpty {
             return OpenTripMapViewModel()
         }
-        return OpenTripMapViewModel(service: MockOpenTripMapService(), mkService: MockMapKitService())
+        return OpenTripMapViewModel(
+            service: MockOpenTripMapService(),
+            mkService: MockMapKitService(RETURN_EMPTY: RETURN_EMPTY))
     }
     
     func createSearchTermViewModel() -> SearchTermViewModel {

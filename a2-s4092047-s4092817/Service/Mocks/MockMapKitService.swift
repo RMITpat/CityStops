@@ -13,8 +13,11 @@ import MapKit
 final class MockMapKitService : MapKitService {
     
     let dummyResults: [MapItem]
+    let RETURN_EMPTY: Bool
     
-    init() {
+    init(RETURN_EMPTY: Bool) {
+        self.RETURN_EMPTY = RETURN_EMPTY
+        
         self.dummyResults = [
             Self.makeDummyMapItem(
                 identifier: "mock-sydney-opera-house",
@@ -56,11 +59,17 @@ final class MockMapKitService : MapKitService {
     }
     
     func getMKMapItemFromId(identifier: String) async throws -> MapItem? {
+        if RETURN_EMPTY {
+            return nil
+        }
         return dummyResults.first(where: {$0.identifier == identifier} )
     }
     
     
     func searchPlaces(searchRequest: String, currentRegion: MKCoordinateRegion) async throws -> [MapItem] {
+        if RETURN_EMPTY {
+            return []
+        }
         return dummyResults
     }
     

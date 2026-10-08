@@ -162,6 +162,30 @@ final class a2_s4092047_s4092817UITests: XCTestCase {
         
     }
     
+    /// Tests that the errors for empty description and title are present
+    func testCreateTripNameDescriptionEmptySuccess() throws {
+        let createTripTab = app.tabBars.buttons["Trip creation tab"]
+        XCTAssert(createTripTab.exists, "Create trip tab should exist")
+        createTripTab.tap()
+        
+        let planMyself = app.buttons["plan.myself"]
+        XCTAssert(planMyself.exists, "Plan it myself button should exist")
+        planMyself.tap()
+        
+        
+        
+        let confirm = app.buttons["confirm.trip.details"]
+        XCTAssert(confirm.exists, "Confirm button should exist")
+        XCTAssert(confirm.isEnabled, "Confirm button should exist")
+        confirm.tap()
+        
+        let texts = app.staticTexts.allElementsBoundByIndex
+        
+        XCTAssert(texts.contains(where: {$0.label ==  "Please provide a title"}))
+        XCTAssert(texts.contains(where: {$0.label ==  "Please provide a description"}))
+        
+    }
+    
     
 
     

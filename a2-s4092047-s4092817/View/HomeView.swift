@@ -10,35 +10,59 @@ import MapKit
 ///
 /// Home view for viewing trip feed.
 /// Implements ``AuthViewModel`` to allow sign out (needs to be moved into settings)
-// TODO: MOVE SIGN OUT TO SETTINGS PAGE
 struct HomeView: View {
     @Environment(AppViewModel.self) var appVM: AppViewModel
     @Environment(Router.self) var router: Router
+    
+    enum Mode: String, CaseIterable, Identifiable {
+        case first = "Recently Planned Trips"
+        case second = "Recommended Trips"
+        var id: Self { self }
+    }
+    
+    @State var mode: Mode
+    
     var body: some View {
         @Bindable var appVM = appVM
         @Bindable var router = router
         
         NavigationStack(path: $router.feedRoute) {
             VStack (alignment: .leading) {
-              // MARK: View Title
-              // Mimic ``NavigationTitle`` styling
-              Text("Your Daytrip Feed")
-                      .font(.largeTitle)
-                      .fontWeight(.bold)
-                      .padding(.horizontal, 16)
-                      .padding(.top, 56)
+                // MARK: View Title
+                // Mimic ``NavigationTitle`` styling
+                Text("Your Daytrip Feed")
+                    .font(.largeTitle)
+                    .fontWeight(.bold)
+                    .padding(.horizontal, 16)
+                    .padding(.top, 56)
                 
-                TripFeed(trips: appVM.tripFeed, isLoading: appVM.isLoadingTrips, route: $router.feedRoute) {
-                    appVM.refreshFeed()
-                } loadTrips: {
-                    appVM.loadTrips()
+                Picker("Mode", selection: $mode) {
+                    ForEach(Mode.allCases) { Text($0.rawValue).tag($0) }
+                }
+                .pickerStyle(.segmented)
+                .background(Color(.systemBackground))
+                .padding(.horizontal, 16)
+                
+                
+                switch mode {
+                case .first:
+                    TripFeed(trips: appVM.tripFeed, isLoading: appVM.isLoadingTrips, route: $router.feedRoute) {
+                        appVM.refreshFeed()
+                    } loadTrips: {
+                        appVM.loadTrips()
+                    }
+                    .navigationDestination(for: FeedRoute.self) { route in
+                        switch route {
+                        case .tripDetail: TripDetailView()
+                        }
+                    }
+                    
+                case .second:
+                    Text("hello")
                 }
             }
-            .navigationDestination(for: FeedRoute.self) { route in
-                switch route {
-                case .tripDetail: TripDetailView()
-                }
-            }
+            
+
             Spacer()
         }
     }
@@ -47,7 +71,7 @@ struct HomeView: View {
 #Preview {
         let user = AppUser(id: "Test", username: "test", email: "test@email.com")
 
-        HomeView()
+    HomeView(mode: .first)
             .environment(AppViewModel(user: user ))
             .environment(Router())
     }

@@ -10,15 +10,27 @@ import XCTest
 @MainActor
 final class a2_s4092047_s4092817UITests: XCTestCase {
     private var app: XCUIApplication!
+    
+    // Make a service return empty data from its calls
+    private let RETURN_EMPTY = "-ENABLE-EMPTY-DATA"
 
-    override func setUpWithError() throws {
+    
+    func launchWithArguments(arguments: [String] = []) {
         app = XCUIApplication()
+        // Always need this argument in ui tests
         app.launchArguments.append("-ENABLE-MOCK-DATA")
+        
+        for argument in arguments {
+            app.launchArguments.append(argument)
+        }
+        
         app.launch()
     }
 
     /// Test that creating a trip works. Involves adding a trip name, description, preferences and selecting places from the api as well as searching. Verifies it appears in the trip feed afterwards with the inputted information.
     func testCreateTripFlowSuccess() throws {
+        launchWithArguments()
+        
         let createTripTab = app.tabBars.buttons["Trip creation tab"]
         XCTAssert(createTripTab.exists, "Create trip tab should exist")
         createTripTab.tap()
@@ -164,18 +176,15 @@ final class a2_s4092047_s4092817UITests: XCTestCase {
     
     /// Tests that the errors for empty description and title are present
     func testCreateTripNameDescriptionEmptySuccess() throws {
+        launchWithArguments()
+        
         let createTripTab = app.tabBars.buttons["Trip creation tab"]
-        XCTAssert(createTripTab.exists, "Create trip tab should exist")
         createTripTab.tap()
         
         let planMyself = app.buttons["plan.myself"]
-        XCTAssert(planMyself.exists, "Plan it myself button should exist")
         planMyself.tap()
         
-        
-        
         let confirm = app.buttons["confirm.trip.details"]
-        XCTAssert(confirm.exists, "Confirm button should exist")
         XCTAssert(confirm.isEnabled, "Confirm button should exist")
         confirm.tap()
         
@@ -183,6 +192,57 @@ final class a2_s4092047_s4092817UITests: XCTestCase {
         
         XCTAssert(texts.contains(where: {$0.label ==  "Please provide a title"}))
         XCTAssert(texts.contains(where: {$0.label ==  "Please provide a description"}))
+        
+    }
+    
+    /// Tests the ui state when searching for places and asking the api for places returns empty
+    func testCreateNoPlaceResultsEmptySuccess() throws {
+        launchWithArguments(arguments: [RETURN_EMPTY])
+        
+        let createTripTab = app.tabBars.buttons["Trip creation tab"]
+        createTripTab.tap()
+        
+        let planMyself = app.buttons["plan.myself"]
+        planMyself.tap()
+        
+        let tripTitleField = app.textFields["trip.title.input"]
+        tripTitleField.tap()
+        tripTitleField.typeText("Test title")
+        
+        let tripDescField = app.textViews["trip.description.input"]
+        tripDescField.tap()
+        tripDescField.typeText("Test description")
+        
+        
+        let confirm = app.buttons["confirm.trip.details"]
+        confirm.tap()
+        
+        let food = app.staticTexts["Food.label"]
+        food.tap()
+       
+        
+        let finishPreferences = app.buttons["preferences.next"]
+        finishPreferences.tap()
+        
+        let chooseLocations = app.buttons["choose.locations"]
+        chooseLocations.tap()
+        
+        let search = app.buttons["Search for Stops"]
+        
+        let emptyNearbyLocations = app.staticTexts["nearby.locations.empty"]
+        XCTAssertEqual(emptyNearbyLocations.label, "No places found nearby.")
+        
+        search.tap()
+        
+        let searchPlaces = app.textFields["search.places"]
+        searchPlaces.tap()
+        searchPlaces.typeText("Parks")
+        
+        let searchButton = app.buttons["search.button"].firstMatch
+        searchButton.tap()
+        
+        let emptySearch = app.staticTexts["empty.search"]
+        XCTAssertEqual(emptySearch.label, "No results")
         
     }
     

@@ -49,6 +49,7 @@ struct NearbyLocationSegment: View {
                             HStack(spacing: 8) {
                                 Text("No places found nearby.")
                                     .foregroundStyle(.secondary)
+                                    .accessibilityIdentifier("nearby.locations.empty")
                                 Spacer()
                             }
                         }

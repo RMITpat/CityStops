@@ -17,10 +17,12 @@ struct SearchLocations: View {
     @Environment(SearchTermViewModel.self) var searchTermVM: SearchTermViewModel
     
     // The place search request inputted by the user
-    @State var searchRequest: String = ""
+    @State private var searchRequest: String = ""
     
     // The results of a place search
-    @State var searchResults: [MapItem] = []
+    @State private var searchResults: [MapItem]?
+    
+    @State private var errorMessage: String?
     
     var body: some View {
         @Bindable var locationVM = locationVM
@@ -90,19 +92,32 @@ struct SearchLocations: View {
             .buttonStyle(.glassProminent)
             .accessibilityIdentifier("search.button")
             
-            // MARK: Location search results
-            ScrollView {
-                VStack {
-                    // Generate location detail cards
-                    ForEach(searchResults, id: \.identifier) { result in
-                        LocationCard(location: result,
-                                         selectedPlaces: $tripCreationVM.selectedPlaces
-                        ) 
-                    }
-                }
+            // MARK: Search error message
+            if let errorMessage  {
+                Text(errorMessage).foregroundColor(.red).font(.footnote)
             }
             
-            .padding(.horizontal, 16)
+            // MARK: Location search results
+            if let searchResults {
+                if searchResults.isEmpty {
+                    Text("No results")
+                        .font(.title2)
+                        .multilineTextAlignment(.center)
+                        .accessibilityIdentifier("empty.search")
+                }
+                ScrollView {
+                    VStack {
+                        // Generate location detail cards
+                        ForEach(searchResults, id: \.identifier) { result in
+                            LocationCard(location: result,
+                                         selectedPlaces: $tripCreationVM.selectedPlaces
+                            )
+                        }
+                    }
+                }
+                .padding(.horizontal, 16)
+
+            }
         }
         .padding(.horizontal, 12)
 
@@ -110,23 +125,16 @@ struct SearchLocations: View {
             searchTermVM.fetch()
         }
         
-
-//        // MARK: Location Search Bar
-//        .searchable(
-//            text: $searchRequest,
-//            placement: .automatic,
-//            prompt: "Search for a place",
-//        )
     }
     
     
     func startSearch() {
-           searchResults.removeAll()
+           searchResults = nil
            Task {
                do {
                    searchResults = try await locationVM.searchPlaces(searchRequest: searchRequest)
                } catch {
-                   // TODO: display errors somewhere
+                   errorMessage = "Failed to search for places."
                }
            }
            searchTermVM.insert(searchTerm: searchRequest)

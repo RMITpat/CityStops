@@ -50,13 +50,9 @@
 		BF51494A3077639A00A8FD56 /* Exceptions for "a2-s4092047-s4092817" folder in "a2-s4092047-s4092817Tests" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				ML/EmbeddingError.swift,
 				ML/MiniLM.mlpackage,
-				ML/RecommendationLegacy.swift,
 				ML/RecommendationView.swift,
 				ML/RecommendationViewModel.swift,
-				ML/SemanticSearchView.swift,
-				ML/SemanticSearchViewModel.swift,
 				ML/vocab.txt,
 				ML/WordPieceTokenizer.swift,
 			);
@@ -65,13 +61,9 @@
 		BF51494B3077639A00A8FD56 /* Exceptions for "a2-s4092047-s4092817" folder in "a2-s4092047-s4092817UITests" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				ML/EmbeddingError.swift,
 				ML/MiniLM.mlpackage,
-				ML/RecommendationLegacy.swift,
 				ML/RecommendationView.swift,
 				ML/RecommendationViewModel.swift,
-				ML/SemanticSearchView.swift,
-				ML/SemanticSearchViewModel.swift,
 				ML/vocab.txt,
 				ML/WordPieceTokenizer.swift,
 			);

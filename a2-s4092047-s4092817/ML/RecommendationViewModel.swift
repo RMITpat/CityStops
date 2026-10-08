@@ -28,10 +28,6 @@ final class RecommendationViewModel: ObservableObject {
     // Background queue so inference never blocks the UI
     private let mlQueue = DispatchQueue(label: "ml.minilm.queue", qos: .userInitiated)
 
-    // Used to debounce predictions (cancel older work if the user keeps typing)
-    // CHANGED: still used, but now mainly to cancel a queued request if recommend(...) is called
-    // again before it has run. The debounce delay itself is now optional (see `delay` below).
-
     // Lets us ignore results from outdated requests (only touched on the main thread)
     private var requestCounter = 0
 
@@ -121,23 +117,19 @@ final class RecommendationViewModel: ObservableObject {
     func recommend(
         basedOn inputs: [String],
         topN: Int = 5,
-        excludeInputs: Bool = true
+        excludeInputs: Bool = true,
+        completion: (([String]) -> Void)? = nil
     ) {
-
-        // tidy the inputs into a Set
         var seen = Set<String>()
 
         let texts = inputs
-            .map {
-                $0.trimmingCharacters(in: .whitespacesAndNewlines)
-            }
-            .filter {
-                !$0.isEmpty && seen.insert($0).inserted
-            }
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty && seen.insert($0).inserted }
 
         guard !texts.isEmpty else {
             requestCounter += 1
             suggestions = []
+            completion?([])
             return
         }
 
@@ -150,48 +142,20 @@ final class RecommendationViewModel: ObservableObject {
             }
 
             do {
-                // Embeds all input strings, then averages them into one query vector
-                let queryVectors = try texts.map {
-                    try self.embed($0)
-                }
-                let query = self.normalized(
-                    self.mean(queryVectors)
-                )
+                let queryVectors = try texts.map { try self.embed($0) }
+                let query = self.normalized(self.mean(queryVectors))
 
-                // lowercase set of the inputs, used to avoid suggesting an input back
-                let inputSet = Set(
-                    texts.map {
-                        $0.lowercased()
-                    }
-                )
+                let inputSet = Set(texts.map { $0.lowercased() })
 
-                // Rank candidates by cosine similarity
-                // vectors are L2-normalised
-                let ranked = zip(
-                    self.candidates,
-                    self.candidateVectors
-                )
-                // skip candidates that are exactly one of the inputs
-                .filter {
-                    !excludeInputs || !inputSet.contains($0.0.lowercased())
-                }
-                .map {
-                    (
-                        text: $0.0,
-                        score: self.dot(query, $0.1)
-                    )
-                }
-                .sorted {
-                    $0.score > $1.score
-                }
+                let ranked = zip(self.candidates, self.candidateVectors)
+                    .filter { !excludeInputs || !inputSet.contains($0.0.lowercased()) }
+                    .map { (text: $0.0, score: self.dot(query, $0.1)) }
+                    .sorted { $0.score > $1.score }
 
-                let top = ranked
-                    .prefix(topN)
-                    .map {
-                        $0.text
-                    }
+                let top = ranked.prefix(topN).map { $0.text }
 
                 DispatchQueue.main.async {
+                    completion?(Array(top))
                     guard requestID == self.requestCounter else {
                         return
                     }
@@ -202,6 +166,7 @@ final class RecommendationViewModel: ObservableObject {
 
             } catch {
                 DispatchQueue.main.async {
+                    completion?([])
                     guard requestID == self.requestCounter else {
                         return
                     }
@@ -214,7 +179,6 @@ final class RecommendationViewModel: ObservableObject {
             }
         }
 
-        // Runs on the serial mlQueue, so it always executes after candidate indexing finishes
         mlQueue.asyncAfter(
             deadline: .now(),
             execute: workItem

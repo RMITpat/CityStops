@@ -47,6 +47,36 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		BF51494A3077639A00A8FD56 /* Exceptions for "a2-s4092047-s4092817" folder in "a2-s4092047-s4092817Tests" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				ML/EmbeddingError.swift,
+				ML/MiniLM.mlpackage,
+				ML/RecommendationLegacy.swift,
+				ML/RecommendationView.swift,
+				ML/RecommendationViewModel.swift,
+				ML/SemanticSearchView.swift,
+				ML/SemanticSearchViewModel.swift,
+				ML/vocab.txt,
+				ML/WordPieceTokenizer.swift,
+			);
+			target = 8D6264EA30528A4D00D842C2 /* a2-s4092047-s4092817Tests */;
+		};
+		BF51494B3077639A00A8FD56 /* Exceptions for "a2-s4092047-s4092817" folder in "a2-s4092047-s4092817UITests" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				ML/EmbeddingError.swift,
+				ML/MiniLM.mlpackage,
+				ML/RecommendationLegacy.swift,
+				ML/RecommendationView.swift,
+				ML/RecommendationViewModel.swift,
+				ML/SemanticSearchView.swift,
+				ML/SemanticSearchViewModel.swift,
+				ML/vocab.txt,
+				ML/WordPieceTokenizer.swift,
+			);
+			target = 8D6264F430528A4D00D842C2 /* a2-s4092047-s4092817UITests */;
+		};
 		BFF5282F30625E0F0004D631 /* Exceptions for "a2-s4092047-s4092817" folder in "a2-s4092047-s4092817" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -61,6 +91,8 @@
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
 				BFF5282F30625E0F0004D631 /* Exceptions for "a2-s4092047-s4092817" folder in "a2-s4092047-s4092817" target */,
+				BF51494A3077639A00A8FD56 /* Exceptions for "a2-s4092047-s4092817" folder in "a2-s4092047-s4092817Tests" target */,
+				BF51494B3077639A00A8FD56 /* Exceptions for "a2-s4092047-s4092817" folder in "a2-s4092047-s4092817UITests" target */,
 			);
 			path = "a2-s4092047-s4092817";
 			sourceTree = "<group>";

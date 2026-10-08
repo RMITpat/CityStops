@@ -143,15 +143,14 @@ struct RecommendationView: View {
             }
             
             .onChange(of: text) { newValue in
-                viewModel.schedulePredict(
-                    context: newValue,
+                viewModel.recommend(
+                    basedOn: [newValue],
                     topN: topN
                 )
             }
-            
             .onChange(of: topN) { _ in
-                viewModel.schedulePredict(
-                    context: text,
+                viewModel.recommend(
+                    basedOn: [text],
                     topN: topN
                 )
             }

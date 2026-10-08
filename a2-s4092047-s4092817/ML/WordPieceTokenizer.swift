@@ -9,8 +9,9 @@
 import Foundation
 import CoreML
 
-/// BERT-style (uncased) WordPiece tokenizer. Matches the tokenizer used by all-MiniLM-L6-v2.
-/// Requires `vocab.txt` from the model folder to be added to your Xcode target.
+/// BERT-style (uncased) WordPiece tokenizer. Matches the tokenizer used by the ML model all-MiniLM-L6-v2.
+/// Used in ``RecommendationViewModel`` to convert text into the appropriate input for the model.
+/// Pulls vocabulary from `vocab.txt`.
 struct WordPieceTokenizer {
 
     let maxLength: Int
@@ -21,6 +22,7 @@ struct WordPieceTokenizer {
     private let unkID: Int32
     private let padID: Int32 = 0
 
+    /// Gets vocabulary from the appropriate file.
     init(vocabURL: URL, maxLength: Int = 128) throws {
         let text = try String(contentsOf: vocabURL, encoding: .utf8)
         var dict = [String: Int32](minimumCapacity: 31_000)
@@ -36,31 +38,58 @@ struct WordPieceTokenizer {
         self.unkID = dict["[UNK]"] ?? 100
         self.maxLength = maxLength
     }
+    
+    /// Tokenizes `text` and wraps the result in the Core ML input type.
+    func makeInput(_ text: String) -> MiniLMInput {
+        let (ids, mask) = encode(text)
+        let shape = [1, maxLength]
 
-    /// Returns padded `input_ids` and `attention_mask`, each exactly `maxLength` long.
+        return MiniLMInput(
+            input_ids: MLShapedArray<Int32>(scalars: ids, shape: shape),
+            attention_mask: MLShapedArray<Int32>(scalars: mask, shape: shape)
+        )
+    }
+
+    /// Converts a ``String`` into padded `input_ids` and `attention_mask`, each exactly `maxLength` long.
     func encode(_ text: String) -> (ids: [Int32], mask: [Int32]) {
+
+        // Start with the special [CLS] token required by BERT-style models.
         var ids: [Int32] = [clsID]
 
-        for word in basicTokenize(text) {
+        // Convert the text into basic tokens, then convert each token
+        // into one or more WordPiece vocabulary IDs.
+        for word in basicTokenise(text) {
             ids += wordPiece(word)
-            if ids.count >= maxLength - 1 { break }
+            if ids.count >= maxLength - 1 {
+                break
+            }
         }
 
+        // Make sure the sequence cannot exceed maxLength - 1, leaving one position for [SEP] token at very end
         ids = Array(ids.prefix(maxLength - 1))
         ids.append(sepID)
 
+        // Number of positions containing real tokens
         let realCount = ids.count
+
         let padding = maxLength - realCount
 
-        let mask = [Int32](repeating: 1, count: realCount) + [Int32](repeating: 0, count: padding)
+        // Attention mask: 1 = real token 0 = padding
+        let mask = [Int32](repeating: 1, count: realCount) +
+                   [Int32](repeating: 0,count: padding)
+
+        // Add [PAD] tokens
         ids += [Int32](repeating: padID, count: padding)
 
         return (ids, mask)
     }
 
     // MARK: - Basic tokenization (lowercase, strip accents, split on punctuation)
-
-    private func basicTokenize(_ text: String) -> [String] {
+    /// Converts the input text into basic word-level tokens.
+    ///
+    /// The text is lowercased, accents are removed, whitespace separates
+    /// words, and punctuation is treated as a separate token.
+    private func basicTokenise(_ text: String) -> [String] {
         let scalars = text
             .lowercased()
             .decomposedStringWithCanonicalMapping
@@ -77,12 +106,15 @@ struct WordPieceTokenizer {
 
             if scalar.properties.isWhitespace {
                 flush(&current, into: &tokens)
-            } else if scalar.properties.generalCategory == .control {
+            }
+            else if scalar.properties.generalCategory == .control {
                 continue
-            } else if isPunctuation(scalar) || isCJK(scalar) {
+            }
+            else if isPunctuation(scalar) {
                 flush(&current, into: &tokens)
                 tokens.append(String(scalar))
-            } else {
+            }
+            else {
                 current.unicodeScalars.append(scalar)
             }
         }
@@ -91,6 +123,8 @@ struct WordPieceTokenizer {
         return tokens
     }
 
+    /// Adds the current partially-built token to the token list
+    /// and resets the current token.
     private func flush(_ current: inout String, into tokens: inout [String]) {
         if !current.isEmpty {
             tokens.append(current)
@@ -98,6 +132,7 @@ struct WordPieceTokenizer {
         }
     }
 
+    /// Checks if a character is punctuation, such as a comma, bracket, dash, or quotation mark.
     private func isPunctuation(_ scalar: Unicode.Scalar) -> Bool {
         let v = scalar.value
         if (33...47).contains(v) || (58...64).contains(v) || (91...96).contains(v) || (123...126).contains(v) {
@@ -112,19 +147,15 @@ struct WordPieceTokenizer {
         }
     }
 
-    private func isCJK(_ scalar: Unicode.Scalar) -> Bool {
-        let v = scalar.value
-        return (0x4E00...0x9FFF).contains(v)
-            || (0x3400...0x4DBF).contains(v)
-            || (0x20000...0x2A6DF).contains(v)
-            || (0xF900...0xFAFF).contains(v)
-            || (0x2F800...0x2FA1F).contains(v)
-    }
-
-    // MARK: - WordPiece (greedy longest-match-first)
-
+    /// Converts a basic token into one or more WordPiece vocabulary IDs.
+    ///
+    /// WordPiece uses a greedy longest-match-first approach.
+    /// If a whole word is not in the vocabulary,
+    /// it attempts to split the word into smaller pieces.
     private func wordPiece(_ word: String) -> [Int32] {
         let chars = Array(word.unicodeScalars)
+        
+        // Very long words are treated as unknown
         if chars.count > 100 { return [unkID] }
 
         var ids: [Int32] = []
@@ -134,9 +165,14 @@ struct WordPieceTokenizer {
             var end = chars.count
             var found: Int32?
 
+            // Gradually shorten the substring until a vocabulary entry is found
             while start < end {
                 var piece = String(String.UnicodeScalarView(chars[start..<end]))
-                if start > 0 { piece = "##" + piece }
+                
+                // WordPiece uses "##" to indicate a continuation of a previous word piece.
+                if start > 0 {
+                    piece = "##" + piece
+                }
 
                 if let id = vocab[piece] {
                     found = id
@@ -145,26 +181,14 @@ struct WordPieceTokenizer {
                 end -= 1
             }
 
+            // If no valid WordPiece can be found, represent the
+            // entire word using the unknown token.
             guard let id = found else { return [unkID] }
+            
             ids.append(id)
             start = end
         }
 
         return ids
-    }
-}
-
-extension WordPieceTokenizer {
-
-    /// Tokenizes `text` and wraps the result in the Core ML input type.
-    @available(macOS 13.0, iOS 16.0, *)
-    func makeInput(_ text: String) -> MiniLMInput {
-        let (ids, mask) = encode(text)
-        let shape = [1, maxLength]
-
-        return MiniLMInput(
-            input_ids: MLShapedArray<Int32>(scalars: ids, shape: shape),
-            attention_mask: MLShapedArray<Int32>(scalars: mask, shape: shape)
-        )
     }
 }

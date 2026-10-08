@@ -33,14 +33,17 @@ struct NearbyLocationSegment: View {
                 switch status {
                 case .error(let error):
                     HStack(spacing: 8) {
-                        Text("Couldn't load places for \(preference.preference). \(error.localizedDescription)")
+                        Text("Couldn't load places for \(preference.preference).")
                             .foregroundStyle(.secondary)
+                            .accessibilityIdentifier("nearby.locations.error")
                     
                         Button("Retry") {
                             Task {
                                 await otmVM.loadLocations(for: preference, near: coordinate)
                             }
                         }
+                        .accessibilityIdentifier("nearby.locations.retry")
+                        .accessibilityLabel("Attempt fetching nearby locations again")
                         Spacer()
                     }
                 case .success(let locations):

@@ -173,7 +173,7 @@ final class a2_s4092047_s4092817UITests: XCTestCase {
     }
     
     /// Tests that the errors for empty description and title are present
-    func testCreateTripNameDescriptionEmptySuccess() throws {
+    func testCreateTripNameDescriptionEmpty() throws {
         launchWithArguments()
         
         let createTripTab = app.tabBars.buttons["Trip creation tab"]
@@ -194,7 +194,7 @@ final class a2_s4092047_s4092817UITests: XCTestCase {
     }
     
     /// Tests the ui state when searching for places and asking the api for places returns empty
-    func testCreateNoPlaceResultsEmptySuccess() throws {
+    func testCreatePlaceResultsEmpty() throws {
         launchWithArguments(arguments: [.ENABLE_EMPTY_DATA])
         
         let createTripTab = app.tabBars.buttons["Trip creation tab"]
@@ -244,7 +244,76 @@ final class a2_s4092047_s4092817UITests: XCTestCase {
         
     }
     
+    /// Tests the ui state when searching for places and asking the api for places returns error
+    func testCreatePlaceResultsError() throws {
+        launchWithArguments(arguments: [.ENABLE_ERROR])
+        
+        let createTripTab = app.tabBars.buttons["Trip creation tab"]
+        createTripTab.tap()
+        
+        let planMyself = app.buttons["plan.myself"]
+        planMyself.tap()
+        
+        let tripTitleField = app.textFields["trip.title.input"]
+        tripTitleField.tap()
+        tripTitleField.typeText("Test title")
+        
+        let tripDescField = app.textViews["trip.description.input"]
+        tripDescField.tap()
+        tripDescField.typeText("Test description")
+        
+        
+        let confirm = app.buttons["confirm.trip.details"]
+        confirm.tap()
+        
+        let food = app.staticTexts["Food.label"]
+        food.tap()
+       
+        
+        let finishPreferences = app.buttons["preferences.next"]
+        finishPreferences.tap()
+        
+        let chooseLocations = app.buttons["choose.locations"]
+        chooseLocations.tap()
+        
+        let search = app.buttons["Search for Stops"]
+        
+        let nearbyLocationsError = app.staticTexts["nearby.locations.error"]
+        XCTAssertEqual(nearbyLocationsError.label, "Couldn't load places for Food.")
+        
+        let retry = app.buttons["nearby.locations.retry"]
+        XCTAssert(retry.exists, "Retry fetching nearby locations button exists")
+        XCTAssert(retry.isEnabled, "Retry fetching nearby locations button is enabled")
+        
+        search.tap()
+        
+        let searchPlaces = app.textFields["search.places"]
+        searchPlaces.tap()
+        searchPlaces.typeText("Parks")
+        
+        let searchButton = app.buttons["search.button"].firstMatch
+        searchButton.tap()
+        
+        
+        let searchError = app.staticTexts["search.error"]
+        XCTAssertEqual(searchError.label, "Failed to search for places.")
+        
+        
+    }
     
+    /// Test that save button switches from save to saved when tapped
+    func testSavingTrip() throws {
+        launchWithArguments()
+        
+        let saveButton = app.buttons["test1.save"]
+        XCTAssertEqual(saveButton.label, "Save this trip")
+        saveButton.tap()
+        XCTAssertEqual(saveButton.label, "Unsave this trip")
+        saveButton.tap()
+        XCTAssertEqual(saveButton.label, "Save this trip")
+
+        
+    }
     
     
 

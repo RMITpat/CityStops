@@ -95,6 +95,8 @@ struct SearchLocations: View {
             // MARK: Search error message
             if let errorMessage  {
                 Text(errorMessage).foregroundColor(.red).font(.footnote)
+                    .accessibilityIdentifier("search.error")
+
             }
             
             // MARK: Location search results
@@ -130,6 +132,7 @@ struct SearchLocations: View {
     
     func startSearch() {
            searchResults = nil
+            errorMessage = nil
            Task {
                do {
                    searchResults = try await locationVM.searchPlaces(searchRequest: searchRequest)

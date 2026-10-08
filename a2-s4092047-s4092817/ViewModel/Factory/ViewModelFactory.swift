@@ -29,7 +29,8 @@ final class ViewModelFactory {
             service: MockTripService(),
             user: user,
             mkservice: MockMapKitService(
-                RETURN_EMPTY: arguments.contains(.ENABLE_EMPTY_DATA)
+                RETURN_EMPTY: arguments.contains(.ENABLE_EMPTY_DATA),
+                RETURN_ERROR: arguments.contains(.ENABLE_ERROR)
             )
         )
     }
@@ -57,7 +58,8 @@ final class ViewModelFactory {
             user: user,
             coreLocationService: MockCoreLocationService(),
             mapKitService: MockMapKitService(
-                RETURN_EMPTY: arguments.contains(.ENABLE_EMPTY_DATA)
+                RETURN_EMPTY: arguments.contains(.ENABLE_EMPTY_DATA),
+                RETURN_ERROR: arguments.contains(.ENABLE_ERROR)
             )
         )
     }
@@ -67,9 +69,13 @@ final class ViewModelFactory {
             return OpenTripMapViewModel()
         }
         return OpenTripMapViewModel(
-            service: MockOpenTripMapService(),
+            service: MockOpenTripMapService(
+                RETURN_EMPTY: arguments.contains(.ENABLE_EMPTY_DATA),
+                RETURN_ERROR: arguments.contains(.ENABLE_ERROR)
+            ),
             mkService: MockMapKitService(
-                RETURN_EMPTY: arguments.contains(.ENABLE_EMPTY_DATA)
+                RETURN_EMPTY: arguments.contains(.ENABLE_EMPTY_DATA),
+                RETURN_ERROR: arguments.contains(.ENABLE_ERROR)
             )
         )
     }

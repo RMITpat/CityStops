@@ -8,15 +8,22 @@
 import Foundation
 import MapKit
 
+enum MockMapKitError: Error {
+    case searchError
+}
+
 /// Mock MapKit service that uses no MapKit methods. Used in UI Tests
 @MainActor
 final class MockMapKitService : MapKitService {
     
     let dummyResults: [MapItem]
     let RETURN_EMPTY: Bool
+    let RETURN_ERROR: Bool
     
-    init(RETURN_EMPTY: Bool) {
+    init(RETURN_EMPTY: Bool, RETURN_ERROR: Bool
+) {
         self.RETURN_EMPTY = RETURN_EMPTY
+        self.RETURN_ERROR = RETURN_ERROR
         
         self.dummyResults = [
             Self.makeDummyMapItem(
@@ -69,6 +76,10 @@ final class MockMapKitService : MapKitService {
     func searchPlaces(searchRequest: String, currentRegion: MKCoordinateRegion) async throws -> [MapItem] {
         if RETURN_EMPTY {
             return []
+        }
+        
+        if RETURN_ERROR {
+            throw MockMapKitError.searchError
         }
         return dummyResults
     }

@@ -88,7 +88,7 @@ final class MockMapKitService : MapKitService {
         return nil
     }
     
-    private static func makeDummyMapItem(
+    static func makeDummyMapItem(
         identifier: String,
         name: String,
         latitude: CLLocationDegrees,

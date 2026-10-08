@@ -41,6 +41,7 @@ struct CreationChoiceView: View {
                     tripCreationVM.clear()
                     router.tripCreationRoute.append(TripCreationRoute.preferences)
                 }
+                .accessibilityIdentifier("ask.ai")
                 .buttonStyle(.glassProminent)
                 .controlSize(.large)
                 .tint(.dora)

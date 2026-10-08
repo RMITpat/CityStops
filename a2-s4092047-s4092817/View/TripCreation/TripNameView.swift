@@ -27,12 +27,17 @@ struct TripNameView: View {
                 .foregroundStyle(.secondary)
             TextField("e.g. Asian Street Food Tour", text: $tripCreationVM.name)
                 .textFieldStyle(RoundedBorderTextFieldStyle())
-                .padding(.bottom, 32)
                 .accessibilityIdentifier("trip.title.input")
+            
+            if let nameError = tripCreationVM.nameError {
+                Text(nameError).foregroundColor(.red).font(.footnote)
+            }
             
             //Description
             Text("Description")
                 .font(.title2)
+                .padding(.top, 32)
+
             Text("What is this trip about?")
                 .font(.caption)
                 .foregroundStyle(.secondary)
@@ -59,6 +64,9 @@ struct TripNameView: View {
                     .allowsHitTesting(false)
                 }
             }
+            if let descError = tripCreationVM.descriptionError {
+                Text(descError).foregroundColor(.red).font(.footnote)
+            }
         }
         .padding(.horizontal, 16)
         
@@ -67,7 +75,9 @@ struct TripNameView: View {
         // MARK: "Confirm" button
             .safeAreaInset(edge: .bottom) {
                 Button("Confirm") {
-                    router.tripCreationRoute.append(TripCreationRoute.preferences)
+                    if tripCreationVM.validateNameDesc() {
+                        router.tripCreationRoute.append(TripCreationRoute.preferences)
+                    }
                 }
                 .modifier(ButtonFormat())
                 .accessibilityIdentifier("confirm.trip.details")

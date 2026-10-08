@@ -160,6 +160,8 @@ final class a2_s4092047_s4092817UITests: XCTestCase {
         XCTAssertTrue(chosenPlaces.contains { $0.label == "Mrs Macquaries Road, Sydney NSW" })
         XCTAssertTrue(chosenPlaces.contains { $0.label == "The Rocks, Sydney NSW" })
     }
+    
+    
 
     
 }

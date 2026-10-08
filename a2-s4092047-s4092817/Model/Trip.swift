@@ -18,7 +18,7 @@ import MapKit
 /// - preferences: [String] a list of preferences that hold the trip's categories
 struct Trip: Identifiable {
     
-    let id: String
+    var id: String
     let ownerId: String
     let ownerUsername: String
     let name: String
@@ -28,9 +28,9 @@ struct Trip: Identifiable {
     let preferences: [String]
     
     var savedByUser: Bool = false
-    var mkMapItemPlaces: [MKMapItem] = []
+    var mkMapItemPlaces: [MapItem] = []
     
-    init(id: String = "", ownerUsername:String, ownerId: String, name: String, description: String, places: [MKMapItem.Identifier], createdAt: Date = Date(), preferences: [String]) {
+    init(id: String = "", ownerUsername:String, ownerId: String, name: String, description: String, places: [MKMapItem.Identifier], createdAt: Date = Date(), preferences: [String], savedByUser: Bool = false) {
         self.id = id
         self.ownerId = ownerId
         self.ownerUsername = ownerUsername
@@ -39,6 +39,7 @@ struct Trip: Identifiable {
         self.places = places
         self.createdAt = createdAt
         self.preferences = preferences
+        self.savedByUser = savedByUser
         
     }
     

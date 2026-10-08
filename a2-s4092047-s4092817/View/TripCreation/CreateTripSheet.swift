@@ -22,7 +22,7 @@ struct CreateTripSheet: View {
     @State var searchRequest: String = ""
     
     // The results of a place search
-    @State var searchResults: [MKMapItem] = []
+    @State var searchResults: [MapItem] = []
     
     enum Mode: String, CaseIterable, Identifiable {
         case first = "Nearby Stops"
@@ -41,33 +41,28 @@ struct CreateTripSheet: View {
             Text("Select Stops")
                 .font(.largeTitle)
                 .fontWeight(.bold)
-
-            // Keep both subviews alive so their state (and loaded results) survives switching
-            ZStack (alignment: .top) {
-
+            
+            Picker("Mode", selection: $mode) {
+                ForEach(Mode.allCases) { Text($0.rawValue).tag($0) }
+            }
+            .pickerStyle(.segmented)
+            .background(Color(.systemBackground))
+            .padding(.horizontal, 16)
+            
+            switch mode {
+            case .first:
                 NearbyLocations()
-                    .opacity(mode == .first ? 1 : 0)
-                    .allowsHitTesting(mode == .first)
-                    .accessibilityHidden(mode != .first)
-
+                
+            case .second:
                 SearchLocations()
-                    .opacity(mode == .second ? 1 : 0)
-                    .allowsHitTesting(mode == .second)
-                    .accessibilityHidden(mode != .second)
+                
             }
+        
+          
 
-            // Content fills the sheet and anchors to the top
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-            // Picker bar
-            .safeAreaInset(edge: .top, spacing: 8) {
-                Picker("Mode", selection: $mode) {
-                    ForEach(Mode.allCases) { Text($0.rawValue).tag($0) }
-                }
-                .pickerStyle(.segmented)
-                .background(Color(.systemBackground))
-                .padding(.horizontal, 16)
-            }
-        }
+            
+        }// Content fills the sheet and anchors to the top
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
     }
 }
 

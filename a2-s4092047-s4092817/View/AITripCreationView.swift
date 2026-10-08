@@ -20,8 +20,8 @@ struct AITripCreationView: View {
     @State private var error: String?
     @State private var routes: [MKRoute] = []
 
-    init(region: MKCoordinateRegion) {
-        geminiVM = GeminiViewModel(region: region)
+    init(region: MKCoordinateRegion, vmFactory: ViewModelFactory) {
+        geminiVM = vmFactory.createGeminiViewModel(region: region)
     }
     
     
@@ -64,7 +64,7 @@ struct AITripCreationView: View {
             
             Spacer()
             VStack (alignment: .center) {
-                if tripCreationVM.selectedPlaces.isEmpty {
+                if !geminiVM.resultReturned {
                     if geminiVM.isLoading {
                         ProgressView("Curating the perfect trip...")
                             .progressViewStyle(.circular)
@@ -96,7 +96,7 @@ struct AITripCreationView: View {
                 }
             }
             Spacer()
-            if tripCreationVM.selectedPlaces.isEmpty && !geminiVM.isLoading {
+            if !geminiVM.resultReturned && !geminiVM.isLoading {
                 
                 HStack {
                     TextField("Create a trip through my local parks....", text: $prompt, axis: .vertical)
@@ -136,6 +136,6 @@ struct AITripCreationView: View {
     )
 
     let region = MKCoordinateRegion(center: location, span: MKCoordinateSpan())
-    AITripCreationView(region: region)
+    AITripCreationView(region: region, vmFactory: ViewModelFactory())
         .environment(LocationViewModel(user: user))
 }

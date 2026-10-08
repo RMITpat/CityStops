@@ -14,6 +14,8 @@ import FirebaseAppCheck
 /// App entry point.
 @main
 struct a2_s4092047_s4092817App: App {
+    @State private var vmFactory: ViewModelFactory
+    
     @State private var authVM: AuthViewModel
 
     
@@ -29,9 +31,17 @@ struct a2_s4092047_s4092817App: App {
         } else {
             print("Firebase client ID could not be found.")
         }
-
+        
+        #if DEBUG
+        let testMode = ProcessInfo.processInfo.arguments.contains("-ENABLE-MOCK-DATA")
+        let factory = ViewModelFactory(testMode: testMode)
+        
+        #else
+        let factory = ViewModelFactory()
+        #endif
+        vmFactory = factory
         _authVM = State(
-            initialValue: AuthViewModel()
+            initialValue: factory.createAuthViewModel()
         )
     }
     
@@ -39,7 +49,7 @@ struct a2_s4092047_s4092817App: App {
         // MARK: Login Entry point
         WindowGroup {
             if let user = authVM.signedInUser {
-                ContentView(signedInUser: user)
+                ContentView(signedInUser: user, vmFactory: vmFactory)
             } else {
                 LoginView()
                     .onOpenURL { url in
@@ -49,6 +59,7 @@ struct a2_s4092047_s4092817App: App {
             }
         }
         .environment(authVM)
+        .environment(vmFactory)
         .modelContainer(for: SearchTerm.self)
 
         

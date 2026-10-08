@@ -20,7 +20,7 @@ final class TripCreationViewModel {
     var description: String = ""
 
     // Places selected by the user to be a part of the trip
-    var selectedPlaces: [MKMapItem] = []
+    var selectedPlaces: [MapItem] = []
     
     /// toggles selected state of ``Preference`` list item.
     func toggle(_ preference: Preference) {

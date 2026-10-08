@@ -9,16 +9,16 @@ import SwiftUI
 import MapKit
 
 struct LocationCard: View {
-    let location: MKMapItem
-    var selectedPlaces: Binding<[MKMapItem]>?
+    let location: MapItem
+    var selectedPlaces: Binding<[MapItem]>?
     var placesToRemove: Binding<[MKMapItem.Identifier]>?
     
     
     /// Takes a ``Location`` to be  displayed.
     /// Optionally, takes a Binding for ``selectedPlaces`` when ``location`` can be added or deleted from a ``Trip``.
     /// Optionally, takes  a binding for ``placesToRemove`` when ``location`` is to be regenerated in an AI generated trip
-    init(location: MKMapItem,
-         selectedPlaces: Binding<[MKMapItem]>? = nil,
+    init(location: MapItem,
+         selectedPlaces: Binding<[MapItem]>? = nil,
          placesToRemove: Binding<[MKMapItem.Identifier]>? = nil,
     ) {
         self.location = location
@@ -38,9 +38,9 @@ struct LocationCard: View {
     
     
     var isSelectedForRemoval: Bool {
-        if let placesToRemove, let identifier = location.identifier {
+        if let placesToRemove {
             return placesToRemove.wrappedValue.contains(where: {
-                $0 == identifier
+                $0 == location.mkMapItem.identifier
             })
         }
         
@@ -57,11 +57,11 @@ struct LocationCard: View {
             
             // Place information
             VStack(alignment: .leading, spacing: 4) {
-                Text(location.name ?? "No name")
+                Text(location.mkMapItem.name ?? "No name")
                     .font(.headline)
                     .foregroundStyle(.primary)
                 
-                Text(location.address?.shortAddress ?? "No address")
+                Text(location.mkMapItem.address?.shortAddress ?? "No address")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
                     .lineLimit(1) // address should not be extremely long
@@ -72,8 +72,8 @@ struct LocationCard: View {
             // MARK: "Add" / "Remove" button
             if (selectedPlaces != nil) {
                 Button {
-                    if let selectedPlaces, let id = location.identifier {
-                        isSelected ? selectedPlaces.wrappedValue.removeAll(where: { $0.identifier == id}) : selectedPlaces.wrappedValue.append(location)                        
+                    if let selectedPlaces {
+                        isSelected ? selectedPlaces.wrappedValue.removeAll(where: { $0.identifier == location.identifier}) : selectedPlaces.wrappedValue.append(location)                        
                     }
                 } label: {
                     Image(systemName: isSelected ? "minus" : "plus")
@@ -82,15 +82,16 @@ struct LocationCard: View {
                         .frame(width: 36, height: 36)
                         .background(isSelected ? Color.red : Color.accentColor)
                         .clipShape(Circle())
-                }
+                }.accessibilityLabel(isSelected ? "Add location \(location.mkMapItem.name ?? "") to the trip." : "Remove  location \(location.mkMapItem.name ?? "") from the trip.")
+                    .accessibilityIdentifier("add.remove." + (location.mkMapItem.name ?? ""))
             }
             
             if (placesToRemove != nil) {
                 Button("",
                        systemImage: isSelectedForRemoval ? "checkmark.circle.fill" : "circle"
                 ) {
-                    if let identifier = location.identifier, let placesToRemove {
-                        isSelectedForRemoval ? placesToRemove.wrappedValue.removeAll(where: { $0 == identifier}) : placesToRemove.wrappedValue.append(identifier)
+                    if let placesToRemove, let identifier = location.mkMapItem.identifier {
+                        isSelectedForRemoval ? placesToRemove.wrappedValue.removeAll(where: { $0.rawValue == identifier.rawValue}) : placesToRemove.wrappedValue.append(identifier)
                     }
                 }
                 .font(.title)
@@ -113,7 +114,7 @@ struct LocationCard: View {
 }
 
 #Preview {
-    @Previewable @State var selectedPlaces: [MKMapItem] = []
+    @Previewable @State var selectedPlaces: [MapItem] = []
     LocationCard(
         location: LocationCardPreviewData.testLocation,
         selectedPlaces: $selectedPlaces)
@@ -121,7 +122,7 @@ struct LocationCard: View {
 
 /// Test MKMapItem used for testing ``LocationCard``.
 private enum LocationCardPreviewData {
-    static let testLocation: MKMapItem = {
+    static let testLocation: MapItem = {
         let location = CLLocation(
             latitude: -37.8136,
             longitude: 144.9631
@@ -129,6 +130,7 @@ private enum LocationCardPreviewData {
 
         let mapItem = MKMapItem(location: location, address: nil)
         mapItem.name = "Federation Square"
-        return mapItem
+        let item = MapItem(identifier: mapItem.identifier?.rawValue ?? "", mkMapItem: mapItem)
+        return item
     }()
 }

@@ -19,7 +19,7 @@ struct AITripDetails: Codable {
 struct AIResult {
     let tripName: String
     let description: String
-    let selectedPlaces: [MKMapItem]
+    let selectedPlaces: [MapItem]
 }
 
 /// What model is currently being used. Switch when rate limited
@@ -41,14 +41,7 @@ protocol GeminiService {
     func request(tripRequest: String, preferences: [String]) async throws -> AIResult
     func editTrip(identifiers: [MKMapItem.Identifier]) async throws -> AIResult
     func addStops() async throws -> AIResult
-    func generateTrip(prompt: String) async throws -> AIResult
     
-    func decodeTrip(responseText: String?) throws -> AIResult
-    
-    func searchPlaces(searchRequest: String) async throws -> JSONObject
-    func useTools(response: GenerateContentResponse) async -> [FunctionResponsePart]
-    func multiTurn(firstResponse: GenerateContentResponse) async throws -> GenerateContentResponse
-    func selectPlace(identifier: String)
     
     func setModel(newModel: GeminiModel)
 }
@@ -70,9 +63,9 @@ final class GeminiServiceImpl : GeminiService {
     let currentRegion: MKCoordinateRegion
     
     /// The selectedPlaces for the trip which the model has chosen
-    var selectedPlaces: [MKMapItem] = []
+    var selectedPlaces: [MapItem] = []
     
-    /// A cache of searched places so that when the model chooses a spot, we can use the identifier to retrieve its MKMapItem immediately without needing another search
+    /// A cache of searched places so that when the model chooses a spot, we can use the identifier to retrieve its MapItem immediately without needing another search
     var searchedPlaces: [String : MKMapItem] = [:]
     
     /// The current chat. Used to obtain past chat history when changing models
@@ -392,7 +385,9 @@ final class GeminiServiceImpl : GeminiService {
     func selectPlace(identifier: String) {
         if let selectedPlace = searchedPlaces[identifier] {
             print(selectedPlace.name ?? "no name")
-            selectedPlaces.append(selectedPlace)
+            
+            let mapItem = MapItem(identifier: identifier, mkMapItem: selectedPlace)
+            selectedPlaces.append(mapItem)
         }
         
     }

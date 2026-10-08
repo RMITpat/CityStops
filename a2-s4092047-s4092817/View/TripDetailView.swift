@@ -35,13 +35,14 @@ struct TripDetailView: View {
             }.padding()
 // MARK: UIKit Map
                 UIKitMapView(
-                    position: .framing(trip.mkMapItemPlaces),
-                    places: trip.mkMapItemPlaces,
+                    position: .framing(trip.mkMapItemPlaces.map({$0.mkMapItem})),
+                    places: trip.mkMapItemPlaces.map({$0.mkMapItem}),
                     routes: routes,
                     showsUserLocation: true,
                     isPinSelectable: true,
                     interactionModes: .all
                 )
+
                 
             
             .frame(height: 425)
@@ -97,6 +98,7 @@ struct TripDetailView: View {
                     
                     VStack(alignment: .leading) {
                         Text(trip.description)
+                            .accessibilityIdentifier("trip.description")
                         Divider()
                         Text("Created on \(trip.createdAt.formatted())")
                             .font(.subheadline)
@@ -104,7 +106,7 @@ struct TripDetailView: View {
                 case .second:
                     // MARK: Location List
                     VStack {
-                        ForEach(trip.mkMapItemPlaces, id: \.identifier) { place in
+                        ForEach(trip.mkMapItemPlaces, id: \.self) { place in
                             VStack {
                                 LocationCard(location: place)
                                

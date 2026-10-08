@@ -13,11 +13,6 @@ import FirebaseFirestore
 @MainActor
 protocol TripService {
     func saveTrip(trip: Trip) async throws
-    
-    
-    func loadFirst4Trips(query: FirebaseFirestore.Query) async throws -> [QueryDocumentSnapshot]
-    func loadNext4Trips(lastDocument: DocumentSnapshot, query: FirebaseFirestore.Query) async throws -> [QueryDocumentSnapshot]
-    
     func loadUserTrips(ownerId: String) async throws -> [Trip]
     func loadSavedTrips(ownerId: String) async throws -> [Trip]
     func loadTrips(ownerId: String) async throws -> [Trip]

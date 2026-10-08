@@ -10,18 +10,16 @@ import XCTest
 @MainActor
 final class a2_s4092047_s4092817UITests: XCTestCase {
     private var app: XCUIApplication!
-    
-    // Make a service return empty data from its calls
-    private let RETURN_EMPTY = "-ENABLE-EMPTY-DATA"
+       
 
     
-    func launchWithArguments(arguments: [String] = []) {
+    func launchWithArguments(arguments: [LaunchArgument] = []) {
         app = XCUIApplication()
         // Always need this argument in ui tests
-        app.launchArguments.append("-ENABLE-MOCK-DATA")
+        app.launchArguments.append(LaunchArgument.ENABLE_DEBUG.rawValue)
         
         for argument in arguments {
-            app.launchArguments.append(argument)
+            app.launchArguments.append(argument.rawValue)
         }
         
         app.launch()
@@ -197,7 +195,7 @@ final class a2_s4092047_s4092817UITests: XCTestCase {
     
     /// Tests the ui state when searching for places and asking the api for places returns empty
     func testCreateNoPlaceResultsEmptySuccess() throws {
-        launchWithArguments(arguments: [RETURN_EMPTY])
+        launchWithArguments(arguments: [.ENABLE_EMPTY_DATA])
         
         let createTripTab = app.tabBars.buttons["Trip creation tab"]
         createTripTab.tap()
@@ -245,6 +243,8 @@ final class a2_s4092047_s4092817UITests: XCTestCase {
         XCTAssertEqual(emptySearch.label, "No results")
         
     }
+    
+    
     
     
 

@@ -141,7 +141,6 @@ final class a2_s4092047_s4092817UITests: XCTestCase {
         
         let createdTitle = app.staticTexts["test9.title"]
         
-        print(app.staticTexts.allElementsBoundByIndex)
         XCTAssertEqual(createdTitle.label, "Test title")
         
         
@@ -305,6 +304,11 @@ final class a2_s4092047_s4092817UITests: XCTestCase {
     func testSavingTrip() throws {
         launchWithArguments()
         
+        let createdTitle = app.staticTexts["test1.title"]
+        
+        createdTitle.tap()
+        
+        
         let saveButton = app.buttons["test1.save"]
         XCTAssertEqual(saveButton.label, "Save this trip")
         saveButton.tap()
@@ -312,8 +316,37 @@ final class a2_s4092047_s4092817UITests: XCTestCase {
         saveButton.tap()
         XCTAssertEqual(saveButton.label, "Save this trip")
 
-        
     }
+    
+    /// Test that when a trip is deleted, it does not appear and user is navigated
+    func testDeletingTrip() throws {
+        launchWithArguments()
+        
+        // Assert that the trip is on the page
+        let existingTrips = app.staticTexts.allElementsBoundByIndex
+        XCTAssert(existingTrips.contains(where: {$0.label ==  "Sydney Food Trail"}))
+   
+        let createdTitle = app.staticTexts["test1.title"]
+        createdTitle.tap()
+        
+        
+        let deleteButton = app.buttons["test1.delete"]
+        XCTAssertEqual(deleteButton.label, "Delete this trip")
+        deleteButton.tap()
+        
+        // Wait for trips to load again due to 1 second constant load
+        let trip2Title = app.staticTexts["test2.title"]
+        XCTAssert(trip2Title.waitForExistence(timeout: 2))
+        
+        // Assert that the trip is no longer on the page
+        let updatedTrips = app.staticTexts.allElementsBoundByIndex
+        XCTAssertFalse(updatedTrips.contains(where: {$0.label ==  "Sydney Food Trail"}))
+
+    }
+    
+    
+    
+    
     
     
 

@@ -13,34 +13,58 @@ import MapKit
 @MainActor
 @Observable
 final class ViewModelFactory {
-    let testMode: Bool
+    let arguments: [String]
     
-    init(testMode: Bool = false) {
-        self.testMode = testMode
+    init(arguments: [String] = []) {
+        self.arguments = arguments
     }
     
     func createAppViewModel(user: AppUser) -> AppViewModel {
-        return testMode ? AppViewModel(service: MockTripService(), user: user, mkservice: MockMapKitService()) : AppViewModel(user: user)
+        if arguments.isEmpty {
+            return AppViewModel(user: user)
+        }
+        
+        return AppViewModel(
+            service: MockTripService(),
+            user: user,
+            mkservice: MockMapKitService()
+        )
     }
     
     func createAuthViewModel() -> AuthViewModel {
-        return testMode ? AuthViewModel(service: MockAuthService()) : AuthViewModel()
+        if arguments.isEmpty {
+            return AuthViewModel()
+        }
+        
+        return AuthViewModel(service: MockAuthService())
     }
     
     func createGeminiViewModel(region: MKCoordinateRegion) -> GeminiViewModel {
-        return testMode ? GeminiViewModel(region: region, geminiService: MockGeminiService()) : GeminiViewModel(region: region)
+        if arguments.isEmpty {
+            return GeminiViewModel(region: region)
+        }
+        return GeminiViewModel(region: region, geminiService: MockGeminiService())
     }
     
     func createLocationViewModel(user: AppUser) -> LocationViewModel {
-        return testMode ? LocationViewModel(user: user, coreLocationService: MockCoreLocationService(), mapKitService: MockMapKitService()) : LocationViewModel(user: user)
+        if arguments.isEmpty {
+            return LocationViewModel(user: user)
+        }
+        return LocationViewModel(user: user, coreLocationService: MockCoreLocationService(), mapKitService: MockMapKitService())
     }
     
     func createOpenTripMapViewModel() -> OpenTripMapViewModel {
-        return testMode ? OpenTripMapViewModel(service: MockOpenTripMapService(), mkService: MockMapKitService()) : OpenTripMapViewModel()
+        if arguments.isEmpty {
+            return OpenTripMapViewModel()
+        }
+        return OpenTripMapViewModel(service: MockOpenTripMapService(), mkService: MockMapKitService())
     }
     
     func createSearchTermViewModel() -> SearchTermViewModel {
-        return testMode ? SearchTermViewModel(searchTermService: MockSearchTermService()) : SearchTermViewModel()
+        if arguments.isEmpty {
+            return SearchTermViewModel()
+        }
+        return SearchTermViewModel(searchTermService: MockSearchTermService())
     }
     
     

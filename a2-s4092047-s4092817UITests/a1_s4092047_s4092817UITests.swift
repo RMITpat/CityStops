@@ -86,8 +86,8 @@ final class a2_s4092047_s4092817UITests: XCTestCase {
         let addPlace3 = app.buttons["add.remove.Royal Botanic Garden"].firstMatch
         addPlace3.tap()
         
-       
-       
+        
+        
         search.tap()
         
         let searchPlaces = app.textFields["search.places"]
@@ -111,7 +111,7 @@ final class a2_s4092047_s4092817UITests: XCTestCase {
         
         
         let places = app.staticTexts.allElementsBoundByIndex
-
+        
         XCTAssert(places.contains(where: {$0.label ==  "Sydney Opera House"}))
         XCTAssert(places.contains(where: {$0.label ==  "Sydney Harbour Bridge"}))
         XCTAssert(places.contains(where: {$0.label ==  "Royal Botanic Garden"}))
@@ -146,9 +146,9 @@ final class a2_s4092047_s4092817UITests: XCTestCase {
         
         let tripPlaces = app.buttons["Places"]
         tripPlaces.tap()
-
+        
         let chosenPlaces = app.staticTexts.allElementsBoundByIndex
-
+        
         XCTAssert(chosenPlaces.contains(where: {$0.label ==  "Sydney Opera House"}))
         XCTAssert(chosenPlaces.contains(where: {$0.label ==  "Sydney Harbour Bridge"}))
         XCTAssert(chosenPlaces.contains(where: {$0.label ==  "Royal Botanic Garden"}))
@@ -159,6 +159,7 @@ final class a2_s4092047_s4092817UITests: XCTestCase {
         XCTAssertTrue(chosenPlaces.contains { $0.label == "Sydney Harbour Bridge, Sydney NSW" })
         XCTAssertTrue(chosenPlaces.contains { $0.label == "Mrs Macquaries Road, Sydney NSW" })
         XCTAssertTrue(chosenPlaces.contains { $0.label == "The Rocks, Sydney NSW" })
+        
     }
     
     

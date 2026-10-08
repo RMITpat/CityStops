@@ -144,7 +144,21 @@ final class a2_s4092047_s4092817UITests: XCTestCase {
         let description = app.staticTexts["trip.description"]
         XCTAssertEqual(description.label, "Test description")
         
+        let tripPlaces = app.buttons["Places"]
+        tripPlaces.tap()
+
+        let chosenPlaces = app.staticTexts.allElementsBoundByIndex
+
+        XCTAssert(chosenPlaces.contains(where: {$0.label ==  "Sydney Opera House"}))
+        XCTAssert(chosenPlaces.contains(where: {$0.label ==  "Sydney Harbour Bridge"}))
+        XCTAssert(chosenPlaces.contains(where: {$0.label ==  "Royal Botanic Garden"}))
+        XCTAssert(chosenPlaces.contains(where: {$0.label ==  "The Rocks"}))
         
+        
+        XCTAssertTrue(chosenPlaces.contains { $0.label == "Bennelong Point, Sydney NSW" })
+        XCTAssertTrue(chosenPlaces.contains { $0.label == "Sydney Harbour Bridge, Sydney NSW" })
+        XCTAssertTrue(chosenPlaces.contains { $0.label == "Mrs Macquaries Road, Sydney NSW" })
+        XCTAssertTrue(chosenPlaces.contains { $0.label == "The Rocks, Sydney NSW" })
     }
 
     

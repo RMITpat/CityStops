@@ -55,8 +55,8 @@ final class MockMapKitService : MapKitService {
         ]
     }
     
-    func getMKMapItemFromId(identifier: MKMapItem.Identifier) async throws -> MapItem? {
-        return dummyResults.first(where: {$0.identifier == identifier.rawValue} )
+    func getMKMapItemFromId(identifier: String) async throws -> MapItem? {
+        return dummyResults.first(where: {$0.identifier == identifier} )
     }
     
     

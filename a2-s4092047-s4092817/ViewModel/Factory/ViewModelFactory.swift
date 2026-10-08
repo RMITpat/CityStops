@@ -15,9 +15,9 @@ import MapKit
 final class ViewModelFactory {
     let arguments: [LaunchArgument]
     
-    
-    init(arguments: [LaunchArgument] = []) {
-        self.arguments = arguments
+    // Convert launch args into enums
+    init(arguments: [String] = []) {
+        self.arguments = arguments.compactMap({LaunchArgument(rawValue: $0)})
     }
     
     func createAppViewModel(user: AppUser) -> AppViewModel {
@@ -28,7 +28,9 @@ final class ViewModelFactory {
         return AppViewModel(
             service: MockTripService(),
             user: user,
-            mkservice: MockMapKitService(RETURN_EMPTY: RETURN_EMPTY)
+            mkservice: MockMapKitService(
+                RETURN_EMPTY: arguments.contains(.ENABLE_EMPTY_DATA)
+            )
         )
     }
     

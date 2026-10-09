@@ -255,24 +255,36 @@ import MapKit
                 isLoadingRecommendedTrips = false
                 return
             }
-
+            
+            // get the input Strings for the recommendation methods
             recommendationVM.setCandidates(candidates.map { $0.name })
-            recommendationVM.recommend(basedOn: savedNames, topN: recommendedTripCount) { [weak self] names in
+            // run the Core ML algorithm, and retrieve the Trips that meet the confidence threshold
+            recommendationVM.recommend(basedOn: savedNames, topN: recommendedTripCount, confidenceThreshold: 0.2) { [weak self] names in
                 guard let self else { return }
-                
-                // Clean up missing name Trips (shouldn't be possible with input checking)
-                // Maps the returned "names" to candidates of type [Trip]
-                self.recommendedTrips = names.compactMap { name in
+
+                let matched = names.compactMap { name in
                     candidates.first {
                         $0.name.trimmingCharacters(in: .whitespacesAndNewlines) == name
                     }
                 }
                 
-                self.isLoadingRecommendedTrips = false
-                
-                if self.recommendationsOutdated {
-                    self.recommendationsOutdated = false
-                    self.loadRecommendedTrips()
+                // Get the stops in each trip
+                Task {
+                    var converted: [Trip] = []
+                    for trip in matched {
+                        if let fullTrip = try? await self.getMKMapItemsForTrip(trip: trip) {
+                            converted.append(fullTrip)
+                        }
+                    }
+                    // Assign recommendedTrips with the trips with stops included
+                    self.recommendedTrips = converted
+                    self.isLoadingRecommendedTrips = false
+
+                    // handle constant refreshes
+                    if self.recommendationsOutdated {
+                        self.recommendationsOutdated = false
+                        self.loadRecommendedTrips()
+                    }
                 }
             }
         }

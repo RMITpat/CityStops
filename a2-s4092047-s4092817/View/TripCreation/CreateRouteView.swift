@@ -75,15 +75,14 @@ struct CreateRouteView: View {
                     VStack {
                         CreateTripSheet(mode: tripCreationVM.selectedPreferences.isEmpty ? .second : .first)
                             .padding(.top, 24)
-                        
-                            .safeAreaInset(edge: .bottom) {
-                                Button("Done") {
-                                    showStopsSheet.toggle()
-                                }
-                                .modifier(ButtonFormat())
-                                .accessibilityIdentifier("done.button")
-                            }
                             .environment(otmVM)
+                        Button("Done") {
+                            showStopsSheet.toggle()
+                        }
+                        .buttonStyle(.borderedProminent)
+                        .font(.title2)
+                        .controlSize(.large)
+                        .accessibilityIdentifier("done.button")
                     }
                     .presentationDetents([.large])
                     // Lets you pan/zoom the map while the sheet is at small/medium size
@@ -95,7 +94,7 @@ struct CreateRouteView: View {
                 // MARK: Scroll View of chosen locations
                 Text("Long press for edit trip options")
                     .font(.caption)
-                    .foregroundStyle(.gray)
+                    .foregroundStyle(.gray).fixedSize(horizontal: false, vertical: true)
                 ScrollView {
                     VStack {
                         ForEach(tripCreationVM.selectedPlaces, id: \.identifier) { place in
@@ -113,9 +112,16 @@ struct CreateRouteView: View {
                 Spacer()
                 
                 // MARK: "Open Sheet" button
-                Button("Choose Locations") {
+                Button {
                     showStopsSheet = true
+                } label: {
+                    Text("Choose Locations")
+                        .multilineTextAlignment(.center)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 8)
                 }
+                .accessibilityIdentifier("choose.locations")
                 .accessibilityIdentifier("choose.locations")
                 
                 // MARK: "Finish" button

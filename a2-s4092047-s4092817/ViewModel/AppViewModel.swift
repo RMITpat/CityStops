@@ -76,7 +76,7 @@ import MapKit
     /// Saves a trip to Firestore
     func saveTrip(name: String, description: String, selectedPlaces: [MapItem], preferences: [String]) async throws {
         isSaving = true
-        let placeIdentifiers = selectedPlaces.compactMap { $0.mkMapItem.identifier }
+        let placeIdentifiers = selectedPlaces.compactMap { $0.identifier }
         let newTrip = Trip(ownerUsername: user.username, ownerId: user.id, name: name, description: description, places: placeIdentifiers, preferences: preferences)
         try await tripService.saveTrip(trip: newTrip)
         isSaving = false
@@ -205,7 +205,7 @@ import MapKit
     }
     
     /// Function for converting a singular Identifier to an MKMapItem
-    func getMKMapItemFromId(identifier: MKMapItem.Identifier) async throws -> MapItem? {
+    func getMKMapItemFromId(identifier: String) async throws -> MapItem? {
         
         return try await mkMapService.getMKMapItemFromId(identifier: identifier)
       

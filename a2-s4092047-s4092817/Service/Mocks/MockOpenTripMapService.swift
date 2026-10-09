@@ -8,10 +8,28 @@
 import Foundation
 import MapKit
 
+enum MockOpenTripMapError: Error {
+    case fetchError
+}
 /// Mock Open Trip Map Service that doesn't make any rest api calls. Used in UI Tests
 @MainActor
 final class MockOpenTripMapService : OpenTripMapService {
+    let RETURN_EMPTY: Bool
+    let RETURN_ERROR: Bool
+    
+    init(RETURN_EMPTY: Bool, RETURN_ERROR: Bool) {
+        self.RETURN_EMPTY = RETURN_EMPTY
+        self.RETURN_ERROR = RETURN_ERROR
+    }
     func fetchNearbyPointsByCategory(location: CLLocationCoordinate2D, radius: Int, filter: String, returnLimit: Int) async throws -> [OpenTripLocation] {
+        if RETURN_EMPTY {
+            return []
+        }
+        
+        if RETURN_ERROR {
+            throw MockOpenTripMapError.fetchError
+        }
+        
         return [
             OpenTripLocation(
                     name: "Sydney Opera House",

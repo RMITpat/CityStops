@@ -28,6 +28,8 @@ struct SaveTripButton: View {
             }
 
         }.font(.title2)
+            .accessibilityIdentifier("\(trip.id).save")
+            .accessibilityLabel(trip.savedByUser ? "Unsave this trip" : "Save this trip")
     }
 }
 

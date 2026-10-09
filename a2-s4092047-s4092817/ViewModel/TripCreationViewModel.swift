@@ -18,7 +18,11 @@ final class TripCreationViewModel {
 
     var name: String = ""
     var description: String = ""
-
+    
+    
+    var nameError: String?
+    var descriptionError: String?
+    
     // Places selected by the user to be a part of the trip
     var selectedPlaces: [MapItem] = []
     
@@ -36,6 +40,7 @@ final class TripCreationViewModel {
         selectedPreferences.contains(where: {$0.preference == preference.preference})
     }
     
+    /// Reset name, description, currently selected places and preferences
     func clear() {
         name.removeAll()
         description.removeAll()
@@ -43,9 +48,28 @@ final class TripCreationViewModel {
         selectedPreferences.removeAll()
     }
     
+    /// Extract name, desc and selected places from an AI Result
     func fromAIResult(result: AIResult) {
         name = result.tripName
         description = result.description
         selectedPlaces = result.selectedPlaces
+    }
+    
+    /// Reset name and desc errors
+    func clearErrors() {
+        nameError = nil
+        descriptionError = nil
+    }
+    
+    /// Check trip name and desc is not empty
+    func validateNameDesc() -> Bool {
+        clearErrors()
+        if name.isEmpty {
+            nameError = "Please provide a title"
+        }
+        if description.isEmpty {
+            descriptionError = "Please provide a description"
+        }
+        return nameError == nil && descriptionError == nil
     }
 }

@@ -38,6 +38,8 @@ struct SearchLocations: View {
                 TextField("Search for a place", text: $searchRequest, axis: .vertical)
                     .textFieldStyle(.plain)
                     .accessibilityIdentifier("search.places")
+                    .accessibilityAddTraits(.isSearchField)
+
 
                 if !searchRequest.isEmpty {
                     Button {
@@ -45,7 +47,9 @@ struct SearchLocations: View {
                     } label: {
                         Image(systemName: "xmark.circle.fill")
                             .foregroundStyle(.secondary)
-                            .accessibilityLabel("Clears the search bar")
+                            .accessibilityLabel("Clear")
+                            .accessibilityHint("Clears the search bar")
+
                     }
                 }
             }
@@ -59,6 +63,7 @@ struct SearchLocations: View {
             }
             .modifier(ButtonFormat())
             .accessibilityIdentifier("search.button")
+            .accessibilityHint("Searches for places nearby you")
             
             // MARK: Search history
             if searchRequest.isEmpty {
@@ -67,6 +72,7 @@ struct SearchLocations: View {
                         Text("Recently searched:")
                             .font(.title2)
                             .fixedSize(horizontal: false, vertical: true)
+                            .accessibilityAddTraits(.isHeader)
                         
                         // Past searches
                         ForEach(searchTermVM.pastSearches, id: \.id) { term in

@@ -32,6 +32,7 @@ struct TripDetailView: View {
                 TripCardInfo(trip: trip)
                 
                 
+                
             }.padding()
 // MARK: UIKit Map
                 UIKitMapView(
@@ -90,6 +91,7 @@ struct TripDetailView: View {
                 Picker("Mode", selection: $mode) {
                     ForEach(Mode.allCases) { Text($0.rawValue).tag($0) }
                 }
+                .accessibilitySortPriority(1)
                 .pickerStyle(.segmented)
                 .padding(.horizontal, 16)
                 

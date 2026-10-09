@@ -31,6 +31,8 @@ struct AITripCreationView: View {
             HStack {
                 Text("AI Trip Creation")
                     .font(.largeTitle).padding()
+                    .fixedSize(horizontal: false, vertical: true)
+                    .accessibilityAddTraits(.isHeader)
                 Spacer()
                 Menu {
                     ForEach(GeminiModel.allCases, id: \.self) { model in

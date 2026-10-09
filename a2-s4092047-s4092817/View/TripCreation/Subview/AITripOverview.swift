@@ -64,6 +64,7 @@ struct AITripOverview: View {
                     }
                     .pickerStyle(.segmented)
                     .padding(.horizontal, 16)
+                    .accessibilitySortPriority(3)
                     
                     switch mode {
                     case .first:
@@ -109,7 +110,8 @@ struct AITripOverview: View {
                             .buttonStyle(.glassProminent)
                             .tint(.dora)
                             .accessibilityIdentifier("replace.spots")
-                            
+                            .accessibilityHint("Ask AI to replace the spots you have selected")
+
                             
                             Button("Add more spots") {
                                 Task {
@@ -128,6 +130,8 @@ struct AITripOverview: View {
                             .buttonStyle(.glassProminent)
                             .tint(.dora)
                             .accessibilityIdentifier("add.spots")
+                            .accessibilityHint("Ask AI to come up with more spots to this trip")
+
                             
                             if let error {
                                 Text(error)
@@ -169,7 +173,8 @@ struct AITripOverview: View {
                     .buttonStyle(.glassProminent)
                     .tint(.dora)
                     .accessibilityIdentifier("start.again")
-                
+                    .accessibilityHint("Discard this trip and start again at preference selection")
+                    .accessibilitySortPriority(2)
                 
                 
                 Button("Finish") {
@@ -189,6 +194,9 @@ struct AITripOverview: View {
                 }.disabled(appVM.isSaving)
                     .buttonStyle(.glassProminent)
                     .accessibilityIdentifier("finish.button")
+                    .accessibilityHint("Save this trip and return to the home feed")
+                    .accessibilitySortPriority(1)
+
             }
             .frame(alignment: .center)
         }

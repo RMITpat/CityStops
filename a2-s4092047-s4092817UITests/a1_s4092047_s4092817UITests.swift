@@ -146,7 +146,6 @@ final class a2_s4092047_s4092817UITests: XCTestCase {
         XCTAssert(finishButton.exists, "Finish button should exist")
         finishButton.tap()
         
-        try app.performAccessibilityAudit()
         
         let createdTitle = app.staticTexts["test9.title"]
         

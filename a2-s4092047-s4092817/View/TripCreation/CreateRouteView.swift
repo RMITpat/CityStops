@@ -85,6 +85,8 @@ struct CreateRouteView: View {
                             .font(.title2)
                             .controlSize(.large)
                             .accessibilityIdentifier("done.button")
+                            .accessibilitySortPriority(2)
+
                         }
                         .presentationDetents([.large])
                         // Lets you pan/zoom the map while the sheet is at small/medium size
@@ -175,6 +177,7 @@ struct CreateRouteView: View {
                 }
             }
             .accessibilityIdentifier("finish.button")
+            .accessibilityHint("Save this trip and return to the home feed")
             .disabled(appVM.isSaving)
             .modifier(ButtonFormat())
         }

@@ -41,10 +41,12 @@ struct CreateTripSheet: View {
             Text("Select Stops")
                 .font(.largeTitle)
                 .fontWeight(.bold)
+                .accessibilityAddTraits(.isHeader)
             
             Picker("Mode", selection: $mode) {
                 ForEach(Mode.allCases) { Text($0.rawValue).tag($0) }
             }
+            .accessibilitySortPriority(1)
             .pickerStyle(.segmented)
             .background(Color(.systemBackground))
             .padding(.horizontal, 16)

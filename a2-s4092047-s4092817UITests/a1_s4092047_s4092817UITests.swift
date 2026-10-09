@@ -24,7 +24,8 @@ final class a2_s4092047_s4092817UITests: XCTestCase {
         
         app.launch()
     }
-
+    
+    
     /// Test that creating a trip works. Involves adding a trip name, description, preferences and selecting places from the api as well as searching. Verifies it appears in the trip feed afterwards with the inputted information.
     func testCreateTripFlowSuccess() throws {
         launchWithArguments()
@@ -33,10 +34,13 @@ final class a2_s4092047_s4092817UITests: XCTestCase {
         XCTAssert(createTripTab.exists, "Create trip tab should exist")
         createTripTab.tap()
         
+        try app.performAccessibilityAudit()
         
         let planMyself = app.buttons["plan.myself"]
         XCTAssert(planMyself.exists, "Plan it myself button should exist")
         planMyself.tap()
+        
+        try app.performAccessibilityAudit()
         
         let tripTitleField = app.textFields["trip.title.input"]
         XCTAssert(tripTitleField.exists, "The trip title input field should exist")
@@ -53,6 +57,8 @@ final class a2_s4092047_s4092817UITests: XCTestCase {
         XCTAssert(confirm.exists, "Confirm button should exist")
         XCTAssert(confirm.isEnabled, "Confirm button should exist")
         confirm.tap()
+        
+        try app.performAccessibilityAudit()
         
         let food = app.staticTexts["Food.label"]
         XCTAssertEqual(food.label, "Food")
@@ -102,6 +108,7 @@ final class a2_s4092047_s4092817UITests: XCTestCase {
         search.tap()
         
         
+        
         let searchPlaces = app.textFields["search.places"]
         XCTAssert(searchPlaces.exists, "The search bar should exist")
         searchPlaces.tap()
@@ -139,7 +146,7 @@ final class a2_s4092047_s4092817UITests: XCTestCase {
         XCTAssert(finishButton.exists, "Finish button should exist")
         finishButton.tap()
         
-        
+        try app.performAccessibilityAudit()
         
         let createdTitle = app.staticTexts["test9.title"]
         
@@ -151,13 +158,30 @@ final class a2_s4092047_s4092817UITests: XCTestCase {
         
         
         createdTitle.tap()
-        
+        try app.performAccessibilityAudit(for: [.hitRegion]) { issue in
+            print("Audit issue:", issue)
+
+            guard let element = issue.element else {
+                return false
+            }
+
+            return element.label == "Legal"
+        }
         let description = app.staticTexts["trip.description"]
         XCTAssertEqual(description.label, "Test description")
         
         let tripPlaces = app.buttons["Places"]
         tripPlaces.tap()
         
+        try app.performAccessibilityAudit(for: [.hitRegion]) { issue in
+            print("Audit issue:", issue)
+
+            guard let element = issue.element else {
+                return false
+            }
+
+            return element.label == "Legal"
+        }
         let chosenPlaces = app.staticTexts.allElementsBoundByIndex
         
         XCTAssert(chosenPlaces.contains(where: {$0.label ==  "Sydney Opera House"}))

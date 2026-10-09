@@ -11,6 +11,7 @@ import SwiftUI
 struct ButtonFormat: ViewModifier {
     func body(content: Content) -> some View {
         content
+            .font(.title3)
             .controlSize(.large)
             .buttonStyle(.glassProminent)
     }

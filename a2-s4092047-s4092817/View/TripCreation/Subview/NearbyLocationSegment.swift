@@ -31,7 +31,7 @@ struct NearbyLocationSegment: View {
             
             if let status = otmVM.segmentLocations[preference.preference] {
                 switch status {
-                case .error(let error):
+                case .error(_):
                     HStack(spacing: 8) {
                         Text("Couldn't load places for \(preference.preference).")
                             .foregroundStyle(.secondary)

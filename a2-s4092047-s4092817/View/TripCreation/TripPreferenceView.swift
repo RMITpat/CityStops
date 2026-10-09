@@ -28,6 +28,7 @@ struct TripPreferenceView: View {
                         .foregroundColor(isSelected ?
                                         .accentColor : .secondary)
                         .frame(width: 24)
+                        .accessibilityHidden(true)
 
                     // Preference name
                     Text(item.preference)

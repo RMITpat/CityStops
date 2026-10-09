@@ -24,10 +24,15 @@ struct TripNameView: View {
                 .font(.title2)
             Text("What would you like your trip to be called?")
                 .font(.caption)
-                .foregroundStyle(.secondary)
-            TextField("e.g. Asian Street Food Tour", text: $tripCreationVM.name)
+                .foregroundStyle(.primary)
+                .fixedSize(horizontal: false, vertical: true)
+                .font(.title3)
+
+            
+            TextField("e.g. Asian Street Food Tour", text: $tripCreationVM.name, axis: .vertical)
                 .textFieldStyle(RoundedBorderTextFieldStyle())
                 .accessibilityIdentifier("trip.title.input")
+                .fixedSize(horizontal: false, vertical: true)
             
             if let nameError = tripCreationVM.nameError {
                 Text(nameError).foregroundColor(.red).font(.footnote)
@@ -40,7 +45,8 @@ struct TripNameView: View {
 
             Text("What is this trip about?")
                 .font(.caption)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(.primary)
+                .fixedSize(horizontal: false, vertical: true)
             
             ZStack(alignment: .topLeading) {
                 TextEditor(text: $tripCreationVM.description)
@@ -54,15 +60,19 @@ struct TripNameView: View {
                             .stroke(.secondary.opacity(0.15))
                     }
                     .accessibilityIdentifier("trip.description.input")
+                    .accessibilityLabel("Input your trip's description")
             
             // Placeholder text; fixed padding to align with TextEditor
             if tripCreationVM.description.isEmpty {
                 Text("e.g. A day out in the city to eat Asian street food!")
-                    .foregroundStyle(.opacity(0.25))
                     .padding(.leading, 7)
                     .padding(.top, 8)
                     .allowsHitTesting(false)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .foregroundStyle(.secondary)
+                    .font(.title3)
                 }
+
             }
             if let descError = tripCreationVM.descriptionError {
                 Text(descError).foregroundColor(.red).font(.footnote)

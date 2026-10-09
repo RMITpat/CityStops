@@ -12,7 +12,9 @@ struct LocationCard: View {
     let location: MapItem
     var selectedPlaces: Binding<[MapItem]>?
     var placesToRemove: Binding<[String]>?
-    
+
+    @Environment(\.colorSchemeContrast) private var colorSchemeContrast
+
     
     /// Takes a ``Location`` to be  displayed.
     /// Optionally, takes a Binding for ``selectedPlaces`` when ``location`` can be added or deleted from a ``Trip``.
@@ -60,11 +62,13 @@ struct LocationCard: View {
                 Text(location.mkMapItem.name ?? "No name")
                     .font(.headline)
                     .foregroundStyle(.primary)
-                
+                    .fixedSize(horizontal: false, vertical: true)
+
                 Text(location.mkMapItem.address?.shortAddress ?? "No address")
                     .font(.subheadline)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(1) // address should not be extremely long
+                    .foregroundStyle(.primary)
+                    .fixedSize(horizontal: false, vertical: true)
+                    
             }
             
             Spacer()
@@ -82,7 +86,7 @@ struct LocationCard: View {
                         .frame(width: 36, height: 36)
                         .background(isSelected ? Color.red : Color.accentColor)
                         .clipShape(Circle())
-                }.accessibilityLabel(isSelected ? "Add location \(location.mkMapItem.name ?? "") to the trip." : "Remove  location \(location.mkMapItem.name ?? "") from the trip.")
+                }.accessibilityLabel(isSelected ? "Remove  location \(location.mkMapItem.name ?? "") from the trip." : "Add location \(location.mkMapItem.name ?? "") to the trip."  )
                     .accessibilityIdentifier("add.remove." + (location.mkMapItem.name ?? ""))
             }
             
@@ -120,6 +124,7 @@ struct LocationCard: View {
     LocationCard(
         location: LocationCardPreviewData.testLocation,
         selectedPlaces: $selectedPlaces)
+
 }
 
 /// Test MKMapItem used for testing ``LocationCard``.

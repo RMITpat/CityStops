@@ -30,8 +30,9 @@ struct CreationChoiceView: View {
                     router.tripCreationRoute.append(TripCreationRoute.name)
                 }
                 .accessibilityIdentifier("plan.myself")
-                .buttonStyle(.glassProminent)
+                .buttonStyle(.borderedProminent)
                 .controlSize(.large)
+                .font(.title3)
                 
                 Text("or")
                     .fontWeight(.light)
@@ -42,9 +43,11 @@ struct CreationChoiceView: View {
                     router.tripCreationRoute.append(TripCreationRoute.preferences)
                 }
                 .accessibilityIdentifier("ask.ai")
-                .buttonStyle(.glassProminent)
+                .buttonStyle(.borderedProminent)
                 .controlSize(.large)
                 .tint(.dora)
+                .font(.title3)
+
                 
             }
             .onAppear {

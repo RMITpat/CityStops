@@ -34,7 +34,7 @@ struct SearchLocations: View {
                 Image(systemName: "magnifyingglass")
                     .foregroundStyle(.secondary)
 
-                TextField("Search for a place", text: $searchRequest)
+                TextField("Search for a place", text: $searchRequest, axis: .vertical)
                     .textFieldStyle(.plain)
                     .accessibilityIdentifier("search.places")
 
@@ -58,6 +58,7 @@ struct SearchLocations: View {
                 VStack(alignment: .leading) {
                     Text("Recently searched:")
                         .font(.title2)
+                        .fixedSize(horizontal: false, vertical: true)
                     
                     // Past searches
                     ForEach(searchTermVM.pastSearches, id: \.id) { term in
@@ -67,11 +68,12 @@ struct SearchLocations: View {
                                 .font(.title3)
                                 .bold()
                                 .foregroundStyle(.primary)
-                            
+                                .fixedSize(horizontal: false, vertical: true)
                             Spacer()
                             Button("", systemImage: "xmark.circle.fill") {
                                 searchTermVM.delete(searchTerm: term)
                             }.font(.title3)
+                                .accessibilityLabel("Remove this recently searched term")
                         }
                         .padding()
                         .contentShape(Rectangle())
@@ -89,7 +91,7 @@ struct SearchLocations: View {
             Button("Search") {
                 startSearch()
             }
-            .buttonStyle(.glassProminent)
+            .modifier(ButtonFormat())
             .accessibilityIdentifier("search.button")
             
             // MARK: Search error message

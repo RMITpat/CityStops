@@ -44,7 +44,7 @@ struct CreateRouteView: View {
             
             // MARK: - Base View
             VStack {
-                
+       
                 // MARK: Map interface - UIKit
                 UIKitMapView(
                     position: locationVM.currentLocation,
@@ -163,6 +163,7 @@ struct CreateRouteView: View {
         .animation(.easeInOut(duration: 0.3), value: gestureState.isLongPressComplete)
         .contentShape(Rectangle())
         .simultaneousGesture(longPressThenDrag)
+        .navigationTitle(Text(tripCreationVM.name))
         .task {
             // left swipe: cancel trip creation
             // right swipe: clear all locations from list

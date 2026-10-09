@@ -102,6 +102,7 @@ struct TripDetailView: View {
                         Divider()
                         Text("Created on \(trip.createdAt.formatted())")
                             .font(.subheadline)
+                            .accessibilityLabel("Created on \(trip.createdAt.formatted(date: .complete, time: .shortened))")
                     }.padding()
                 case .second:
                     // MARK: Location List

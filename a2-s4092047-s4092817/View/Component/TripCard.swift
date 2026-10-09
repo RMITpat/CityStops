@@ -54,6 +54,7 @@ struct TripCard: View {
                 HStack() {
                     Text(trip.createdAt.formatted())
                         .font(.subheadline)
+                        .accessibilityLabel("Created on \(trip.createdAt.formatted(date: .complete, time: .shortened))")
                     Spacer()
                     SaveTripButton(trip: trip)
                 }

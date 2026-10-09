@@ -33,7 +33,6 @@ struct TripPreferenceView: View {
 
                     // Preference name
                     Text(item.preference)
-                        .accessibilityIdentifier(item.preference + ".label")
                         .accessibilityHidden(true)
                         
                     
@@ -44,6 +43,7 @@ struct TripPreferenceView: View {
                           "checkmark.circle.fill" : "circle")
                         .foregroundColor(isSelected ?
                                         .accentColor : .gray)
+                        .accessibilityIdentifier(item.preference + ".label")
                         .accessibilityLabel(isSelected ? "Selected preference \(item.preference)" : "Select preference \(item.preference)")
                         
                 }

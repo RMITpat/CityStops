@@ -60,24 +60,24 @@ final class a2_s4092047_s4092817UITests: XCTestCase {
         
         try app.performAccessibilityAudit()
         
-        let food = app.staticTexts["Food.label"]
-        XCTAssertEqual(food.label, "Food")
+        let food = app.images["Food.label"]
+        XCTAssertEqual(food.label, "Select preference Food")
         food.tap()
         
-        let landmarks = app.staticTexts["Landmarks and Sightseeing.label"]
-        XCTAssertEqual(landmarks.label, "Landmarks and Sightseeing")
+        let landmarks = app.images["Landmarks and Sightseeing.label"]
+        XCTAssertEqual(landmarks.label, "Select preference Landmarks and Sightseeing")
         landmarks.tap()
         
-        let shopping = app.staticTexts["Shopping.label"]
-        XCTAssertEqual(shopping.label, "Shopping")
+        let shopping = app.images["Shopping.label"]
+        XCTAssertEqual(shopping.label, "Select preference Shopping")
         shopping.tap()
         
-        let nature = app.staticTexts["Nature.label"]
-        XCTAssertEqual(nature.label, "Nature")
+        let nature = app.images["Nature.label"]
+        XCTAssertEqual(nature.label, "Select preference Nature")
         nature.tap()
         
-        let sports = app.staticTexts["Sports and Amusement.label"]
-        XCTAssertEqual(sports.label, "Sports and Amusement")
+        let sports = app.images["Sports and Amusement.label"]
+        XCTAssertEqual(sports.label, "Select preference Sports and Amusement")
         sports.tap()
         
         let finishPreferences = app.buttons["preferences.next"]
@@ -109,7 +109,7 @@ final class a2_s4092047_s4092817UITests: XCTestCase {
         
         
         
-        let searchPlaces = app.textFields["search.places"]
+        let searchPlaces = app.searchFields["search.places"]
         XCTAssert(searchPlaces.exists, "The search bar should exist")
         searchPlaces.tap()
         searchPlaces.typeText("Restaurants")
@@ -239,7 +239,7 @@ final class a2_s4092047_s4092817UITests: XCTestCase {
         let confirm = app.buttons["confirm.trip.details"]
         confirm.tap()
         
-        let food = app.staticTexts["Food.label"]
+        let food = app.images["Food.label"]
         food.tap()
        
         
@@ -256,7 +256,7 @@ final class a2_s4092047_s4092817UITests: XCTestCase {
         
         search.tap()
         
-        let searchPlaces = app.textFields["search.places"]
+        let searchPlaces = app.searchFields["search.places"]
         searchPlaces.tap()
         searchPlaces.typeText("Parks")
         
@@ -290,7 +290,7 @@ final class a2_s4092047_s4092817UITests: XCTestCase {
         let confirm = app.buttons["confirm.trip.details"]
         confirm.tap()
         
-        let food = app.staticTexts["Food.label"]
+        let food = app.images["Food.label"]
         food.tap()
        
         
@@ -311,7 +311,7 @@ final class a2_s4092047_s4092817UITests: XCTestCase {
         
         search.tap()
         
-        let searchPlaces = app.textFields["search.places"]
+        let searchPlaces = app.searchFields["search.places"]
         searchPlaces.tap()
         searchPlaces.typeText("Parks")
         
@@ -384,8 +384,7 @@ final class a2_s4092047_s4092817UITests: XCTestCase {
        
         
    
-        let landmarks = app.staticTexts["Landmarks and Sightseeing.label"]
-        XCTAssertEqual(landmarks.label, "Landmarks and Sightseeing")
+        let landmarks = app.images["Landmarks and Sightseeing.label"]
         landmarks.tap()
      
         

@@ -37,8 +37,9 @@ struct SearchLocations: View {
 
                 TextField("Search for a place", text: $searchRequest, axis: .vertical)
                     .textFieldStyle(.plain)
-                    .accessibilityIdentifier("search.places")
                     .accessibilityAddTraits(.isSearchField)
+                    .accessibilityIdentifier("search.places")
+                 
 
 
                 if !searchRequest.isEmpty {

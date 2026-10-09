@@ -67,6 +67,15 @@ final class TripServiceImpl: TripService {
         reachedEndSavedTrips = false
     }
     
+    /// Get all of the trips saved in Firebase.
+    func loadAllTrips(ownerId: String) async throws -> [Trip] {
+        let snapshot = try await db.collection("trips").getDocuments()
+
+        return try await retrieveTrips(
+            queryDocuments: snapshot.documents,
+            ownerId: ownerId
+        )
+    }
     
     /// Get trips for trip feed from Firebase
     func loadTrips(ownerId: String) async throws -> [Trip] {

@@ -272,10 +272,35 @@ import MapKit
                 // debug
                 print("model returned:", names)
                 guard let self else { return }
+
+            
+            let matched = names.compactMap { name in
+                candidates.first {
+                    $0.name.trimmingCharacters(in: .whitespacesAndNewlines) == name
+                }
+            }
+            
+            // Get the stops in each trip
+            Task {
+                var converted: [Trip] = []
+                for trip in matched {
+                    if let fullTrip = try? await self.getMKMapItemsForTrip(trip: trip) {
+                        converted.append(fullTrip)
+                    }
+                }
+                // Assign recommendedTrips with the trips with stops included
+                self.recommendedTrips = converted
+                self.isLoadingRecommendedTrips = false
+
+                // handle constant refreshes
+                if self.recommendationsOutdated {
+                    self.recommendationsOutdated = false
+                    self.loadRecommendedTrips()
+                }
             }
         }
     }
-        
+}
     // MARK: - MKMapItem retrieval
         /// Function for converting a trip's place Identifiers to MKMapItems
         func getMKMapItemsForTrip(trip: Trip) async throws -> Trip {

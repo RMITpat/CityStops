@@ -82,9 +82,6 @@ struct HomeView: View {
                 case .tripDetail: TripDetailView()
                 }
             }
-            .onAppear {
-                appVM.loadRecommendedTrips()
-            }
 
             Spacer()
         }

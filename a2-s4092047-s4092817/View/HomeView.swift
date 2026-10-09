@@ -53,34 +53,24 @@ struct HomeView: View {
                     }
                     
                 case .second:
-                    if appVM.isLoadingSavedTrips || appVM.isLoadingRecommendedTrips {
+                    if appVM.isLoadingRecommendedTrips {
                         ProgressView()
                             .frame(maxWidth: .infinity)
                             .padding()
                     }
-                    else if appVM.savedTrips.isEmpty {
-                        ScrollView {
-                            ContentUnavailableView(
-                                "No recommendations yet",
-                                systemImage: "sparkles",
-                                description: Text("Save some trips and we'll suggest similar ones.")
-                            )
-                        }
-                        .refreshable { appVM.refreshSavedTrips() }
-                    }
                     else if appVM.recommendedTrips.isEmpty {
                         ScrollView {
                             ContentUnavailableView(
-                                "No recommendations yet",
+                                "No relevant recommendations",
                                 systemImage: "sparkles",
-                                description: Text("Save some trips and we'll suggest similar ones.")
+                                description: Text("Sorry, we couldn't find trips that match your saved preferences. Try saving some more trips that you like.")
                             )
                         }
-                        .refreshable { appVM.refreshSavedTrips() }
+                        .refreshable {  appVM.refreshRecommendedTrips() }
                     }
                     else {
                         TripFeed(trips: appVM.recommendedTrips, isLoading: appVM.isLoadingRecommendedTrips, route: $router.feedRoute) {
-                            appVM.refreshSavedTrips()
+                            appVM.refreshRecommendedTrips()
                         } loadTrips: {
                             // recommendations aren't paginated
                         }
@@ -93,10 +83,6 @@ struct HomeView: View {
                 }
             }
             .onAppear {
-                appVM.refreshSavedTrips()
-            }
-            // Build recommendations when the screen appears, and again if the data changes.
-            .onChange(of: appVM.savedTrips.map(\.id)) {
                 appVM.loadRecommendedTrips()
             }
 

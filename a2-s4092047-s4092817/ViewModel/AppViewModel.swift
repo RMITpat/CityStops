@@ -224,15 +224,24 @@ import MapKit
         }
         
         isLoadingRecommendedTrips = true
-        
-        
 
         Task {
             // Artificial wait, can be removed but feels nice
             try? await Task.sleep(for: .seconds(1))
-
-            let savedIds = Set(savedTrips.map { $0.id })
             
+            // Get all of saved trips directly from Firebase
+            var allSavedTrips: [Trip] = []
+            var savedTripTitles: [String] = []
+            var savedTripIds: [String] = []
+            do {
+                allSavedTrips = try await tripService.loadAllSavedTrips(ownerId: self.user.id)
+                
+                savedTripTitles = allSavedTrips.map(\.name)
+                savedTripIds = allSavedTrips.map(\.id)
+
+            } catch {
+                print("Failed to load saved trips: \(error)")
+            }
             if cachedTrips == nil {
                 do {
                     cachedTrips = try await tripService.loadAllTrips(ownerId: self.user.id)
@@ -246,11 +255,13 @@ import MapKit
             let allTrips = cachedTrips ?? []
             
             let candidates = allTrips.filter {
-                !$0.savedByUser && !savedIds.contains($0.id) && $0.ownerId != self.user.id
+                !savedTripIds.contains($0.id) && $0.ownerId != self.user.id
             }
-            let savedNames = savedTrips.map { $0.name }
 
-            if candidates.isEmpty || savedNames.isEmpty {
+            // debug
+            print("saved:", savedTripTitles.count, "candidates:", candidates.count)
+            
+            if candidates.isEmpty || savedTripTitles.isEmpty {
                 recommendedTrips = []
                 isLoadingRecommendedTrips = false
                 return
@@ -259,8 +270,11 @@ import MapKit
             // get the input Strings for the recommendation methods
             recommendationVM.setCandidates(candidates.map { $0.name })
             // run the Core ML algorithm, and retrieve the Trips that meet the confidence threshold
-            recommendationVM.recommend(basedOn: savedNames, topN: recommendedTripCount, confidenceThreshold: 0.2) { [weak self] names in
-                guard let self else { return }
+            recommendationVM.recommend(basedOn: savedTripTitles, topN: recommendedTripCount, confidenceThreshold: 0.2)
+            { [weak self] names in
+                // debug
+                print("model returned:", names)
+            guard let self else { return }
 
                 let matched = names.compactMap { name in
                     candidates.first {

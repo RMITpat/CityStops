@@ -59,18 +59,24 @@ struct HomeView: View {
                             .padding()
                     }
                     else if appVM.savedTrips.isEmpty {
-                        ContentUnavailableView(
-                            "No recommendations yet",
-                            systemImage: "sparkles",
-                            description: Text("Save some trips and we'll suggest similar ones.")
-                        )
+                        ScrollView {
+                            ContentUnavailableView(
+                                "No recommendations yet",
+                                systemImage: "sparkles",
+                                description: Text("Save some trips and we'll suggest similar ones.")
+                            )
+                        }
+                        .refreshable { appVM.refreshSavedTrips() }
                     }
                     else if appVM.recommendedTrips.isEmpty {
-                        ContentUnavailableView(
-                            "No recommendations yet",
-                            systemImage: "sparkles",
-                            description: Text("We couldn't find trips that closely match your saved ones.")
-                        )
+                        ScrollView {
+                            ContentUnavailableView(
+                                "No recommendations yet",
+                                systemImage: "sparkles",
+                                description: Text("Save some trips and we'll suggest similar ones.")
+                            )
+                        }
+                        .refreshable { appVM.refreshSavedTrips() }
                     }
                     else {
                         TripFeed(trips: appVM.recommendedTrips, isLoading: appVM.isLoadingRecommendedTrips, route: $router.feedRoute) {

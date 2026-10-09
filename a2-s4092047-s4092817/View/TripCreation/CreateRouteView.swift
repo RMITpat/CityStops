@@ -54,7 +54,7 @@ struct CreateRouteView: View {
                     isPinSelectable: true,
                     interactionModes: gestureState.isLongPressComplete ? [] : .all
                 )
-
+                .accessibilityHidden(true)
                 .frame(height:400)
                 // Route between stops
                 .task {

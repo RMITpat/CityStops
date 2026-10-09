@@ -42,6 +42,7 @@ struct AITripOverview: View {
                 isPinSelectable: true,
                 interactionModes: .all
             )
+            .accessibilityHidden(true)
             .frame(height: 390)
             .onChange(of: tripCreationVM.selectedPlaces) {
                 Task {

@@ -42,6 +42,7 @@ struct TripPreferenceView: View {
                           "checkmark.circle.fill" : "circle")
                         .foregroundColor(isSelected ?
                                         .accentColor : .gray)
+                        .accessibilityLabel(isSelected ? "Preference selected" : "Select preference")
                         
                 }
                 // allows Spacer() content to register a tap

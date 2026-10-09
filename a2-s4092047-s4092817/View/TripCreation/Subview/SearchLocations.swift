@@ -33,6 +33,7 @@ struct SearchLocations: View {
             HStack {
                 Image(systemName: "magnifyingglass")
                     .foregroundStyle(.secondary)
+                    .accessibilityHidden(true)
 
                 TextField("Search for a place", text: $searchRequest, axis: .vertical)
                     .textFieldStyle(.plain)
@@ -44,6 +45,7 @@ struct SearchLocations: View {
                     } label: {
                         Image(systemName: "xmark.circle.fill")
                             .foregroundStyle(.secondary)
+                            .accessibilityLabel("Clears the search bar")
                     }
                 }
             }
@@ -64,6 +66,8 @@ struct SearchLocations: View {
                     ForEach(searchTermVM.pastSearches, id: \.id) { term in
                         HStack {
                             Image(systemName: "clock.fill")
+                                .accessibilityHidden(true)
+
                             Text(term.term)
                                 .font(.title3)
                                 .bold()
@@ -73,7 +77,7 @@ struct SearchLocations: View {
                             Button("", systemImage: "xmark.circle.fill") {
                                 searchTermVM.delete(searchTerm: term)
                             }.font(.title3)
-                                .accessibilityLabel("Remove this recently searched term")
+                                .accessibilityLabel("Remove the recently searched term, \(term.term)")
                         }
                         .padding()
                         .contentShape(Rectangle())

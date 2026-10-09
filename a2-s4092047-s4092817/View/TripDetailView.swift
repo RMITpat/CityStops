@@ -42,9 +42,7 @@ struct TripDetailView: View {
                     isPinSelectable: true,
                     interactionModes: .all
                 )
-
-                
-            
+                .accessibilityHidden(true)
             .frame(height: 425)
             .task {
                 do {

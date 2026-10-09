@@ -36,6 +36,7 @@ struct TripCard: View {
                 isPinSelectable: false,
                 interactionModes: []
             )
+            .accessibilityHidden(true)
             .padding(5)
             .frame(height: 350)
             .clipShape(RoundedRectangle(cornerRadius: 50))

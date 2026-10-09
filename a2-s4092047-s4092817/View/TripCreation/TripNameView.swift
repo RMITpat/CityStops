@@ -18,83 +18,92 @@ struct TripNameView: View {
         @Bindable var tripCreationVM = tripCreationVM
         
         // MARK: Input fields
-        VStack (alignment: .leading) {
-            // Title
-            Text("Title")
-                .font(.title2)
-            Text("What would you like your trip to be called?")
-                .font(.caption)
-                .foregroundStyle(.primary)
-                .fixedSize(horizontal: false, vertical: true)
-                .font(.title3)
-
-            
-            TextField("e.g. Asian Street Food Tour", text: $tripCreationVM.name, axis: .vertical)
-                .textFieldStyle(RoundedBorderTextFieldStyle())
-                .accessibilityIdentifier("trip.title.input")
-                .fixedSize(horizontal: false, vertical: true)
-            
-            if let nameError = tripCreationVM.nameError {
-                Text(nameError).foregroundColor(.red).font(.footnote)
-            }
-            
-            //Description
-            Text("Description")
-                .font(.title2)
-                .padding(.top, 32)
-
-            Text("What is this trip about?")
-                .font(.caption)
-                .foregroundStyle(.primary)
-                .fixedSize(horizontal: false, vertical: true)
-            
-            ZStack(alignment: .topLeading) {
-                TextEditor(text: $tripCreationVM.description)
-                    .frame(minHeight: 120)
-                    .padding(.horizontal, 2)
-                    .scrollContentBackground(.hidden)
-                    .background(.background)
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
-                    .overlay {
-                        RoundedRectangle(cornerRadius: 8)
-                            .stroke(.secondary.opacity(0.15))
-                    }
-                    .accessibilityIdentifier("trip.description.input")
-                    .accessibilityLabel("Input your trip's description")
-            
-            // Placeholder text; fixed padding to align with TextEditor
-            if tripCreationVM.description.isEmpty {
-                Text("e.g. A day out in the city to eat Asian street food!")
-                    .padding(.leading, 7)
-                    .padding(.top, 8)
-                    .allowsHitTesting(false)
+        ScrollView {
+            VStack (alignment: .leading) {
+                // Title
+                Text("Title")
+                    .font(.title2)
+                Text("What would you like your trip to be called?")
+                    .font(.caption)
+                    .foregroundStyle(.primary)
                     .fixedSize(horizontal: false, vertical: true)
-                    .foregroundStyle(.secondary)
                     .font(.title3)
-                }
+                
+                
+                TextField("e.g. Food Tour", text: $tripCreationVM.name, axis: .vertical)
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                    .accessibilityIdentifier("trip.title.input")
+                    .fixedSize(horizontal: false, vertical: true)
+                
+                if let nameError = tripCreationVM.nameError {
+                    Text(nameError).foregroundColor(.red)
+                        .font(.footnote)
+                        .fixedSize(horizontal: false, vertical: true)
 
-            }
-            if let descError = tripCreationVM.descriptionError {
-                Text(descError).foregroundColor(.red).font(.footnote)
-            }
-        }
-        .padding(.horizontal, 16)
-        
-        Spacer()
-        
-        // MARK: "Confirm" button
-            .safeAreaInset(edge: .bottom) {
-                Button("Confirm") {
-                    if tripCreationVM.validateNameDesc() {
-                        router.tripCreationRoute.append(TripCreationRoute.preferences)
-                    }
                 }
-                .modifier(ButtonFormat())
-                .accessibilityIdentifier("confirm.trip.details")
+                
+                //Description
+                Text("Description")
+                    .font(.title2)
+                    .padding(.top, 32)
+                
+                Text("What is this trip about?")
+                    .font(.caption)
+                    .foregroundStyle(.primary)
+                    .fixedSize(horizontal: false, vertical: true)
+                
+                ZStack(alignment: .topLeading) {
+                    TextEditor(text: $tripCreationVM.description)
+                        .frame(minHeight: 120)
+                        .padding(.horizontal, 2)
+                        .scrollContentBackground(.hidden)
+                        .background(.background)
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                        .overlay {
+                            RoundedRectangle(cornerRadius: 8)
+                                .stroke(.secondary.opacity(0.15))
+                        }
+                        .accessibilityIdentifier("trip.description.input")
+                        .accessibilityLabel("Input your trip's description")
+                    
+                    // Placeholder text; fixed padding to align with TextEditor
+                    if tripCreationVM.description.isEmpty {
+                        Text("e.g. A day out in the city to eat Asian street food!")
+                            .padding(.leading, 7)
+                            .padding(.top, 8)
+                            .allowsHitTesting(false)
+                            .fixedSize(horizontal: false, vertical: true)
+                            .foregroundStyle(.secondary)
+                            .font(.title3)
+                    }
+                    
+                }
+                if let descError = tripCreationVM.descriptionError {
+                    Text(descError).foregroundColor(.red)
+                        .font(.footnote)
+                        .fixedSize(horizontal: false, vertical: true)
+
+                }
             }
-        
-        .navigationTitle(Text("Trip Details"))
-        .toolbar(.hidden, for: .tabBar)
+            .padding(.horizontal, 16)
+            
+            
+            Spacer()
+            
+            // MARK: "Confirm" button
+                .safeAreaInset(edge: .bottom) {
+                    Button("Confirm") {
+                        if tripCreationVM.validateNameDesc() {
+                            router.tripCreationRoute.append(TripCreationRoute.preferences)
+                        }
+                    }
+                    .modifier(ButtonFormat())
+                    .accessibilityIdentifier("confirm.trip.details")
+                }
+            
+                .navigationTitle(Text("Trip Details"))
+                .toolbar(.hidden, for: .tabBar)
+        }
     }
 
 }

@@ -53,44 +53,6 @@ struct SearchLocations: View {
             .padding(.vertical, 10)
             .background(.thinMaterial)
             .clipShape(RoundedRectangle(cornerRadius: 12))
-            
-            // MARK: Search history
-            if searchRequest.isEmpty {
-                
-                VStack(alignment: .leading) {
-                    Text("Recently searched:")
-                        .font(.title2)
-                        .fixedSize(horizontal: false, vertical: true)
-                    
-                    // Past searches
-                    ForEach(searchTermVM.pastSearches, id: \.id) { term in
-                        HStack {
-                            Image(systemName: "clock.fill")
-                                .accessibilityHidden(true)
-
-                            Text(term.term)
-                                .font(.title3)
-                                .bold()
-                                .foregroundStyle(.primary)
-                                .fixedSize(horizontal: false, vertical: true)
-                            Spacer()
-                            Button("", systemImage: "xmark.circle.fill") {
-                                searchTermVM.delete(searchTerm: term)
-                            }.font(.title3)
-                                .accessibilityLabel("Remove the recently searched term, \(term.term)")
-                        }
-                        .padding()
-                        .contentShape(Rectangle())
-                        .onTapGesture {
-                            searchRequest = term.term
-                            startSearch()
-                        }
-                        Divider()
-                    }
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-            }
-            
             // MARK: "Search" Button
             Button("Search") {
                 startSearch()
@@ -98,6 +60,45 @@ struct SearchLocations: View {
             .modifier(ButtonFormat())
             .accessibilityIdentifier("search.button")
             
+            // MARK: Search history
+            if searchRequest.isEmpty {
+                ScrollView {
+                    VStack(alignment: .leading) {
+                        Text("Recently searched:")
+                            .font(.title2)
+                            .fixedSize(horizontal: false, vertical: true)
+                        
+                        // Past searches
+                        ForEach(searchTermVM.pastSearches, id: \.id) { term in
+                            HStack {
+                                Image(systemName: "clock.fill")
+                                    .accessibilityHidden(true)
+                                
+                                Text(term.term)
+                                    .font(.title3)
+                                    .bold()
+                                    .foregroundStyle(.primary)
+                                    .fixedSize(horizontal: false, vertical: true)
+                                Spacer()
+                                Button("", systemImage: "xmark.circle.fill") {
+                                    searchTermVM.delete(searchTerm: term)
+                                }.font(.title3)
+                                    .accessibilityLabel("Remove the recently searched term, \(term.term)")
+                            }
+                            .padding()
+                            .contentShape(Rectangle())
+                            .onTapGesture {
+                                searchRequest = term.term
+                                startSearch()
+                            }
+                            Divider()
+                        }
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                }
+            }
+            
+        
             // MARK: Search error message
             if let errorMessage  {
                 Text(errorMessage).foregroundColor(.red).font(.footnote)

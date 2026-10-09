@@ -54,7 +54,7 @@ import MapKit
     private let recommendedTripCount = 5
     
     /// Runs the MiniLM model. `lazy` so the model is only loaded the first time recommendations are requested
-    @ObservationIgnored private lazy var recommendationVM = RecommendationViewModel()
+    @ObservationIgnored private lazy var recommendationService = RecommendationService()
     
     /// Set if a load recommendations run was already in progress.
     @ObservationIgnored private var recommendationsOutdated = false
@@ -265,9 +265,9 @@ import MapKit
             }
             
             // get the input Strings for the recommendation methods
-            recommendationVM.setCandidates(candidates.map { $0.name })
+            recommendationService.setCandidates(candidates.map { $0.name })
             // run the Core ML algorithm, and retrieve the Trips that meet the confidence threshold
-            recommendationVM.recommend(basedOn: savedTripTitles, topN: recommendedTripCount, confidenceThreshold: 0.2)
+            recommendationService.recommend(basedOn: savedTripTitles, topN: recommendedTripCount, confidenceThreshold: 0.2)
             { [weak self] names in
                 // debug
                 print("model returned:", names)

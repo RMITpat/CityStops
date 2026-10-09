@@ -1,5 +1,5 @@
 //
-//  RecommendationViewModel.swift
+//  RecommendationService.swift
 //  a2-s4092047-s4092817
 //
 
@@ -9,7 +9,7 @@ import CoreML
 
 /// Handles ``Trip`` recommendation logic using the ``all-MiniLM-L6-v2`` PyTorch model.
 /// The model facilitates semantic search based on the Title of all the user's saved ``Trip``.
-final class RecommendationViewModel: ObservableObject {
+final class RecommendationService: ObservableObject {
         
     // MARK: - Properties
     /// The Core ML model loaded from MiniLM.mlpackage.

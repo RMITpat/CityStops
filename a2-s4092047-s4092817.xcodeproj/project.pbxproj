@@ -50,24 +50,22 @@
 		BF51494A3077639A00A8FD56 /* Exceptions for "a2-s4092047-s4092817" folder in "a2-s4092047-s4092817Tests" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				Launch/Arguments.swift,
 				ML/MiniLM.mlpackage,
-				ML/RecommendationView.swift,
-				ML/RecommendationViewModel.swift,
+				ML/RecommendationService.swift,
 				ML/vocab.txt,
 				ML/WordPieceTokenizer.swift,
-				Launch/Arguments.swift,
 			);
 			target = 8D6264EA30528A4D00D842C2 /* a2-s4092047-s4092817Tests */;
 		};
 		BF51494B3077639A00A8FD56 /* Exceptions for "a2-s4092047-s4092817" folder in "a2-s4092047-s4092817UITests" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				Launch/Arguments.swift,
 				ML/MiniLM.mlpackage,
-				ML/RecommendationView.swift,
-				ML/RecommendationViewModel.swift,
+				ML/RecommendationService.swift,
 				ML/vocab.txt,
 				ML/WordPieceTokenizer.swift,
-				Launch/Arguments.swift,
 			);
 			target = 8D6264F430528A4D00D842C2 /* a2-s4092047-s4092817UITests */;
 		};

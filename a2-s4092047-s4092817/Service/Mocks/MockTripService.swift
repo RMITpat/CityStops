@@ -4,6 +4,7 @@ import Foundation
 /// It does not read from or write to Firestore.
 @MainActor
 final class MockTripService: TripService {
+    
     private let pageSize = 4
 
     private var dummyTrips: [Trip] = [
@@ -105,6 +106,7 @@ final class MockTripService: TripService {
     private var tripFeedIndex = 0
     private var userTripsIndex = 0
     private var savedTripsIndex = 0
+    private var recommendedTripsIndex = 0
 
 
     private func nextPage(
@@ -122,7 +124,14 @@ final class MockTripService: TripService {
         return page
     }
 
-
+    // FIXME: replicated loadTrips for the sake of conforming to protocol; may / may not affect tests
+    func loadAllTrips(ownerId: String) async throws -> [Trip] {
+        nextPage(
+            from: dummyTrips,
+            index: &tripFeedIndex
+        )
+    }
+    
     func loadTrips(ownerId: String) async throws -> [Trip] {
         nextPage(
             from: dummyTrips,

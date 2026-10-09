@@ -121,7 +121,7 @@ import MapKit
 
     func refreshRecommendedTrips() {
         recommendedTrips.removeAll()
-        refreshSavedTrips()
+        loadRecommendedTrips()
     }
     
     /// Function to start reading all trips from Firestore

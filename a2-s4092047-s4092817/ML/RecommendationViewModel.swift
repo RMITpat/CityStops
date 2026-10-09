@@ -113,15 +113,16 @@ final class RecommendationViewModel: ObservableObject {
     /// - Parameters:
     ///   - inputs: One or more strings; the Titles of saved ``Trip``. Their embeddings are averaged into a single recommendation "profile".
     ///   - topN: How many suggestions to return.
+    ///   - comfidenceThreshold: How "similar" the String semantics must be.
     ///   - excludeInputs: If true, candidates identical to an input are not suggested back.
     func recommend(
         basedOn inputs: [String],
         topN: Int = 5,
+        confidenceThreshold: Float = 0.2,
         excludeInputs: Bool = true,
         completion: (([String]) -> Void)? = nil
     ) {
         var seen = Set<String>()
-
         let texts = inputs
             .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
             .filter { !$0.isEmpty && seen.insert($0).inserted }
@@ -144,45 +145,50 @@ final class RecommendationViewModel: ObservableObject {
             do {
                 let queryVectors = try texts.map { try self.embed($0) }
                 let query = self.normalized(self.mean(queryVectors))
-
                 let inputSet = Set(texts.map { $0.lowercased() })
 
-                let ranked = zip(self.candidates, self.candidateVectors)
+                // Scored before the threshold filter
+                let scored = zip(self.candidates, self.candidateVectors)
                     .filter { !excludeInputs || !inputSet.contains($0.0.lowercased()) }
                     .map { (text: $0.0, score: self.dot(query, $0.1)) }
-                    .sorted { $0.score > $1.score }
 
-                let top = ranked.prefix(topN).map { $0.text }
-
-                DispatchQueue.main.async {
-                    completion?(Array(top))
-                    guard requestID == self.requestCounter else {
-                        return
-                    }
-
-                    self.suggestions = Array(top)
-                    self.errorMessage = nil
+                // Scoring DEBUG
+                print("vector size:", query.count)
+                print("candidates:", self.candidates.count)
+                for item in scored.sorted(by: { $0.score > $1.score }) {
+                    print(String(format: "%.3f", item.score), item.text)
                 }
 
-            } catch {
+                // Only allow results that pass the confidence threshold
+                let ranked = scored
+                    .filter { $0.score >= confidenceThreshold }
+                    .sorted { $0.score > $1.score }
+
+                // rank by relevance
+                let top = Array(ranked.prefix(topN)).map { $0.text }
+
                 DispatchQueue.main.async {
-                    completion?([])
                     guard requestID == self.requestCounter else {
                         return
                     }
-
+                    completion?(top)
+                    self.suggestions = top
+                    self.errorMessage = nil
+                }
+            } catch {
+                DispatchQueue.main.async {
+                    guard requestID == self.requestCounter else {
+                        return
+                    }
+                    completion?([])
                     self.suggestions = []
                     self.errorMessage = error.localizedDescription
                 }
-
                 print("Prediction error:", error)
             }
         }
 
-        mlQueue.asyncAfter(
-            deadline: .now(),
-            execute: workItem
-        )
+        mlQueue.async(execute: workItem)
     }
 
     // MARK: - Helper Methods

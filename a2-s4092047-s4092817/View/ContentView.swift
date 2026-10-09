@@ -32,7 +32,7 @@ struct ContentView: View {
         // Bottom nav. bar
         TabView(selection: $router.selectedTab) {
             // Home
-            HomeView()
+            HomeView(mode: .first)
                 .tabItem {
                     Label("Home", systemImage: "house")
                         .accessibilityIdentifier("tab.home")

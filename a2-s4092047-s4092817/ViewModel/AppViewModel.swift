@@ -53,8 +53,8 @@ import MapKit
     /// The feed of recommended trips
     var recommendedTrips: [Trip] = []
     
-    /// How many recommended trips to show
-    private let recommendedTripCount = 5
+    /// The maximum recommended trips to show
+    private let recommendedTripCount = 10
     
     /// Runs the MiniLM model. `lazy` so the model is only loaded the first time recommendations are requested
     @ObservationIgnored private lazy var recommendationVM = RecommendationViewModel()

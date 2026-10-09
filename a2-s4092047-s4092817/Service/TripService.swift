@@ -15,6 +15,7 @@ protocol TripService {
     func saveTrip(trip: Trip) async throws
     func loadUserTrips(ownerId: String) async throws -> [Trip]
     func loadSavedTrips(ownerId: String) async throws -> [Trip]
+    func loadAllTrips(ownerId: String) async throws -> [Trip]
     func loadTrips(ownerId: String) async throws -> [Trip]
     
     func clearLastTripFeedDocument()

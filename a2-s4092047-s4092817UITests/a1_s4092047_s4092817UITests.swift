@@ -420,16 +420,14 @@ final class a2_s4092047_s4092817UITests: XCTestCase {
         let aiTitle = app.textFields["ai.title"]
         XCTAssert(aiTitle.exists, "The ai title text field should exist")
         aiTitle.tap()
-        aiTitle.press(forDuration: 1)
-        app.menuItems["Select All"].tap()
+       
         aiTitle.typeText("Changed title")
         
         
         let tripDescField = app.textViews["ai.description"]
         XCTAssert(tripDescField.exists, "The ai trip description input field should exist")
         tripDescField.tap()
-        tripDescField.press(forDuration: 1)
-        app.menuItems["Select All"].tap()
+        
         tripDescField.typeText("Changed description")
         
         places.tap()

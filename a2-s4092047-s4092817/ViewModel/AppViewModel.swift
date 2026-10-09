@@ -38,9 +38,6 @@ import MapKit
     /// Are recommended trips currently being calculated
     var isLoadingRecommendedTrips: Bool = false
     
-    /// Caches all of the trips when the app starts, to reduce Firebase calls when recommending trips.
-    private var cachedTrips: [Trip]?
-    
     /// The feed of loaded trips
     var tripFeed: [Trip] = []
     
@@ -242,18 +239,18 @@ import MapKit
             } catch {
                 print("Failed to load saved trips: \(error)")
             }
-            if cachedTrips == nil {
-                do {
-                    cachedTrips = try await tripService.loadAllTrips(ownerId: self.user.id)
-                } catch {
-                    self.error = error.localizedDescription
-                    isLoadingRecommendedTrips = false
-                    return
-                }
-            }
-
-            let allTrips = cachedTrips ?? []
             
+            // get all trips from Firebase
+            var allTrips: [Trip] = []
+            
+            do {
+                allTrips = try await tripService.loadAllTrips(ownerId: self.user.id)
+            } catch {
+                self.error = error.localizedDescription
+                isLoadingRecommendedTrips = false
+                return
+            }
+        
             let candidates = allTrips.filter {
                 !savedTripIds.contains($0.id) && $0.ownerId != self.user.id
             }

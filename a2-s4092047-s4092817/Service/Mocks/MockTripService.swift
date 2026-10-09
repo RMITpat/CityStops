@@ -132,6 +132,18 @@ final class MockTripService: TripService {
         )
     }
     
+    // FIXME: replicated loadSavedTrips for the sake of conforming to protocol; may / may not affect tests
+    func loadAllSavedTrips(ownerId: String) async throws -> [Trip] {
+        let savedTrips = dummyTrips.filter {
+            $0.savedByUser
+        }
+
+        return nextPage(
+            from: savedTrips,
+            index: &savedTripsIndex
+        )
+    }
+    
     func loadTrips(ownerId: String) async throws -> [Trip] {
         nextPage(
             from: dummyTrips,

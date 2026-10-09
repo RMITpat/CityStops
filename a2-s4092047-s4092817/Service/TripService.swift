@@ -15,8 +15,10 @@ protocol TripService {
     func saveTrip(trip: Trip) async throws
     func loadUserTrips(ownerId: String) async throws -> [Trip]
     func loadSavedTrips(ownerId: String) async throws -> [Trip]
-    func loadAllTrips(ownerId: String) async throws -> [Trip]
     func loadTrips(ownerId: String) async throws -> [Trip]
+    
+    func loadAllTrips(ownerId: String) async throws -> [Trip]
+    func loadAllSavedTrips(ownerId: String) async throws -> [Trip]
     
     func clearLastTripFeedDocument()
     func clearLastUserTripDocument()
@@ -68,9 +70,24 @@ final class TripServiceImpl: TripService {
         reachedEndSavedTrips = false
     }
     
-    /// Get all of the trips saved in Firebase.
+    /// Get all of the trips stored in Firebase.
     func loadAllTrips(ownerId: String) async throws -> [Trip] {
         let snapshot = try await db.collection("trips").getDocuments()
+
+        return try await retrieveTrips(
+            queryDocuments: snapshot.documents,
+            ownerId: ownerId
+        )
+    }
+    
+    /// Get all of the trips that a user has saved in the app from Firebase.
+    func loadAllSavedTrips(ownerId: String) async throws -> [Trip] {
+        showFirebaseMessage()
+        
+        let snapshot = try await db.collection("bookmarkedTrips")
+                                    .whereField("ownerId", isEqualTo: ownerId)
+                                .getDocuments()
+            
 
         return try await retrieveTrips(
             queryDocuments: snapshot.documents,

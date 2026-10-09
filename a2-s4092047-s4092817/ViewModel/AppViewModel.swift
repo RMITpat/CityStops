@@ -35,6 +35,12 @@ import MapKit
     /// Are trips currently loading for the user's saved trips
     var isLoadingSavedTrips: Bool = false
     
+    /// Are recommended trips currently being calculated
+    var isLoadingRecommendedTrips: Bool = false
+    
+    /// Caches all of the trips when the app starts, to reduce Firebase calls when recommending trips.
+    private var cachedTrips: [Trip]?
+    
     /// The feed of loaded trips
     var tripFeed: [Trip] = []
     
@@ -43,6 +49,18 @@ import MapKit
     
     /// The feed of user's saved trips
     var savedTrips: [Trip] = []
+    
+    /// The feed of recommended trips
+    var recommendedTrips: [Trip] = []
+    
+    /// How many recommended trips to show
+    private let recommendedTripCount = 5
+    
+    /// Runs the MiniLM model. `lazy` so the model is only loaded the first time recommendations are requested
+    @ObservationIgnored private lazy var recommendationVM = RecommendationViewModel()
+    
+    /// Set if a load recommendations run was already in progress.
+    @ObservationIgnored private var recommendationsOutdated = false
     
     /// The current trip being viewed in TripDetailView
     var currentTrip: Trip? = nil
@@ -99,6 +117,11 @@ import MapKit
         tripService.clearLastSavedTripDocument()
         savedTrips.removeAll()
         loadSavedTrips()
+    }
+
+    func refreshRecommendedTrips() {
+        recommendedTrips.removeAll()
+        refreshSavedTrips()
     }
     
     /// Function to start reading all trips from Firestore
@@ -192,76 +215,151 @@ import MapKit
         }
     }
     
-    /// Function for converting a trip's place Identifiers to MKMapItems
-    func getMKMapItemsForTrip(trip: Trip) async throws -> Trip {
-        var trip = trip
-        for identifier in trip.places {
-            if let place = try await getMKMapItemFromId(identifier: identifier) {
-                trip.mkMapItemPlaces.append(place)
+    /// Function to start working out the recommended trips.
+    /// It ranks trips that are in Firebase against the user's `savedTrips`, using the MiniLM model.
+    func loadRecommendedTrips() {
+        if isLoadingRecommendedTrips {
+            recommendationsOutdated = true
+            return
+        }
+        
+        isLoadingRecommendedTrips = true
+        
+        
+
+        Task {
+            // Artificial wait, can be removed but feels nice
+            try? await Task.sleep(for: .seconds(1))
+
+            let savedIds = Set(savedTrips.map { $0.id })
+            
+            if cachedTrips == nil {
+                do {
+                    cachedTrips = try await tripService.loadAllTrips(ownerId: self.user.id)
+                } catch {
+                    self.error = error.localizedDescription
+                    isLoadingRecommendedTrips = false
+                    return
+                }
             }
 
-        }
-        return trip
-    }
-    
-    /// Function for converting a singular Identifier to an MKMapItem
-    func getMKMapItemFromId(identifier: MKMapItem.Identifier) async throws -> MapItem? {
-        
-        return try await mkMapService.getMKMapItemFromId(identifier: identifier)
-      
-    }
-    
-    /// Calls service to save a document which contains the user's id and the id of the trip they are bookmarking
-    func bookmarkTrip(tripId: String) async throws {
+            let allTrips = cachedTrips ?? []
+            
+            let candidates = allTrips.filter {
+                !$0.savedByUser && !savedIds.contains($0.id) && $0.ownerId != self.user.id
+            }
+            let savedNames = savedTrips.map { $0.name }
 
-        try await tripService.bookmarkTrip(ownerId: user.id, tripId: tripId)
-        if let feedSavedTrip = tripFeed.firstIndex(where: { $0.id == tripId}) {
-            tripFeed[feedSavedTrip].savedByUser = true
+            if candidates.isEmpty || savedNames.isEmpty {
+                recommendedTrips = []
+                isLoadingRecommendedTrips = false
+                return
+            }
 
+            recommendationVM.setCandidates(candidates.map { $0.name })
+            recommendationVM.recommend(basedOn: savedNames, topN: recommendedTripCount) { [weak self] names in
+                guard let self else { return }
+                
+                // Clean up missing name Trips (shouldn't be possible with input checking)
+                self.recommendedTrips = names.compactMap { name in
+                    candidates.first {
+                        $0.name.trimmingCharacters(in: .whitespacesAndNewlines) == name
+                    }
+                }
+                
+                self.isLoadingRecommendedTrips = false
+                
+                if self.recommendationsOutdated {
+                    self.recommendationsOutdated = false
+                    self.loadRecommendedTrips()
+                }
+            }
         }
-        
-        if let userSavedTrip = yourTrips.firstIndex(where: { $0.id == tripId}) {
-            yourTrips[userSavedTrip].savedByUser = true
-        }
-        
-        if let savedSavedTrip = savedTrips.firstIndex(where: { $0.id == tripId}) {
-            savedTrips[savedSavedTrip].savedByUser = true
-        }
-        currentTrip?.savedByUser = true
     }
-    
-    func deleteTripBookmark(tripId: String) async throws {
         
-        try await tripService.removeTripBookmark(ownerId: user.id, tripId: tripId)
-      
-        if let feedSavedTrip = tripFeed.firstIndex(where: { $0.id == tripId}) {
-            tripFeed[feedSavedTrip].savedByUser = false
-
+    // MARK: - MKMapItem retrieval
+        /// Function for converting a trip's place Identifiers to MKMapItems
+        func getMKMapItemsForTrip(trip: Trip) async throws -> Trip {
+            var trip = trip
+            for identifier in trip.places {
+                if let place = try await getMKMapItemFromId(identifier: identifier) {
+                    trip.mkMapItemPlaces.append(place)
+                }
+            }
+            return trip
         }
         
-        if let userSavedTrip = yourTrips.firstIndex(where: { $0.id == tripId}) {
-            yourTrips[userSavedTrip].savedByUser = false
+        /// Function for converting a singular Identifier to an MKMapItem
+        func getMKMapItemFromId(identifier: MKMapItem.Identifier) async throws -> MapItem? {
+            
+            return try await mkMapService.getMKMapItemFromId(identifier: identifier)
+            
+        }
+    
+    // MARK: - Trip user save / delete functions
+        
+        /// Calls service to save a document which contains the user's id and the id of the trip they are bookmarking
+        func bookmarkTrip(tripId: String) async throws {
+            
+            try await tripService.bookmarkTrip(ownerId: user.id, tripId: tripId)
+            if let feedSavedTrip = tripFeed.firstIndex(where: { $0.id == tripId}) {
+                tripFeed[feedSavedTrip].savedByUser = true
+                
+            }
+            
+            if let userSavedTrip = yourTrips.firstIndex(where: { $0.id == tripId}) {
+                yourTrips[userSavedTrip].savedByUser = true
+            }
+            
+            if let savedSavedTrip = savedTrips.firstIndex(where: { $0.id == tripId}) {
+                savedTrips[savedSavedTrip].savedByUser = true
+            }
+            
+            if let recommendedSavedTrip = recommendedTrips.firstIndex(where: { $0.id == tripId}) {
+                recommendedTrips[recommendedSavedTrip].savedByUser = true
+            }
+            
+            currentTrip?.savedByUser = true
         }
         
-        if let savedSavedTrip = savedTrips.firstIndex(where: { $0.id == tripId}) {
-            savedTrips[savedSavedTrip].savedByUser = false
+        func deleteTripBookmark(tripId: String) async throws {
+            
+            try await tripService.removeTripBookmark(ownerId: user.id, tripId: tripId)
+            
+            if let feedSavedTrip = tripFeed.firstIndex(where: { $0.id == tripId}) {
+                tripFeed[feedSavedTrip].savedByUser = false
+                
+            }
+            
+            if let userSavedTrip = yourTrips.firstIndex(where: { $0.id == tripId}) {
+                yourTrips[userSavedTrip].savedByUser = false
+            }
+            
+            if let savedSavedTrip = savedTrips.firstIndex(where: { $0.id == tripId}) {
+                savedTrips[savedSavedTrip].savedByUser = false
+            }
+            
+            if let recommendedSavedTrip = recommendedTrips.firstIndex(where: { $0.id == tripId}) {
+                recommendedTrips[recommendedSavedTrip].savedByUser = false
+            }
+            
+            currentTrip?.savedByUser = false
+            
         }
         
-        currentTrip?.savedByUser = false
-
-    }
-    
-    /// Delete a created trip
-    func deleteTrip(tripId: String) async throws {
-        try await tripService.deleteTrip(tripId: tripId)
-        
-        // Ensure feeds are refreshed so no stale trips are able to be interacted with by the user
-        refreshFeed()
-        refreshUserTrips()
-        refreshSavedTrips()
-        
-
-    }
-    
-    
+        /// Delete a created trip
+        func deleteTrip(tripId: String) async throws {
+            try await tripService.deleteTrip(tripId: tripId)
+            
+            // Ensure feeds are refreshed so no stale trips are able to be interacted with by the user
+            refreshFeed()
+            refreshUserTrips()
+            refreshSavedTrips()
+            
+            // Clear the recommendations: the feed and saved trips above are
+            // still reloading, so recalculating now would use empty lists. HomeView recalculates
+            // them once those have finished loading.
+            recommendedTrips.removeAll()
+            
+        }
 }

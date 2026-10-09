@@ -51,17 +51,48 @@ struct HomeView: View {
                     } loadTrips: {
                         appVM.loadTrips()
                     }
-                    .navigationDestination(for: FeedRoute.self) { route in
-                        switch route {
-                        case .tripDetail: TripDetailView()
-                        }
-                    }
                     
                 case .second:
-                    Text("hello")
+                    if appVM.isLoadingSavedTrips || appVM.isLoadingRecommendedTrips {
+                        ProgressView()
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                    }
+                    else if appVM.savedTrips.isEmpty {
+                        ContentUnavailableView(
+                            "No recommendations yet",
+                            systemImage: "sparkles",
+                            description: Text("Save some trips and we'll suggest similar ones.")
+                        )
+                    }
+                    else if appVM.recommendedTrips.isEmpty {
+                        ContentUnavailableView(
+                            "No recommendations yet",
+                            systemImage: "sparkles",
+                            description: Text("We couldn't find trips that closely match your saved ones.")
+                        )
+                    }
+                    else {
+                        TripFeed(trips: appVM.recommendedTrips, isLoading: appVM.isLoadingRecommendedTrips, route: $router.feedRoute) {
+                            appVM.refreshSavedTrips()
+                        } loadTrips: {
+                            // recommendations aren't paginated
+                        }
+                    }
                 }
             }
-            
+            .navigationDestination(for: FeedRoute.self) { route in
+                switch route {
+                case .tripDetail: TripDetailView()
+                }
+            }
+            .onAppear {
+                appVM.refreshSavedTrips()
+            }
+            // Build recommendations when the screen appears, and again if the data changes.
+            .onChange(of: appVM.savedTrips.map(\.id)) {
+                appVM.loadRecommendedTrips()
+            }
 
             Spacer()
         }
@@ -75,4 +106,3 @@ struct HomeView: View {
             .environment(AppViewModel(user: user ))
             .environment(Router())
     }
-

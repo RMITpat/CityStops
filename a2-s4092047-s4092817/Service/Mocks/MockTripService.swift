@@ -128,7 +128,7 @@ final class MockTripService: TripService {
     func loadAllTrips(ownerId: String) async throws -> [Trip] {
         nextPage(
             from: dummyTrips,
-            index: &tripFeedIndex
+            index: &recommendedTripsIndex
         )
     }
     
@@ -140,7 +140,7 @@ final class MockTripService: TripService {
 
         return nextPage(
             from: savedTrips,
-            index: &savedTripsIndex
+            index: &recommendedTripsIndex
         )
     }
     

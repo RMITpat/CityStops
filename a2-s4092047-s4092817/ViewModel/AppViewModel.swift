@@ -261,6 +261,7 @@ import MapKit
                 guard let self else { return }
                 
                 // Clean up missing name Trips (shouldn't be possible with input checking)
+                // Maps the returned "names" to candidates of type [Trip]
                 self.recommendedTrips = names.compactMap { name in
                     candidates.first {
                         $0.name.trimmingCharacters(in: .whitespacesAndNewlines) == name

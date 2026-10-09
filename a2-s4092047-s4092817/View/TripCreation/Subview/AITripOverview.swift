@@ -98,7 +98,7 @@ struct AITripOverview: View {
                                     do {
                                         try await tripCreationVM.fromAIResult(result: geminiVM.editTrip())
                                         self.error?.removeAll()
-
+                                        
                                     } catch {
                                         self.error = "Failed to regenerate stops"
                                     }
@@ -109,7 +109,7 @@ struct AITripOverview: View {
                             .buttonStyle(.glassProminent)
                             .tint(.dora)
                             .accessibilityIdentifier("replace.spots")
-
+                            
                             
                             Button("Add more spots") {
                                 Task {
@@ -152,45 +152,46 @@ struct AITripOverview: View {
             
             
             
-        }
-        
-        
-        
-        Spacer()
-        HStack {
-            Button("Start again") {
-                geminiVM.placesToRemove.removeAll()
-                geminiVM.resultReturned = false
-                tripCreationVM.clear()
-                router.tripCreationRoute = [TripCreationRoute.preferences]
+            
+            
+            
+            
+            Spacer()
+            
+            HStack {
+                Button("Start again") {
+                    geminiVM.placesToRemove.removeAll()
+                    geminiVM.resultReturned = false
+                    tripCreationVM.clear()
+                    router.tripCreationRoute = [TripCreationRoute.preferences]
+                    
+                }.disabled(geminiVM.isLoading)
+                    .buttonStyle(.glassProminent)
+                    .tint(.dora)
+                    .accessibilityIdentifier("start.again")
                 
-            }.disabled(geminiVM.isLoading)
-                .buttonStyle(.glassProminent)
-                .tint(.dora)
-                .accessibilityIdentifier("start.again")
-
-            
-            
-            Button("Finish") {
-                Task {
-                    do {
-                        try await appVM.saveTrip(name: tripCreationVM.name, description: tripCreationVM.description, selectedPlaces: tripCreationVM.selectedPlaces, preferences: tripCreationVM.selectedPreferences.map {$0.preference })
-                        
-                        tripCreationVM.clear()
-                        router.tripCreationRoute.removeAll()
-                        appVM.refreshFeed()
-                        appVM.refreshUserTrips()
-                        router.selectedTab = .home
-                    } catch {
-                        self.error = error.localizedDescription
+                
+                
+                Button("Finish") {
+                    Task {
+                        do {
+                            try await appVM.saveTrip(name: tripCreationVM.name, description: tripCreationVM.description, selectedPlaces: tripCreationVM.selectedPlaces, preferences: tripCreationVM.selectedPreferences.map {$0.preference })
+                            
+                            tripCreationVM.clear()
+                            router.tripCreationRoute.removeAll()
+                            appVM.refreshFeed()
+                            appVM.refreshUserTrips()
+                            router.selectedTab = .home
+                        } catch {
+                            self.error = error.localizedDescription
+                        }
                     }
-                }
-            }.disabled(appVM.isSaving)
-                .buttonStyle(.glassProminent)
-                .accessibilityIdentifier("finish.button")
+                }.disabled(appVM.isSaving)
+                    .buttonStyle(.glassProminent)
+                    .accessibilityIdentifier("finish.button")
+            }
+            .frame(alignment: .center)
         }
-        
-        .frame(alignment: .center)
     }
   
 

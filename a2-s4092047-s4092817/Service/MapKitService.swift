@@ -14,7 +14,7 @@ protocol MapKitService {
     func searchPlaces(searchRequest: String, currentRegion: MKCoordinateRegion) async throws -> [MapItem]
     func createRoute(source: MKMapItem, destination: MKMapItem) async throws -> MKRoute?
     
-    func getMKMapItemFromId(identifier: MKMapItem.Identifier) async throws -> MapItem?
+    func getMKMapItemFromId(identifier: String) async throws -> MapItem?
 }
 
 @MainActor
@@ -77,11 +77,14 @@ final class MapKitServiceImpl : MapKitService {
     }
     
     /// Request MKMapItem from identifier
-    func getMKMapItemFromId(identifier: MKMapItem.Identifier) async throws -> MapItem? {
-        let request = MKMapItemRequest(mapItemIdentifier: identifier)
-        
-        let mkItem = try await request.mapItem
-        return MapItem(identifier: mkItem.identifier?.rawValue ?? "", mkMapItem: mkItem)
+    func getMKMapItemFromId(identifier: String) async throws -> MapItem? {
+        if let mkIdentifier = MKMapItem.Identifier(rawValue: identifier) {
+            let request = MKMapItemRequest(mapItemIdentifier: mkIdentifier)
+            
+            let mkItem = try await request.mapItem
+            return MapItem(identifier: identifier, mkMapItem: mkItem)
+        }
+        return nil
     }
     
 }

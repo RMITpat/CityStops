@@ -17,7 +17,7 @@ import MapKit
     var isLoading: Bool = false
     
     /// The list of places to be replaced by the model, chosen by the user from a generated trip
-    var placesToRemove: [MKMapItem.Identifier] = []
+    var placesToRemove: [String] = []
 
     /// The current model being used
     var currentModelName: GeminiModel

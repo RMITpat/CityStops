@@ -35,16 +35,6 @@ final class AuthServiceImpl: AuthService {
         guard FirebaseApp.app() != nil else {
             throw AuthError.misconfigured("Firebase is not configured. Add GoogleService-Info.plist first.")
         }
-        
-        guard let clientID = FirebaseApp.app()?.options.clientID else {
-            throw AuthError.misconfigured(
-                "Firebase Google Client ID is missing. Check GoogleService-Info.plist."
-            )
-        }
-
-        GIDSignIn.sharedInstance.configuration = GIDConfiguration(
-            clientID: clientID
-        )
 
         guard let viewController = Self.presentingViewController else {
             throw AuthError.misconfigured("Could not find a view controller for Google Sign-In.")

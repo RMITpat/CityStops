@@ -53,7 +53,7 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "-ENABLE-MOCK-DATA"
+            argument = "-ENABLE-DEBUG"
             isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>

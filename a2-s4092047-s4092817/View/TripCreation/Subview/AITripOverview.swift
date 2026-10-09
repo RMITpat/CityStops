@@ -71,6 +71,8 @@ struct AITripOverview: View {
                                 .textFieldStyle(RoundedBorderTextFieldStyle())
                                 .padding(.bottom, 32)
                                 .font(.title)
+                                .accessibilityIdentifier("ai.title")
+                                .accessibilityLabel("Edit the ai generated title")
                             
                             TextEditor(text: $tripCreationVM.description)
                                 .frame(minHeight: 120)
@@ -82,6 +84,8 @@ struct AITripOverview: View {
                                     RoundedRectangle(cornerRadius: 8)
                                         .stroke(.secondary.opacity(0.15))
                                 }
+                                .accessibilityIdentifier("ai.description")
+                                .accessibilityLabel("Edit the ai generated decription")
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding()
@@ -103,6 +107,8 @@ struct AITripOverview: View {
                             .disabled(geminiVM.placesToRemove.isEmpty || geminiVM.isLoading)
                             .buttonStyle(.glassProminent)
                             .tint(.dora)
+                            .accessibilityIdentifier("replace.spots")
+
                             
                             Button("Add more spots") {
                                 Task {
@@ -120,6 +126,7 @@ struct AITripOverview: View {
                             .disabled(geminiVM.isLoading)
                             .buttonStyle(.glassProminent)
                             .tint(.dora)
+                            .accessibilityIdentifier("add.spots")
                             
                             if let error {
                                 Text(error)
@@ -159,7 +166,8 @@ struct AITripOverview: View {
             }.disabled(geminiVM.isLoading)
                 .buttonStyle(.glassProminent)
                 .tint(.dora)
-            
+                .accessibilityIdentifier("start.again")
+
             
             
             Button("Finish") {
@@ -178,6 +186,7 @@ struct AITripOverview: View {
                 }
             }.disabled(appVM.isSaving)
                 .buttonStyle(.glassProminent)
+                .accessibilityIdentifier("finish.button")
         }
         
         .frame(alignment: .center)

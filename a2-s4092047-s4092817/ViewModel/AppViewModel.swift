@@ -91,7 +91,7 @@ import MapKit
     /// Saves a trip to Firestore
     func saveTrip(name: String, description: String, selectedPlaces: [MapItem], preferences: [String]) async throws {
         isSaving = true
-        let placeIdentifiers = selectedPlaces.compactMap { $0.mkMapItem.identifier }
+        let placeIdentifiers = selectedPlaces.compactMap { $0.identifier }
         let newTrip = Trip(ownerUsername: user.username, ownerId: user.id, name: name, description: description, places: placeIdentifiers, preferences: preferences)
         try await tripService.saveTrip(trip: newTrip)
         isSaving = false
@@ -221,7 +221,7 @@ import MapKit
         }
         
         isLoadingRecommendedTrips = true
-
+        
         Task {
             // Artificial wait, can be removed but feels nice
             try? await Task.sleep(for: .seconds(1))
@@ -235,7 +235,7 @@ import MapKit
                 
                 savedTripTitles = allSavedTrips.map(\.name)
                 savedTripIds = allSavedTrips.map(\.id)
-
+                
             } catch {
                 print("Failed to load saved trips: \(error)")
             }
@@ -250,11 +250,11 @@ import MapKit
                 isLoadingRecommendedTrips = false
                 return
             }
-        
+            
             let candidates = allTrips.filter {
                 !savedTripIds.contains($0.id) && $0.ownerId != self.user.id
             }
-
+            
             // debug
             print("saved:", savedTripTitles.count, "candidates:", candidates.count)
             
@@ -271,32 +271,7 @@ import MapKit
             { [weak self] names in
                 // debug
                 print("model returned:", names)
-            guard let self else { return }
-
-                let matched = names.compactMap { name in
-                    candidates.first {
-                        $0.name.trimmingCharacters(in: .whitespacesAndNewlines) == name
-                    }
-                }
-                
-                // Get the stops in each trip
-                Task {
-                    var converted: [Trip] = []
-                    for trip in matched {
-                        if let fullTrip = try? await self.getMKMapItemsForTrip(trip: trip) {
-                            converted.append(fullTrip)
-                        }
-                    }
-                    // Assign recommendedTrips with the trips with stops included
-                    self.recommendedTrips = converted
-                    self.isLoadingRecommendedTrips = false
-
-                    // handle constant refreshes
-                    if self.recommendationsOutdated {
-                        self.recommendationsOutdated = false
-                        self.loadRecommendedTrips()
-                    }
-                }
+                guard let self else { return }
             }
         }
     }
@@ -314,7 +289,7 @@ import MapKit
         }
         
         /// Function for converting a singular Identifier to an MKMapItem
-        func getMKMapItemFromId(identifier: MKMapItem.Identifier) async throws -> MapItem? {
+        func getMKMapItemFromId(identifier: String) async throws -> MapItem? {
             
             return try await mkMapService.getMKMapItemFromId(identifier: identifier)
             

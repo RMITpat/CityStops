@@ -23,14 +23,14 @@ struct Trip: Identifiable {
     let ownerUsername: String
     let name: String
     let description: String
-    let places: [MKMapItem.Identifier]
+    let places: [String]
     let createdAt: Date
     let preferences: [String]
     
     var savedByUser: Bool = false
     var mkMapItemPlaces: [MapItem] = []
     
-    init(id: String = "", ownerUsername:String, ownerId: String, name: String, description: String, places: [MKMapItem.Identifier], createdAt: Date = Date(), preferences: [String], savedByUser: Bool = false) {
+    init(id: String = "", ownerUsername:String, ownerId: String, name: String, description: String, places: [String], createdAt: Date = Date(), preferences: [String], savedByUser: Bool = false) {
         self.id = id
         self.ownerId = ownerId
         self.ownerUsername = ownerUsername
@@ -45,7 +45,6 @@ struct Trip: Identifiable {
     
     
     var asDictionary: [String: Any] {
-        let rawValueIdentifiers: [String] = places.map { $0.rawValue }
         
         return [
             "id": id,
@@ -53,13 +52,13 @@ struct Trip: Identifiable {
             "ownerUsername": ownerUsername,
             "name": name,
             "description": description,
-            "places": rawValueIdentifiers,
+            "places": places,
             "createdAt" : createdAt,
             "preferences" : preferences
         ]
     }
     
-    // Converts a Firestore document back into Project.
+    // Converts a Firestore document back into Trip.
     init?(snapshot: QueryDocumentSnapshot, isSaved: Bool) {
         
         let data = snapshot.data()
@@ -82,7 +81,7 @@ struct Trip: Identifiable {
         self.ownerUsername = ownerUsername
         self.name = name
         self.description = description
-        self.places = places.compactMap { MKMapItem.Identifier(rawValue: $0) }
+        self.places = places
         self.preferences = preferences
         self.savedByUser = isSaved
         createdAt = timestamp.dateValue()

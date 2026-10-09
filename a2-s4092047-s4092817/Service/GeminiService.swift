@@ -39,7 +39,7 @@ protocol GeminiService {
     var modelName: GeminiModel { get }
 
     func request(tripRequest: String, preferences: [String]) async throws -> AIResult
-    func editTrip(identifiers: [MKMapItem.Identifier]) async throws -> AIResult
+    func editTrip(identifiers: [String]) async throws -> AIResult
     func addStops() async throws -> AIResult
     
     
@@ -190,7 +190,7 @@ final class GeminiServiceImpl : GeminiService {
     }
     
     /// A request that asks the model to edit the existing trip by replacing specific places.
-    func editTrip(identifiers: [MKMapItem.Identifier]) async throws -> AIResult {
+    func editTrip(identifiers: [String]) async throws -> AIResult {
         selectedPlaces.removeAll()
         
         var prompt = """
@@ -201,7 +201,7 @@ final class GeminiServiceImpl : GeminiService {
             
             """
         for id in identifiers {
-            prompt.append(id.rawValue + " ")
+            prompt.append(id + " ")
         }
         
         return try await generateTrip(prompt: prompt)

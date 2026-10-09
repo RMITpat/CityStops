@@ -12,13 +12,28 @@ import MapKit
 @MainActor
 final class MockGeminiService : GeminiService {
     var modelName: GeminiModel = .flash6
-    let mockResult = AIResult(tripName: "Test trip", description: "Test description", selectedPlaces: [])
+    let mockResult = AIResult(tripName: "Test trip", description: "Test description", selectedPlaces: [
+        MockMapKitService.makeDummyMapItem(
+            identifier: "mock-mca-australia",
+            name: "Museum of Contemporary Art Australia",
+            latitude: -33.8731,
+            longitude: 151.2065,
+            address: "George Street, Sydney NSW"
+        ),
+        MockMapKitService.makeDummyMapItem(
+            identifier: "mock-the-rocks",
+            name: "The Rocks",
+            latitude: -33.8696,
+            longitude: 151.2069,
+            address: "The Rocks, Sydney NSW"
+        ),
+    ])
     
     func request(tripRequest: String, preferences: [String]) async throws -> AIResult {
         return mockResult
     }
     
-    func editTrip(identifiers: [MKMapItem.Identifier]) async throws -> AIResult {
+    func editTrip(identifiers: [String]) async throws -> AIResult {
         return mockResult
     }
     

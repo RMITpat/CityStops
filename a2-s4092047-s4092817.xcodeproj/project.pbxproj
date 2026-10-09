@@ -55,6 +55,7 @@
 				ML/RecommendationViewModel.swift,
 				ML/vocab.txt,
 				ML/WordPieceTokenizer.swift,
+				Launch/Arguments.swift,
 			);
 			target = 8D6264EA30528A4D00D842C2 /* a2-s4092047-s4092817Tests */;
 		};
@@ -66,6 +67,7 @@
 				ML/RecommendationViewModel.swift,
 				ML/vocab.txt,
 				ML/WordPieceTokenizer.swift,
+				Launch/Arguments.swift,
 			);
 			target = 8D6264F430528A4D00D842C2 /* a2-s4092047-s4092817UITests */;
 		};

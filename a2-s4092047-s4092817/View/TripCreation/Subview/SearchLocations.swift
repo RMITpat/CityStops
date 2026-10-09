@@ -17,10 +17,12 @@ struct SearchLocations: View {
     @Environment(SearchTermViewModel.self) var searchTermVM: SearchTermViewModel
     
     // The place search request inputted by the user
-    @State var searchRequest: String = ""
+    @State private var searchRequest: String = ""
     
     // The results of a place search
-    @State var searchResults: [MapItem] = []
+    @State private var searchResults: [MapItem]?
+    
+    @State private var errorMessage: String?
     
     var body: some View {
         @Bindable var locationVM = locationVM
@@ -32,7 +34,7 @@ struct SearchLocations: View {
                 Image(systemName: "magnifyingglass")
                     .foregroundStyle(.secondary)
 
-                TextField("Search for a place", text: $searchRequest)
+                TextField("Search for a place", text: $searchRequest, axis: .vertical)
                     .textFieldStyle(.plain)
                     .accessibilityIdentifier("search.places")
 
@@ -56,6 +58,7 @@ struct SearchLocations: View {
                 VStack(alignment: .leading) {
                     Text("Recently searched:")
                         .font(.title2)
+                        .fixedSize(horizontal: false, vertical: true)
                     
                     // Past searches
                     ForEach(searchTermVM.pastSearches, id: \.id) { term in
@@ -65,11 +68,12 @@ struct SearchLocations: View {
                                 .font(.title3)
                                 .bold()
                                 .foregroundStyle(.primary)
-                            
+                                .fixedSize(horizontal: false, vertical: true)
                             Spacer()
                             Button("", systemImage: "xmark.circle.fill") {
                                 searchTermVM.delete(searchTerm: term)
                             }.font(.title3)
+                                .accessibilityLabel("Remove this recently searched term")
                         }
                         .padding()
                         .contentShape(Rectangle())
@@ -87,22 +91,37 @@ struct SearchLocations: View {
             Button("Search") {
                 startSearch()
             }
-            .buttonStyle(.glassProminent)
+            .modifier(ButtonFormat())
             .accessibilityIdentifier("search.button")
             
-            // MARK: Location search results
-            ScrollView {
-                VStack {
-                    // Generate location detail cards
-                    ForEach(searchResults, id: \.identifier) { result in
-                        LocationCard(location: result,
-                                         selectedPlaces: $tripCreationVM.selectedPlaces
-                        ) 
-                    }
-                }
+            // MARK: Search error message
+            if let errorMessage  {
+                Text(errorMessage).foregroundColor(.red).font(.footnote)
+                    .accessibilityIdentifier("search.error")
+
             }
             
-            .padding(.horizontal, 16)
+            // MARK: Location search results
+            if let searchResults {
+                if searchResults.isEmpty {
+                    Text("No results")
+                        .font(.title2)
+                        .multilineTextAlignment(.center)
+                        .accessibilityIdentifier("empty.search")
+                }
+                ScrollView {
+                    VStack {
+                        // Generate location detail cards
+                        ForEach(searchResults, id: \.identifier) { result in
+                            LocationCard(location: result,
+                                         selectedPlaces: $tripCreationVM.selectedPlaces
+                            )
+                        }
+                    }
+                }
+                .padding(.horizontal, 16)
+
+            }
         }
         .padding(.horizontal, 12)
 
@@ -110,23 +129,17 @@ struct SearchLocations: View {
             searchTermVM.fetch()
         }
         
-
-//        // MARK: Location Search Bar
-//        .searchable(
-//            text: $searchRequest,
-//            placement: .automatic,
-//            prompt: "Search for a place",
-//        )
     }
     
     
     func startSearch() {
-           searchResults.removeAll()
+           searchResults = nil
+            errorMessage = nil
            Task {
                do {
                    searchResults = try await locationVM.searchPlaces(searchRequest: searchRequest)
                } catch {
-                   // TODO: display errors somewhere
+                   errorMessage = "Failed to search for places."
                }
            }
            searchTermVM.insert(searchTerm: searchRequest)

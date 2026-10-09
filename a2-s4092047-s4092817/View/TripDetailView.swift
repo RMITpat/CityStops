@@ -78,6 +78,8 @@ struct TripDetailView: View {
                             }
                             .font(.title2)
                             .foregroundStyle(.red)
+                            .accessibilityIdentifier("\(trip.id).delete")
+                            .accessibilityLabel("Delete this trip")
                             Spacer()
                         }
                         SaveTripButton(trip: trip)

@@ -8,13 +8,23 @@
 import Foundation
 import MapKit
 
+enum MockMapKitError: Error {
+    case searchError
+}
+
 /// Mock MapKit service that uses no MapKit methods. Used in UI Tests
 @MainActor
 final class MockMapKitService : MapKitService {
     
     let dummyResults: [MapItem]
+    let RETURN_EMPTY: Bool
+    let RETURN_ERROR: Bool
     
-    init() {
+    init(RETURN_EMPTY: Bool, RETURN_ERROR: Bool
+) {
+        self.RETURN_EMPTY = RETURN_EMPTY
+        self.RETURN_ERROR = RETURN_ERROR
+        
         self.dummyResults = [
             Self.makeDummyMapItem(
                 identifier: "mock-sydney-opera-house",
@@ -55,12 +65,22 @@ final class MockMapKitService : MapKitService {
         ]
     }
     
-    func getMKMapItemFromId(identifier: MKMapItem.Identifier) async throws -> MapItem? {
-        return dummyResults.first(where: {$0.identifier == identifier.rawValue} )
+    func getMKMapItemFromId(identifier: String) async throws -> MapItem? {
+        if RETURN_EMPTY {
+            return nil
+        }
+        return dummyResults.first(where: {$0.identifier == identifier} )
     }
     
     
     func searchPlaces(searchRequest: String, currentRegion: MKCoordinateRegion) async throws -> [MapItem] {
+        if RETURN_EMPTY {
+            return []
+        }
+        
+        if RETURN_ERROR {
+            throw MockMapKitError.searchError
+        }
         return dummyResults
     }
     
@@ -68,7 +88,7 @@ final class MockMapKitService : MapKitService {
         return nil
     }
     
-    private static func makeDummyMapItem(
+    static func makeDummyMapItem(
         identifier: String,
         name: String,
         latitude: CLLocationDegrees,

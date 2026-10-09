@@ -33,8 +33,8 @@ struct a2_s4092047_s4092817App: App {
         }
         
         #if DEBUG
-        let testMode = ProcessInfo.processInfo.arguments.contains("-ENABLE-MOCK-DATA")
-        let factory = ViewModelFactory(testMode: testMode)
+        let arguments = ProcessInfo.processInfo.arguments
+        let factory = ViewModelFactory(arguments: arguments)
         
         #else
         let factory = ViewModelFactory()

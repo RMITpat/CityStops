@@ -77,11 +77,15 @@ struct AITripCreationView: View {
                                 .multilineTextAlignment(.center)
                                 .font(.largeTitle)
                                 .bold()
+                                .accessibilityIdentifier("dora.hi")
                             
                             Text("Where would you like to explore today?")
                                 .font(.title)
                                 .multilineTextAlignment(.center)
+                                .accessibilityIdentifier("dora.question")
+
                         }.frame(maxWidth: .infinity, alignment: .center)
+                        
                     }
                     
                     if let error {
@@ -101,6 +105,7 @@ struct AITripCreationView: View {
                 HStack {
                     TextField("Create a trip through my local parks....", text: $prompt, axis: .vertical)
                         .textFieldStyle(.roundedBorder)
+                        .accessibilityIdentifier("dora.input")
                     
                     
                     Button("", systemImage: "paperplane.circle.fill") {
@@ -115,6 +120,7 @@ struct AITripCreationView: View {
                         }
                         
                     }
+                    .accessibilityIdentifier("create.ai.trip")
                     .foregroundStyle(.dora)
                     .font(.largeTitle)
                     .disabled(geminiVM.isLoading)

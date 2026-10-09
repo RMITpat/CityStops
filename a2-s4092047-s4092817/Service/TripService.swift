@@ -83,14 +83,16 @@ final class TripServiceImpl: TripService {
     /// Get all of the trips that a user has saved in the app from Firebase.
     func loadAllSavedTrips(ownerId: String) async throws -> [Trip] {
         showFirebaseMessage()
-        
+
         let snapshot = try await db.collection("bookmarkedTrips")
-                                    .whereField("ownerId", isEqualTo: ownerId)
-                                .getDocuments()
-            
+            .whereField("ownerId", isEqualTo: ownerId)
+            .getDocuments()
+
+        // Convert bookmark documents into the actual trip documents they point to
+        let convertedTrips: [QueryDocumentSnapshot] = try await lookupSavedTrips(savedTrips: snapshot.documents)
 
         return try await retrieveTrips(
-            queryDocuments: snapshot.documents,
+            queryDocuments: convertedTrips,
             ownerId: ownerId
         )
     }

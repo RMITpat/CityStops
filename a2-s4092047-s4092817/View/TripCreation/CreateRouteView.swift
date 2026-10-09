@@ -89,7 +89,6 @@ struct CreateRouteView: View {
                     // Lets you pan/zoom the map while the sheet is at small/medium size
                     .presentationBackgroundInteraction(.enabled(upThrough: .medium))
                     .presentationDragIndicator(.visible)
-                    .interactiveDismissDisabled()
                 }
                 
                 // MARK: Scroll View of chosen locations

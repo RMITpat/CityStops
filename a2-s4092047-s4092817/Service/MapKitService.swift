@@ -8,11 +8,10 @@
 import Foundation
 import MapKit
 
-
-@MainActor
 /// Defines services for searching places, calculating routes, and retrieving map items.
 ///
 /// See ``MapKitServiceImpl`` for real implementation in app.
+@MainActor
 protocol MapKitService {
 
     /// Conduct a search of places using a search request string.
@@ -23,7 +22,7 @@ protocol MapKitService {
     /// - Throws: An error if the place search fails.
     func searchPlaces(searchRequest: String, currentRegion: MKCoordinateRegion) async throws -> [MapItem]
     
-    /// Create an MKRoute between 2 MapItems
+    /// Create an MKRoute between 2 MapItems.
     /// - Parameters:
     ///   - source: The starting location of route.
     ///   - destination: The ending location of route.
@@ -31,7 +30,7 @@ protocol MapKitService {
     /// - Throws: An error if route calculation fails.
     func createRoute(source: MKMapItem, destination: MKMapItem) async throws -> MKRoute?
     
-    /// Request ``MapItem`` from identifier
+    /// Request ``MapItem`` from identifier.
     /// - Parameter identifier: The identifier of the map item.
     /// - Returns: The corresponding ``MapItem``, or `nil` if the identifier is invalid.
     /// - Throws: An error if retrieving the map item fails.
@@ -43,7 +42,7 @@ protocol MapKitService {
 final class MapKitServiceImpl : MapKitService {
     private var cachedRoutes: [CachedRoute : MKRoute] = [:]
 
-    /// Conduct a search of places using a search request string
+    /// Conduct a search of places using a search request string.
     func searchPlaces(searchRequest: String, currentRegion: MKCoordinateRegion) async throws -> [MapItem] {
         let request = MKLocalSearch.Request()
         request.naturalLanguageQuery = searchRequest
@@ -63,7 +62,7 @@ final class MapKitServiceImpl : MapKitService {
         }
     }
     
-    /// Create an MKRoute between 2 MapItems
+    /// Create an MKRoute between 2 MapItems.
     func createRoute(source: MKMapItem, destination: MKMapItem) async throws -> MKRoute? {
         var newRoute: CachedRoute?
         
@@ -98,7 +97,7 @@ final class MapKitServiceImpl : MapKitService {
         return nil
     }
     
-    /// Request MKMapItem from identifier
+    /// Request MKMapItem from identifier.
     func getMKMapItemFromId(identifier: String) async throws -> MapItem? {
         if let mkIdentifier = MKMapItem.Identifier(rawValue: identifier) {
             let request = MKMapItemRequest(mapItemIdentifier: mkIdentifier)

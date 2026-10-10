@@ -115,7 +115,7 @@ final class RecommendationService {
     ///   - topN: How many suggestions to return.
     ///   - confidenceThreshold: How "similar" the String semantics must be.
     ///   - excludeInputs: If true, candidates identical to an input are not suggested back.
-    ///  - completion: handles async. logic.
+    ///   - completion: handles async. logic.
     func recommend(
         basedOn inputs: [String],
         topN: Int = 5,

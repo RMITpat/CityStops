@@ -84,7 +84,7 @@ struct LocationCard: View {
                     Image(systemName: isSelected ? "minus" : "plus")
                         .bold()
                         .foregroundStyle(.white)
-                        .frame(width: 36, height: 36)
+                        .frame(width: 32, height: 32)
                         .background(isSelected ? Color.red : Color.accentColor)
                         .clipShape(Circle())
                 }.accessibilityLabel(isSelected ? "Remove  location \(location.mkMapItem.name ?? "") from the trip." : "Add location \(location.mkMapItem.name ?? "") to the trip."  )

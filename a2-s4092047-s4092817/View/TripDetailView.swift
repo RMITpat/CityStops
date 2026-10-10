@@ -32,6 +32,7 @@ struct TripDetailView: View {
                 TripCardInfo(trip: trip)
                 
                 
+                
             }.padding()
 // MARK: UIKit Map
                 UIKitMapView(
@@ -42,9 +43,7 @@ struct TripDetailView: View {
                     isPinSelectable: true,
                     interactionModes: .all
                 )
-
-                
-            
+                .accessibilityHidden(true)
             .frame(height: 425)
             .task {
                 do {
@@ -92,6 +91,7 @@ struct TripDetailView: View {
                 Picker("Mode", selection: $mode) {
                     ForEach(Mode.allCases) { Text($0.rawValue).tag($0) }
                 }
+                .accessibilitySortPriority(1)
                 .pickerStyle(.segmented)
                 .padding(.horizontal, 16)
                 
@@ -104,6 +104,7 @@ struct TripDetailView: View {
                         Divider()
                         Text("Created on \(trip.createdAt.formatted())")
                             .font(.subheadline)
+                            .accessibilityLabel("Created on \(trip.createdAt.formatted(date: .complete, time: .shortened))")
                     }.padding()
                 case .second:
                     // MARK: Location List

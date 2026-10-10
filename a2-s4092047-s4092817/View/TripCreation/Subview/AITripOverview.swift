@@ -42,6 +42,7 @@ struct AITripOverview: View {
                 isPinSelectable: true,
                 interactionModes: .all
             )
+            .accessibilityHidden(true)
             .frame(height: 390)
             .onChange(of: tripCreationVM.selectedPlaces) {
                 Task {
@@ -63,6 +64,7 @@ struct AITripOverview: View {
                     }
                     .pickerStyle(.segmented)
                     .padding(.horizontal, 16)
+                    .accessibilitySortPriority(3)
                     
                     switch mode {
                     case .first:
@@ -97,7 +99,7 @@ struct AITripOverview: View {
                                     do {
                                         try await tripCreationVM.fromAIResult(result: geminiVM.editTrip())
                                         self.error?.removeAll()
-
+                                        
                                     } catch {
                                         self.error = "Failed to regenerate stops"
                                     }
@@ -108,6 +110,7 @@ struct AITripOverview: View {
                             .buttonStyle(.glassProminent)
                             .tint(.dora)
                             .accessibilityIdentifier("replace.spots")
+                            .accessibilityHint("Ask AI to replace the spots you have selected")
 
                             
                             Button("Add more spots") {
@@ -127,6 +130,8 @@ struct AITripOverview: View {
                             .buttonStyle(.glassProminent)
                             .tint(.dora)
                             .accessibilityIdentifier("add.spots")
+                            .accessibilityHint("Ask AI to come up with more spots to this trip")
+
                             
                             if let error {
                                 Text(error)
@@ -151,45 +156,50 @@ struct AITripOverview: View {
             
             
             
-        }
-        
-        
-        
-        Spacer()
-        HStack {
-            Button("Start again") {
-                geminiVM.placesToRemove.removeAll()
-                geminiVM.resultReturned = false
-                tripCreationVM.clear()
-                router.tripCreationRoute = [TripCreationRoute.preferences]
+            
+            
+            
+            
+            Spacer()
+            
+            HStack {
+                Button("Start again") {
+                    geminiVM.placesToRemove.removeAll()
+                    geminiVM.resultReturned = false
+                    tripCreationVM.clear()
+                    router.tripCreationRoute = [TripCreationRoute.preferences]
+                    
+                }.disabled(geminiVM.isLoading)
+                    .buttonStyle(.glassProminent)
+                    .tint(.dora)
+                    .accessibilityIdentifier("start.again")
+                    .accessibilityHint("Discard this trip and start again at preference selection")
+                    .accessibilitySortPriority(2)
                 
-            }.disabled(geminiVM.isLoading)
-                .buttonStyle(.glassProminent)
-                .tint(.dora)
-                .accessibilityIdentifier("start.again")
-
-            
-            
-            Button("Finish") {
-                Task {
-                    do {
-                        try await appVM.saveTrip(name: tripCreationVM.name, description: tripCreationVM.description, selectedPlaces: tripCreationVM.selectedPlaces, preferences: tripCreationVM.selectedPreferences.map {$0.preference })
-                        
-                        tripCreationVM.clear()
-                        router.tripCreationRoute.removeAll()
-                        appVM.refreshFeed()
-                        appVM.refreshUserTrips()
-                        router.selectedTab = .home
-                    } catch {
-                        self.error = error.localizedDescription
+                
+                Button("Finish") {
+                    Task {
+                        do {
+                            try await appVM.saveTrip(name: tripCreationVM.name, description: tripCreationVM.description, selectedPlaces: tripCreationVM.selectedPlaces, preferences: tripCreationVM.selectedPreferences.map {$0.preference })
+                            
+                            tripCreationVM.clear()
+                            router.tripCreationRoute.removeAll()
+                            appVM.refreshFeed()
+                            appVM.refreshUserTrips()
+                            router.selectedTab = .home
+                        } catch {
+                            self.error = error.localizedDescription
+                        }
                     }
-                }
-            }.disabled(appVM.isSaving)
-                .buttonStyle(.glassProminent)
-                .accessibilityIdentifier("finish.button")
+                }.disabled(appVM.isSaving)
+                    .buttonStyle(.glassProminent)
+                    .accessibilityIdentifier("finish.button")
+                    .accessibilityHint("Save this trip and return to the home feed")
+                    .accessibilitySortPriority(1)
+
+            }
+            .frame(alignment: .center)
         }
-        
-        .frame(alignment: .center)
     }
   
 

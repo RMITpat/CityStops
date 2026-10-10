@@ -33,10 +33,14 @@ struct SearchLocations: View {
             HStack {
                 Image(systemName: "magnifyingglass")
                     .foregroundStyle(.secondary)
+                    .accessibilityHidden(true)
 
                 TextField("Search for a place", text: $searchRequest, axis: .vertical)
                     .textFieldStyle(.plain)
+                    .accessibilityAddTraits(.isSearchField)
                     .accessibilityIdentifier("search.places")
+                 
+
 
                 if !searchRequest.isEmpty {
                     Button {
@@ -44,6 +48,9 @@ struct SearchLocations: View {
                     } label: {
                         Image(systemName: "xmark.circle.fill")
                             .foregroundStyle(.secondary)
+                            .accessibilityLabel("Clear")
+                            .accessibilityHint("Clears the search bar")
+
                     }
                 }
             }
@@ -51,49 +58,54 @@ struct SearchLocations: View {
             .padding(.vertical, 10)
             .background(.thinMaterial)
             .clipShape(RoundedRectangle(cornerRadius: 12))
-            
-            // MARK: Search history
-            if searchRequest.isEmpty {
-                
-                VStack(alignment: .leading) {
-                    Text("Recently searched:")
-                        .font(.title2)
-                        .fixedSize(horizontal: false, vertical: true)
-                    
-                    // Past searches
-                    ForEach(searchTermVM.pastSearches, id: \.id) { term in
-                        HStack {
-                            Image(systemName: "clock.fill")
-                            Text(term.term)
-                                .font(.title3)
-                                .bold()
-                                .foregroundStyle(.primary)
-                                .fixedSize(horizontal: false, vertical: true)
-                            Spacer()
-                            Button("", systemImage: "xmark.circle.fill") {
-                                searchTermVM.delete(searchTerm: term)
-                            }.font(.title3)
-                                .accessibilityLabel("Remove this recently searched term")
-                        }
-                        .padding()
-                        .contentShape(Rectangle())
-                        .onTapGesture {
-                            searchRequest = term.term
-                            startSearch()
-                        }
-                        Divider()
-                    }
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-            }
-            
             // MARK: "Search" Button
             Button("Search") {
                 startSearch()
             }
             .modifier(ButtonFormat())
             .accessibilityIdentifier("search.button")
+            .accessibilityHint("Searches for places nearby you")
             
+            // MARK: Search history
+            if searchRequest.isEmpty {
+                ScrollView {
+                    VStack(alignment: .leading) {
+                        Text("Recently searched:")
+                            .font(.title2)
+                            .fixedSize(horizontal: false, vertical: true)
+                            .accessibilityAddTraits(.isHeader)
+                        
+                        // Past searches
+                        ForEach(searchTermVM.pastSearches, id: \.id) { term in
+                            HStack {
+                                Image(systemName: "clock.fill")
+                                    .accessibilityHidden(true)
+                                
+                                Text(term.term)
+                                    .font(.title3)
+                                    .bold()
+                                    .foregroundStyle(.primary)
+                                    .fixedSize(horizontal: false, vertical: true)
+                                Spacer()
+                                Button("", systemImage: "xmark.circle.fill") {
+                                    searchTermVM.delete(searchTerm: term)
+                                }.font(.title3)
+                                    .accessibilityLabel("Remove the recently searched term, \(term.term)")
+                            }
+                            .padding()
+                            .contentShape(Rectangle())
+                            .onTapGesture {
+                                searchRequest = term.term
+                                startSearch()
+                            }
+                            Divider()
+                        }
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                }
+            }
+            
+        
             // MARK: Search error message
             if let errorMessage  {
                 Text(errorMessage).foregroundColor(.red).font(.footnote)

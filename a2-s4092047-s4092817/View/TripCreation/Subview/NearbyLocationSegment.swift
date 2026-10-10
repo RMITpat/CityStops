@@ -28,6 +28,8 @@ struct NearbyLocationSegment: View {
             Text(preference.preference)
                 .font(.title2)
                 .bold()
+                .accessibilityAddTraits(.isHeader)
+                .fixedSize(horizontal: false, vertical: true)
             
             if let status = otmVM.segmentLocations[preference.preference] {
                 switch status {

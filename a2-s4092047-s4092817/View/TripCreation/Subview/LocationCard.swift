@@ -56,6 +56,7 @@ struct LocationCard: View {
             Image(systemName: "mappin.circle.fill")
                 .font(.title2)
                 .foregroundStyle(.gray)
+                .accessibilityHidden(true)
             
             // Place information
             VStack(alignment: .leading, spacing: 4) {

@@ -43,58 +43,61 @@ struct CreateRouteView: View {
                 .ignoresSafeArea()
             
             // MARK: - Base View
-            VStack {
+            ScrollView {
                 
-                // MARK: Map interface - UIKit
-                UIKitMapView(
-                    position: locationVM.currentLocation,
-                    places: tripCreationVM.selectedPlaces.map({$0.mkMapItem}),
-                    routes: routes,
-                    showsUserLocation: true,
-                    isPinSelectable: true,
-                    interactionModes: gestureState.isLongPressComplete ? [] : .all
-                )
-
-                .frame(height:400)
-                // Route between stops
-                .task {
-                    await otmVM.generateSegments(
-                        preferences: tripCreationVM.selectedPreferences,
-                        coordinate: locationVM.currentRegion.center
+                VStack {
+                    
+                    // MARK: Map interface - UIKit
+                    UIKitMapView(
+                        position: locationVM.currentLocation,
+                        places: tripCreationVM.selectedPlaces.map({$0.mkMapItem}),
+                        routes: routes,
+                        showsUserLocation: true,
+                        isPinSelectable: true,
+                        interactionModes: gestureState.isLongPressComplete ? [] : .all
                     )
-                }
-                .onChange(of: tripCreationVM.selectedPlaces) {
-                    Task {
-                        routes = try await locationVM.createTripRoutes(selectedPlaces: tripCreationVM.selectedPlaces)
+                    .accessibilityHidden(true)
+                    .frame(height:400)
+                    // Route between stops
+                    .task {
+                        await otmVM.generateSegments(
+                            preferences: tripCreationVM.selectedPreferences,
+                            coordinate: locationVM.currentRegion.center
+                        )
                     }
-                }
-                .accessibilityLabel("Map of your route")
-                
-                // MARK: Choose stops sheet
-                .sheet(isPresented: $showStopsSheet) {
-                    VStack {
-                        CreateTripSheet(mode: tripCreationVM.selectedPreferences.isEmpty ? .second : .first)
-                            .padding(.top, 24)
-                            .environment(otmVM)
-                        Button("Done") {
-                            showStopsSheet.toggle()
+                    .onChange(of: tripCreationVM.selectedPlaces) {
+                        Task {
+                            routes = try await locationVM.createTripRoutes(selectedPlaces: tripCreationVM.selectedPlaces)
                         }
-                        .buttonStyle(.borderedProminent)
-                        .font(.title2)
-                        .controlSize(.large)
-                        .accessibilityIdentifier("done.button")
                     }
-                    .presentationDetents([.large])
-                    // Lets you pan/zoom the map while the sheet is at small/medium size
-                    .presentationBackgroundInteraction(.enabled(upThrough: .medium))
-                    .presentationDragIndicator(.visible)
-                }
-                
-                // MARK: Scroll View of chosen locations
-                Text("Long press for edit trip options")
-                    .font(.caption)
-                    .foregroundStyle(.gray).fixedSize(horizontal: false, vertical: true)
-                ScrollView {
+                    .accessibilityLabel("Map of your route")
+                    
+                    // MARK: Choose stops sheet
+                    .sheet(isPresented: $showStopsSheet) {
+                        VStack {
+                            CreateTripSheet(mode: tripCreationVM.selectedPreferences.isEmpty ? .second : .first)
+                                .padding(.top, 24)
+                                .environment(otmVM)
+                            Button("Done") {
+                                showStopsSheet.toggle()
+                            }
+                            .buttonStyle(.borderedProminent)
+                            .font(.title2)
+                            .controlSize(.large)
+                            .accessibilityIdentifier("done.button")
+                            .accessibilitySortPriority(2)
+
+                        }
+                        .presentationDetents([.large])
+                        // Lets you pan/zoom the map while the sheet is at small/medium size
+                        .presentationBackgroundInteraction(.enabled(upThrough: .medium))
+                        .presentationDragIndicator(.visible)
+                    }
+                    
+                    // MARK: Scroll View of chosen locations
+                    Text("Long press for edit trip options")
+                        .font(.caption)
+                        .foregroundStyle(.gray).fixedSize(horizontal: false, vertical: true)
                     VStack {
                         ForEach(tripCreationVM.selectedPlaces, id: \.identifier) { place in
                             VStack {
@@ -109,42 +112,8 @@ struct CreateRouteView: View {
                 // prevent scrolling when long press is active
                 .scrollDisabled(gestureState.isLongPressComplete)
                 Spacer()
-                
-                // MARK: "Open Sheet" button
-                Button {
-                    showStopsSheet = true
-                } label: {
-                    Text("Choose Locations")
-                        .multilineTextAlignment(.center)
-                        .fixedSize(horizontal: false, vertical: true)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 8)
-                }
-                .accessibilityIdentifier("choose.locations")
-                .accessibilityIdentifier("choose.locations")
-                
-                // MARK: "Finish" button
-                .safeAreaInset(edge: .bottom) {
-                    Button("Finish") {
-                        Task {
-                            do {
-                                try await appVM.saveTrip(name: tripCreationVM.name, description: tripCreationVM.description, selectedPlaces: tripCreationVM.selectedPlaces, preferences: tripCreationVM.selectedPreferences.map {$0.preference })
-                                
-                                tripCreationVM.clear()
-                                router.tripCreationRoute.removeAll()
-                                appVM.refreshFeed()
-                                appVM.refreshUserTrips()
-                                router.selectedTab = .home
-                                
-                            } catch {
-                                self.error = error.localizedDescription
-                            }
-                        }
-                    }
-                    .accessibilityIdentifier("finish.button")
-                    .disabled(appVM.isSaving)
-                    .modifier(ButtonFormat())
-                }
+            }
+               
                 if let error {
                     Text(error)
                         .font(.footnote)
@@ -152,7 +121,7 @@ struct CreateRouteView: View {
                         .multilineTextAlignment(.center)
                 }
                 
-            }
+            
             
             // MARK: - Gesture Overlay
             if gestureState.isLongPressComplete {
@@ -163,6 +132,7 @@ struct CreateRouteView: View {
         .animation(.easeInOut(duration: 0.3), value: gestureState.isLongPressComplete)
         .contentShape(Rectangle())
         .simultaneousGesture(longPressThenDrag)
+        .navigationTitle(Text(tripCreationVM.name))
         .task {
             // left swipe: cancel trip creation
             // right swipe: clear all locations from list
@@ -176,6 +146,42 @@ struct CreateRouteView: View {
                 }
             }
         }
+        // MARK: "Open Sheet" button
+        Button {
+            showStopsSheet = true
+        } label: {
+            Text("Choose Locations")
+                .multilineTextAlignment(.center)
+                .fixedSize(horizontal: false, vertical: true)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 8)
+        }
+        .accessibilityIdentifier("choose.locations")
+        
+        // MARK: "Finish" button
+        .safeAreaInset(edge: .bottom) {
+            Button("Finish") {
+                Task {
+                    do {
+                        try await appVM.saveTrip(name: tripCreationVM.name, description: tripCreationVM.description, selectedPlaces: tripCreationVM.selectedPlaces, preferences: tripCreationVM.selectedPreferences.map {$0.preference })
+                        
+                        tripCreationVM.clear()
+                        router.tripCreationRoute.removeAll()
+                        appVM.refreshFeed()
+                        appVM.refreshUserTrips()
+                        router.selectedTab = .home
+                        
+                    } catch {
+                        self.error = error.localizedDescription
+                    }
+                }
+            }
+            .accessibilityIdentifier("finish.button")
+            .accessibilityHint("Save this trip and return to the home feed")
+            .disabled(appVM.isSaving)
+            .modifier(ButtonFormat())
+        }
+        
         }
 
     

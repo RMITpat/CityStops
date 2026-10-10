@@ -36,6 +36,7 @@ struct TripCard: View {
                 isPinSelectable: false,
                 interactionModes: []
             )
+            .accessibilityHidden(true)
             .padding(5)
             .frame(height: 350)
             .clipShape(RoundedRectangle(cornerRadius: 50))
@@ -53,6 +54,7 @@ struct TripCard: View {
                 HStack() {
                     Text(trip.createdAt.formatted())
                         .font(.subheadline)
+                        .accessibilityLabel("Created on \(trip.createdAt.formatted(date: .complete, time: .shortened))")
                     Spacer()
                     SaveTripButton(trip: trip)
                 }

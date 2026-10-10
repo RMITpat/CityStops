@@ -29,10 +29,11 @@ struct TripPreferenceView: View {
                                         .accentColor : .secondary)
                         .frame(width: 24)
                         .accessibilityHidden(true)
+                        .padding()
 
                     // Preference name
                     Text(item.preference)
-                        .accessibilityIdentifier(item.preference + ".label")
+                        .accessibilityHidden(true)
                         
                     
                     Spacer()
@@ -42,6 +43,8 @@ struct TripPreferenceView: View {
                           "checkmark.circle.fill" : "circle")
                         .foregroundColor(isSelected ?
                                         .accentColor : .gray)
+                        .accessibilityIdentifier(item.preference + ".label")
+                        .accessibilityLabel(isSelected ? "Selected preference \(item.preference)" : "Select preference \(item.preference)")
                         
                 }
                 // allows Spacer() content to register a tap

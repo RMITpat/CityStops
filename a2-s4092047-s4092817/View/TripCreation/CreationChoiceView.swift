@@ -53,7 +53,10 @@ struct CreationChoiceView: View {
             .onAppear {
                 locationVM.checkLocationAuthorization()
             }
-            .navigationTitle(Text("Create a Daytrip"))
+            .navigationTitle(
+                Text("Create a Daytrip")
+
+            )
             .navigationBarTitleDisplayMode(.large)
             .navigationDestination(for: TripCreationRoute.self) { route in
             switch route {

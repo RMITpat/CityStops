@@ -14,7 +14,7 @@ final class MockTripService: TripService {
             ownerId: "1",
             name: "Sydney Food Trail",
             description: "Explore cafés, restaurants and local food markets around Sydney.",
-            places: [],
+            places: ["mock-sydney-opera-house", "mock-mca-australia","mock-the-rocks", "mock-sydney-harbour-bridge" ],
             preferences: ["Food"]
         ),
 
@@ -24,7 +24,7 @@ final class MockTripService: TripService {
             ownerId: "test2",
             name: "Sydney Landmarks",
             description: "Visit famous landmarks and historical sites around the harbour.",
-            places: [],
+            places: ["mock-sydney-opera-house", "mock-mca-australia","mock-the-rocks", "mock-sydney-harbour-bridge" ],
             preferences: ["Landmarks and Sightseeing"],
             savedByUser: true
         ),
@@ -35,7 +35,7 @@ final class MockTripService: TripService {
             ownerId: "test3",
             name: "Sydney Shopping Day",
             description: "Spend the day exploring popular shopping areas and markets.",
-            places: [],
+            places: ["mock-sydney-opera-house", "mock-mca-australia","mock-the-rocks", "mock-sydney-harbour-bridge" ],
             preferences: ["Shopping"],
             savedByUser: true
         ),
@@ -46,7 +46,7 @@ final class MockTripService: TripService {
             ownerId: "1",
             name: "Sydney Nature Escape",
             description: "Discover parks, gardens, beaches and scenic natural locations.",
-            places: [],
+            places: ["mock-sydney-opera-house", "mock-mca-australia","mock-the-rocks", "mock-sydney-harbour-bridge" ],
             preferences: ["Nature"]
         ),
 
@@ -56,7 +56,7 @@ final class MockTripService: TripService {
             ownerId: "test5",
             name: "Sydney Sports and Fun",
             description: "Find sporting venues, amusement areas and fun activities.",
-            places: [],
+            places: ["mock-sydney-opera-house", "mock-mca-australia","mock-the-rocks", "mock-sydney-harbour-bridge" ],
             preferences: ["Sports and Amusement"]
         ),
 
@@ -66,7 +66,7 @@ final class MockTripService: TripService {
             ownerId: "test6",
             name: "Complete Sydney Experience",
             description: "A mixed daytrip combining food, landmarks, shopping and nature.",
-            places: [],
+            places: ["mock-sydney-opera-house", "mock-mca-australia","mock-the-rocks", "mock-sydney-harbour-bridge" ],
             preferences: [
                 "Food",
                 "Landmarks and Sightseeing",
@@ -82,7 +82,7 @@ final class MockTripService: TripService {
             ownerId: "test7",
             name: "Harbour and History",
             description: "Explore Sydney Harbour while visiting historic and cultural locations.",
-            places: [],
+            places: ["mock-sydney-opera-house", "mock-mca-australia","mock-the-rocks", "mock-sydney-harbour-bridge" ],
             preferences: [
                 "Landmarks and Sightseeing",
                 "Nature"
@@ -95,7 +95,7 @@ final class MockTripService: TripService {
             ownerId: "1",
             name: "Food and Shopping Weekend",
             description: "Enjoy local restaurants followed by a relaxed shopping trip.",
-            places: [],
+            places: ["mock-sydney-opera-house", "mock-mca-australia","mock-the-rocks", "mock-sydney-harbour-bridge" ],
             preferences: [
                 "Food",
                 "Shopping"

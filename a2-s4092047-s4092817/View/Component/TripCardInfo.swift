@@ -17,6 +17,7 @@ struct TripCardInfo: View {
                         .font(.title2)
                         .bold()
                         .accessibilityIdentifier("\(trip.id).title")
+                        .accessibilityAddTraits(.isHeader)
                     Text(trip.preferences.sorted().joined(separator: ", "))
                         .font(.subheadline)
                         .foregroundStyle(.gray)

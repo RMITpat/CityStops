@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-/// Base ``ViewModifier`` for all Buttons.
+/// Base ViewModifier for all Buttons.
 struct ButtonFormat: ViewModifier {
     func body(content: Content) -> some View {
         content

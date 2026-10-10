@@ -7,15 +7,16 @@
 
 import SwiftUI
 
+/// Displays the user's trips that they have made, and trips that they have saved from ``TripFeed``.
 struct ProfileView: View {
-    /// App viewmodel for interacting with Firebase
+    /// App view model for interacting with Firebase.
     @Environment(AppViewModel.self) var appVM: AppViewModel
-    /// Router for view navigation
+    /// Router for view navigation.
     @Environment(Router.self) var router: Router
-    /// Current displayed trip feed
+    /// Current displayed trip feed.
     @State private var mode: Mode = .first
 
-    /// The different trip feeds to display
+    /// The different trip feeds to display.
     enum Mode: String, CaseIterable, Identifiable {
         case first = "Your trips"
         case second = "Saved trips"

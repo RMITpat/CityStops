@@ -9,9 +9,8 @@
 import SwiftUI
 import MapKit
 
-/// Displays nearby locations for one``Preference``.
-/// Uses ``LocationSegmentViewModel`` to facilitate parsing + display
-/// of REST API responses.
+/// Displays nearby locations for one``Preference``, given by REST API.
+/// Subview for ``NearbyLocations``.
 struct NearbyLocationSegment: View {
     /// The preference this view is displaying locations for
     let preference: Preference

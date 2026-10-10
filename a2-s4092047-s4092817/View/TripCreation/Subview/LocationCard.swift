@@ -19,7 +19,7 @@ struct LocationCard: View {
     var placesToRemove: Binding<[String]>?
 
     
-    /// Takes a ``Location`` to be  displayed.
+    /// Takes a ``MapItem`` to be displayed.
     /// Optionally, takes a Binding for ``selectedPlaces`` when ``location`` can be added or deleted from a ``Trip``.
     /// Optionally, takes  a binding for ``placesToRemove`` when ``location`` is to be regenerated in an AI generated trip
     init(location: MapItem,

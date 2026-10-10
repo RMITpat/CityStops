@@ -8,24 +8,24 @@
 import SwiftUI
 import MapKit
 
-/// Displays the details of a trip and allows saving/deletion
+/// Displays the details of a trip and allows saving/deletion.
 struct TripDetailView: View {
-    /// App viewmodel for interacting with Firebase
+    /// App viewmodel for interacting with Firebase.
     @Environment(AppViewModel.self) var appVM: AppViewModel
-    /// Location ViewModel for accessing MapKit methods
+    /// Location ViewModel for accessing MapKit methods.
     @Environment(LocationViewModel.self) var locationVM: LocationViewModel
-    /// Router for view navigation
+    /// Router for view navigation.
     @Environment(Router.self) var router: Router
     
-    /// The overall route for the trip
+    /// The overall route for the trip.
     @State var routes: [MKRoute] = []
     
-    /// The picker's display state
+    /// The picker's display state.
     @State private var mode: Mode = .first
     /// Error message
     @State private var error: String?
     
-    /// The display states for the picker
+    /// The display states for the picker.
     enum Mode: String, CaseIterable, Identifiable {
         case first = "Details"
         case second = "Places"

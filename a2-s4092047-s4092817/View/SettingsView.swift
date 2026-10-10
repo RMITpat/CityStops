@@ -7,9 +7,9 @@
 
 import SwiftUI
 
-/// View that allows user to log out of the app 
+/// View that allows user to log out of the app.
 struct SettingsView: View {
-    /// AuthViewModel for interacting with Firebase Auth
+    /// AuthViewModel for interacting with Firebase Auth.
     @Environment(AuthViewModel.self) var auth: AuthViewModel
 
     var body: some View {

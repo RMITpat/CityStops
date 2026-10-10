@@ -13,6 +13,7 @@ import MapKit
 struct HomeView: View {
     @Environment(AppViewModel.self) var appVM: AppViewModel
     @Environment(Router.self) var router: Router
+    @Environment(RecommendedFeedViewModel.self) var recommendationVM: RecommendedFeedViewModel
     
     enum Mode: String, CaseIterable, Identifiable {
         case first = "Recently Planned Trips"
@@ -22,7 +23,7 @@ struct HomeView: View {
     
     @State var mode: Mode
     
-    var body: some View {
+    var body: some View {        
         @Bindable var appVM = appVM
         @Bindable var router = router
         
@@ -53,12 +54,12 @@ struct HomeView: View {
                     }
                     
                 case .second:
-                    if appVM.isLoadingRecommendedTrips {
+                    if recommendationVM.isLoadingRecommendedTrips {
                         ProgressView()
                             .frame(maxWidth: .infinity)
                             .padding()
                     }
-                    else if appVM.recommendedTrips.isEmpty {
+                    else if recommendationVM.recommendedTrips.isEmpty {
                         ScrollView {
                             ContentUnavailableView(
                                 "No relevant recommendations",
@@ -66,14 +67,21 @@ struct HomeView: View {
                                 description: Text("Sorry, we couldn't find trips that match your saved preferences. Try saving some more trips that you like.")
                             )
                         }
-                        .refreshable {  appVM.refreshRecommendedTrips() }
+                        .refreshable {  recommendationVM.refreshRecommendedTrips() }
                     }
                     else {
-                        TripFeed(trips: appVM.recommendedTrips, isLoading: appVM.isLoadingRecommendedTrips, route: $router.feedRoute) {
-                            appVM.refreshRecommendedTrips()
-                        } loadTrips: {
-                            // recommendations aren't paginated
-                        }
+                        TripFeed(
+                            trips: recommendationVM.recommendedTrips,
+                            isLoading: recommendationVM.isLoadingRecommendedTrips,
+                            route: $router.feedRoute,
+                            onRefresh: {
+                                recommendationVM.refreshRecommendedTrips()
+                            },
+                            loadTrips: {
+                                // recommendations aren't paginated
+                            },
+                            showBookmark: false // all suggestions are unsaved
+                        )
                     }
                 }
             }
@@ -90,8 +98,10 @@ struct HomeView: View {
 
 #Preview {
         let user = AppUser(id: "Test", username: "test", email: "test@email.com")
+    let appVM = AppViewModel(user: user)
 
     HomeView(mode: .first)
-            .environment(AppViewModel(user: user ))
+            .environment(appVM)
             .environment(Router())
+            .environment(RecommendedFeedViewModel(appVM: appVM))
     }

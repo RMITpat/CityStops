@@ -15,7 +15,12 @@ struct SelectedPlacesList: View {
     @Environment(TripCreationViewModel.self) var tripCreationVM: TripCreationViewModel
 
     /// True while the long-press gesture overlay is active (disables list interaction when interacting with custom gesture).
-    let isScrollDisabled: Bool
+    /// Defaults to false for screens with no gesture overlay.
+    var isScrollDisabled: Bool = false
+    
+    /// Places currently marked for AI replacement.
+    /// Pass nil (default) for lists without replacement feature, like ``CreateRouteView``.
+    var placesToRemove: Binding<[String]>? = nil
 
     var body: some View {
         @Bindable var tripCreationVM = tripCreationVM
@@ -23,7 +28,9 @@ struct SelectedPlacesList: View {
         List {
             ForEach(tripCreationVM.selectedPlaces, id: \.identifier) { place in
                 LocationCard(location: place,
-                             selectedPlaces: $tripCreationVM.selectedPlaces)
+                             selectedPlaces: $tripCreationVM.selectedPlaces,
+                             placesToRemove: placesToRemove)
+                .buttonStyle(.plain) // enforce button-only interaction
                 .listRowSeparator(.hidden)
                 .listRowBackground(Color.clear)
                 .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))

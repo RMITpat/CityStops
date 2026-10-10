@@ -16,7 +16,8 @@ struct RouteMapSection: View {
     @Environment(TripCreationViewModel.self) var tripCreationVM: TripCreationViewModel
 
     /// True while the long-press gesture overlay is active (disables map interaction when interacting with custom gesture).
-    let isGestureActive: Bool
+    /// Defaults to false for screens with no gesture overlay.
+        var isGestureActive: Bool = false
 
     /// Routes between selectedPlaces.
     @State private var routes: [MKRoute] = []

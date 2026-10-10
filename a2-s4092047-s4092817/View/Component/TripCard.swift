@@ -38,7 +38,7 @@ struct TripCard: View {
             )
             .accessibilityHidden(true)
             .padding(5)
-            .frame(height: 350)
+            .frame(height: 325)
             .clipShape(RoundedRectangle(cornerRadius: 50))
 
             .task {

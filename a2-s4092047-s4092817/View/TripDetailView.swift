@@ -44,7 +44,7 @@ struct TripDetailView: View {
                     interactionModes: .all
                 )
                 .accessibilityHidden(true)
-            .frame(height: 425)
+            .frame(height: 325)
             .task {
                 do {
                     routes = try await locationVM.createTripRoutes(selectedPlaces: trip.mkMapItemPlaces, tripID: trip.id)

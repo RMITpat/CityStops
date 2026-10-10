@@ -10,9 +10,16 @@ import SwiftUI
 /// View that allows user to choose between manually creating a ``Trip``, or
 /// use ML features to plan a ``Trip``for them.
 struct CreationChoiceView: View {
+    /// ViewModelFactory to be passed to AITripCreationView
     @Environment(ViewModelFactory.self) var vmFactory: ViewModelFactory
+    
+    /// LocationViewModel for accessing MapKit methods
     @Environment(LocationViewModel.self) var locationVM: LocationViewModel
+    
+    /// Router for view navigation
     @Environment(Router.self) var router: Router
+    
+    /// TripCreationViewModel for holding trip creation state and helper methods
     @State var tripCreationVM: TripCreationViewModel = TripCreationViewModel()
 
     var body: some View {
@@ -22,9 +29,10 @@ struct CreationChoiceView: View {
         NavigationStack(path: $router.tripCreationRoute) {
             
             VStack {
+                // MARK: Heading
                 Text("How would you like to create your daytrip?")
                     .bold()
-                
+                // MARK: Plan it myself button
                 Button("Plan it myself") {
                     tripCreationVM.clear()
                     router.tripCreationRoute.append(TripCreationRoute.name)
@@ -37,7 +45,7 @@ struct CreationChoiceView: View {
                 Text("or")
                     .fontWeight(.light)
                 
-                
+                // MARK: Ask Dora button
                 Button("Ask Dora to assist") {
                     tripCreationVM.clear()
                     router.tripCreationRoute.append(TripCreationRoute.preferences)

@@ -8,10 +8,14 @@
 import SwiftUI
 
 struct ProfileView: View {
+    /// App viewmodel for interacting with Firebase
     @Environment(AppViewModel.self) var appVM: AppViewModel
+    /// Router for view navigation
     @Environment(Router.self) var router: Router
+    /// Current displayed trip feed
     @State private var mode: Mode = .first
 
+    /// The different trip feeds to display
     enum Mode: String, CaseIterable, Identifiable {
         case first = "Your trips"
         case second = "Saved trips"
@@ -25,8 +29,10 @@ struct ProfileView: View {
         NavigationStack(path: $router.profileRoute) {
             
             VStack (alignment: .leading) {
+                // MARK: User's display name
                 Text(appVM.user.username).font(.largeTitle).padding()
                 
+                // MARK: Picker for currently displayed trip feed
                 Picker("Mode", selection: $mode) {
                     ForEach(Mode.allCases) { Text($0.rawValue).tag($0) }
                 }
@@ -35,6 +41,7 @@ struct ProfileView: View {
                 
                 switch mode {
                 case .first:
+                    // MARK: User's created trips feed
                     if appVM.yourTrips.isEmpty {
                         Text("You haven't created any trips")
                             .font(.title2)
@@ -49,6 +56,7 @@ struct ProfileView: View {
                     }
                     
                 case .second:
+                    // MARK: User's saved trips feed
                     if appVM.savedTrips.isEmpty {
                         Text("You haven't saved any trips")
                             .font(.title2)

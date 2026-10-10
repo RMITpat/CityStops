@@ -9,8 +9,13 @@ import SwiftUI
 
 /// Allows user to choose a name for the ``Trip``.
 struct TripNameView: View {
+    /// LocationViewModel for accessing MapKit methods
     @Environment(LocationViewModel.self) var locationVM: LocationViewModel
+    
+    /// TripCreationViewModel for holding trip creation state and helper methods
     @Environment(TripCreationViewModel.self) var tripCreationVM: TripCreationViewModel
+    
+    /// Router for view navigation
     @Environment(Router.self) var router: Router
 
     var body: some View {
@@ -29,7 +34,7 @@ struct TripNameView: View {
                     .fixedSize(horizontal: false, vertical: true)
                     .font(.title3)
                 
-                // Title field
+                // MARK: Title field
                 ZStack(alignment: .leading) {
                     TextField("", text: $tripCreationVM.name)
                         .textFieldStyle(.plain)
@@ -47,7 +52,7 @@ struct TripNameView: View {
                         .accessibilityLabel("Input your trip's title")
                         .fixedSize(horizontal: false, vertical: true)
 
-                    // Placeholder text; padding matches the TextField's inner padding
+                    // MARK: Placeholder text; padding matches the TextField's inner padding
                     if tripCreationVM.name.isEmpty {
                         Text("e.g. Food Tour")
                             .padding(.horizontal, 9)
@@ -58,6 +63,7 @@ struct TripNameView: View {
                     }
                 }
                 
+                // MARK: Title error
                 if let nameError = tripCreationVM.nameError {
                     Text(nameError).foregroundColor(.red)
                         .font(.footnote)
@@ -65,10 +71,10 @@ struct TripNameView: View {
 
                 }
                 
-                //Description
                 Text("Description")
                     .font(.title2)
                     .padding(.top, 32)
+                
                 
                 Text("What is this trip about?")
                     .font(.caption)
@@ -76,6 +82,7 @@ struct TripNameView: View {
                     .fixedSize(horizontal: false, vertical: true)
                 
                 ZStack(alignment: .topLeading) {
+                    // MARK: Description
                     TextEditor(text: $tripCreationVM.description)
                         .frame(minHeight: 120)
                         .padding(.horizontal, 2)
@@ -89,7 +96,7 @@ struct TripNameView: View {
                         .accessibilityIdentifier("trip.description.input")
                         .accessibilityLabel("Input your trip's description")
                     
-                    // Placeholder text; fixed padding to align with TextEditor
+                    // MARK: Placeholder text; fixed padding to align with TextEditor
                     if tripCreationVM.description.isEmpty {
                         Text("e.g. A day out in the city to eat Asian street food!")
                             .padding(.leading, 7)
@@ -101,6 +108,7 @@ struct TripNameView: View {
                     }
                     
                 }
+                // MARK: Description error
                 if let descError = tripCreationVM.descriptionError {
                     Text(descError).foregroundColor(.red)
                         .font(.footnote)

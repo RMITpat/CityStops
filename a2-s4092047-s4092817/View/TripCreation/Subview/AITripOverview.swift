@@ -10,15 +10,25 @@ import MapKit
 
 /// The created AI Trip, with  buttons for editing and adding to the created trip
 struct AITripOverview: View {
+    /// GeminiViewModel for accessing Gemini API
     @Environment(GeminiViewModel.self) var geminiVM: GeminiViewModel
+    
+    /// TripCreationViewModel for holding trip creation state and helper methods
     @Environment(TripCreationViewModel.self) var tripCreationVM: TripCreationViewModel
+    
+    /// App viewmodel for interacting with Firebase
     @Environment(AppViewModel.self) var appVM: AppViewModel
 
+    /// Router for view navigation
     @Environment(Router.self) var router: Router
 
+    /// Current picker state
     @State private var mode: Mode = .first
 
+    /// Error message
     @State private var error: String?
+    
+    /// Picker display states
     enum Mode: String, CaseIterable, Identifiable {
         case first = "Details"
         case second = "Places"
@@ -29,11 +39,13 @@ struct AITripOverview: View {
         @Bindable var tripCreationVM = tripCreationVM
         @Bindable var geminiVM = geminiVM
         VStack {
+            // MARK: Map display
             RouteMapSection()
             .accessibilityHidden(true)
             .frame(height: 375)
             
             if geminiVM.isLoading {
+                // MARK: Gemini loading indicator
                 ProgressView("Tweaking trip...")
                     .progressViewStyle(.circular)
                     .scaleEffect(1.3)
@@ -42,6 +54,7 @@ struct AITripOverview: View {
                 
             } else {
                 VStack {
+                    // MARK: Picker
                     Picker("Mode", selection: $mode) {
                         ForEach(Mode.allCases) { Text($0.rawValue).tag($0) }
                     }
@@ -51,6 +64,7 @@ struct AITripOverview: View {
                     
                     switch mode {
                     case .first:
+                        // MARK: Title and description
                         VStack(alignment: .leading) {
                             TextField("e.g. Asian Street Food Tour", text: $tripCreationVM.name)
                                 .textFieldStyle(RoundedBorderTextFieldStyle())
@@ -76,7 +90,9 @@ struct AITripOverview: View {
                         .padding()
                         
                     case .second:
+                        // MARK: Location list
                         HStack {
+                            // MARK: Replace spots button
                             Button("Replace selected spots") {
                                 Task {
                                     do {
@@ -95,7 +111,7 @@ struct AITripOverview: View {
                             .accessibilityIdentifier("replace.spots")
                             .accessibilityHint("Ask AI to replace the spots you have selected")
 
-                            
+                            // MARK: Add spots button
                             Button("Add more spots") {
                                 Task {
                                     do {
@@ -115,7 +131,7 @@ struct AITripOverview: View {
                             .accessibilityIdentifier("add.spots")
                             .accessibilityHint("Ask AI to come up with more spots to this trip")
 
-                            
+                            // MARK: Error message
                             if let error {
                                 Text(error)
                                     .foregroundStyle(.red)
@@ -130,15 +146,10 @@ struct AITripOverview: View {
                 }
             }
             
-            
-            
-            
-            
-            
-            
             Spacer()
             
             HStack {
+                // MARK: Start again button
                 Button("Start again") {
                     geminiVM.placesToRemove.removeAll()
                     geminiVM.resultReturned = false
@@ -152,7 +163,7 @@ struct AITripOverview: View {
                     .accessibilityHint("Discard this trip and start again at preference selection")
                     .accessibilitySortPriority(2)
                 
-                
+                // MARK: Finish button
                 Button("Finish") {
                     Task {
                         do {

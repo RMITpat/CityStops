@@ -128,19 +128,18 @@ final class a2_s4092047_s4092817UITests: XCTestCase {
         XCTAssert(doneButton.exists, "Done button should exist")
         doneButton.tap()
         
-        
-        let places = app.staticTexts.allElementsBoundByIndex
-        
-        XCTAssert(places.contains(where: {$0.label ==  "Sydney Opera House"}))
-        XCTAssert(places.contains(where: {$0.label ==  "Sydney Harbour Bridge"}))
-        XCTAssert(places.contains(where: {$0.label ==  "Royal Botanic Garden"}))
-        XCTAssert(places.contains(where: {$0.label ==  "The Rocks"}))
-        
-        
-        XCTAssertTrue(places.contains { $0.label == "Bennelong Point, Sydney NSW" })
-        XCTAssertTrue(places.contains { $0.label == "Sydney Harbour Bridge, Sydney NSW" })
-        XCTAssertTrue(places.contains { $0.label == "Mrs Macquaries Road, Sydney NSW" })
-        XCTAssertTrue(places.contains { $0.label == "The Rocks, Sydney NSW" })
+        // use helper function to explicitly scroll through List
+        let labels = collectStaticTextLabels(in: app)
+
+        XCTAssertTrue(labels.contains("Sydney Opera House"))
+        XCTAssertTrue(labels.contains("Sydney Harbour Bridge"))
+        XCTAssertTrue(labels.contains("Royal Botanic Garden"))
+        XCTAssertTrue(labels.contains("The Rocks"))
+
+        XCTAssertTrue(labels.contains("Bennelong Point, Sydney NSW"))
+        XCTAssertTrue(labels.contains("Sydney Harbour Bridge, Sydney NSW"))
+        XCTAssertTrue(labels.contains("Mrs Macquaries Road, Sydney NSW"))
+        XCTAssertTrue(labels.contains("The Rocks, Sydney NSW"))
         
         let finishButton = app.buttons["finish.button"].firstMatch
         XCTAssert(finishButton.exists, "Finish button should exist")
@@ -495,7 +494,21 @@ final class a2_s4092047_s4092817UITests: XCTestCase {
         
     }
     
-    
+    // helper function to collect labels of all elements in a Lazy List.
+    func collectStaticTextLabels(in app: XCUIApplication, maxSwipes: Int = 8) -> Set<String> {
+        let list = app.collectionViews.firstMatch
+        var labels = Set<String>()
+        var previousCount = -1
 
-    
+        for _ in 0..<maxSwipes {
+            labels.formUnion(app.staticTexts.allElementsBoundByIndex.map(\.label))
+
+            // Stop once a swipe reveals nothing new
+            if labels.count == previousCount { break }
+            previousCount = labels.count
+
+            list.swipeUp()
+        }
+        return labels
+    }
 }

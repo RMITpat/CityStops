@@ -39,8 +39,8 @@ protocol GeminiService {
     var modelName: GeminiModel { get }
 
     func request(tripRequest: String, preferences: [String]) async throws -> AIResult
-    func editTrip(identifiers: [String]) async throws -> AIResult
-    func addStops() async throws -> AIResult
+    func editTrip(identifiers: [String], selectedPlaces: [MapItem]) async throws -> AIResult
+    func addStops(selectedPlaces: [MapItem]) async throws -> AIResult
     
     
     func setModel(newModel: GeminiModel)
@@ -190,19 +190,29 @@ final class GeminiServiceImpl : GeminiService {
     }
     
     /// A request that asks the model to edit the existing trip by replacing specific places.
-    func editTrip(identifiers: [String]) async throws -> AIResult {
-        selectedPlaces.removeAll()
+    func editTrip(identifiers: [String], selectedPlaces: [MapItem]) async throws -> AIResult {
+        self.selectedPlaces.removeAll()
         
         var prompt = """
             The user has reviewed your selected places and would like to remove some places. 
             Please find suitable replacements for them from your searched places or through searching for more places. Then, recreate the entire trip using the select_places tool, 
             keeping in places that were not removed. Then submit the trip again using the json schema.
-            The following identifiers should be replaced:
+            
+            The user may have also reordered the locations in your trip. When the trip is recreated, maintain this order and insert new stops at the correct positions. 
+            The current order is as follows: 
             
             """
+        
+        for place in selectedPlaces {
+            prompt.append("\(place.identifier), ")
+        }
+       
+        prompt.append("The following identifiers should be replaced: ")
+        
         for id in identifiers {
             prompt.append(id + " ")
         }
+        
         
         return try await generateTrip(prompt: prompt)
 
@@ -210,13 +220,19 @@ final class GeminiServiceImpl : GeminiService {
     }
     
     /// A request that asks the model to add additional stops to the trip
-    func addStops() async throws -> AIResult {
-        selectedPlaces.removeAll()
-        let prompt = """
-            The user has reviewed your selected places and would like to add some more places. 
+    func addStops(selectedPlaces: [MapItem]) async throws -> AIResult {
+        self.selectedPlaces.removeAll()
+        var prompt = """
+            The user has reviewed your selected places and would like to add some more places.
             Please find 3 more locations from your searched places or through searching for more places. Then, add them anywhere to the existing trip.
-            Recreate the entire trip using the select_places tool and submit the trip again using the json schema.            
+            Recreate the entire trip using the select_places tool and submit the trip again using the json schema.   
+            
+            The user may have also reordered the locations in your trip. When the trip is recreated, maintain this order and add your new stops to the end. The current order is as follows:
+            
             """
+        for place in selectedPlaces {
+            prompt.append("\(place.identifier), ")
+        }
         return try await generateTrip(prompt: prompt)
 
     }

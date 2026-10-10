@@ -33,11 +33,11 @@ final class MockGeminiService : GeminiService {
         return mockResult
     }
     
-    func editTrip(identifiers: [String]) async throws -> AIResult {
+    func editTrip(identifiers: [String], selectedPlaces: [MapItem]) async throws -> AIResult {
         return mockResult
     }
     
-    func addStops() async throws -> AIResult {
+    func addStops(selectedPlaces: [MapItem]) async throws -> AIResult {
         return mockResult
     }
     

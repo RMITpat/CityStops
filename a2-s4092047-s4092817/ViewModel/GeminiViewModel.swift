@@ -58,10 +58,10 @@ import MapKit
     }
 
     /// Edit a created trip by asking the model to replace certain places with new ones
-    func editTrip() async throws -> AIResult {
+    func editTrip(selectedPlaces: [MapItem]) async throws -> AIResult {
         isLoading = true
      
-        let aiTrip = try await geminiService.editTrip(identifiers: placesToRemove)
+        let aiTrip = try await geminiService.editTrip(identifiers: placesToRemove, selectedPlaces: selectedPlaces)
             
         placesToRemove.removeAll()
        
@@ -71,10 +71,10 @@ import MapKit
     }
   
     /// Ask the model to add more stops to a generated trip
-    func addStops() async throws -> AIResult {
+    func addStops(selectedPlaces: [MapItem]) async throws -> AIResult {
         isLoading = true
         
-        let aiTrip = try await geminiService.addStops()
+        let aiTrip = try await geminiService.addStops(selectedPlaces: selectedPlaces)
         
         isLoading = false
         return aiTrip

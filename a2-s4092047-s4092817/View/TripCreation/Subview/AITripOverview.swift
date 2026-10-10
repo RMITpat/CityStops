@@ -80,7 +80,7 @@ struct AITripOverview: View {
                             Button("Replace selected spots") {
                                 Task {
                                     do {
-                                        try await tripCreationVM.fromAIResult(result: geminiVM.editTrip())
+                                        try await tripCreationVM.fromAIResult(result: geminiVM.editTrip(selectedPlaces: tripCreationVM.selectedPlaces))
                                         self.error?.removeAll()
                                         
                                     } catch {
@@ -101,7 +101,7 @@ struct AITripOverview: View {
                                     do {
                                         self.error?.removeAll()
                                         
-                                        try await tripCreationVM.fromAIResult(result: geminiVM.addStops())
+                                        try await tripCreationVM.fromAIResult(result: geminiVM.addStops(selectedPlaces: tripCreationVM.selectedPlaces))
                                         
                                     } catch {
                                         self.error = "Failed to add more stops"

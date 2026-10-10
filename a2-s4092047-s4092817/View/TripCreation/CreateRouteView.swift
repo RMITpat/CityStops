@@ -59,7 +59,7 @@ struct CreateRouteView: View {
                     // Implemented to prevent clashes with List gestures.
                     .simultaneousGesture(longPressThenDrag)
                     .accessibilityHidden(true)
-                    .frame(height:400)
+                    .frame(height:375)
                     // Route between stops
                     .task {
                         await otmVM.generateSegments(

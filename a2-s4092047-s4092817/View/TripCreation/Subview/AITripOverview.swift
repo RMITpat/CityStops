@@ -43,7 +43,7 @@ struct AITripOverview: View {
                 interactionModes: .all
             )
             .accessibilityHidden(true)
-            .frame(height: 390)
+            .frame(height: 375)
             .onChange(of: tripCreationVM.selectedPlaces) {
                 Task {
                     routes = try await locationVM.createTripRoutes(selectedPlaces: tripCreationVM.selectedPlaces)

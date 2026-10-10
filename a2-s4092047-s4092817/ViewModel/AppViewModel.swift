@@ -35,6 +35,9 @@ import MapKit
     /// Are trips currently loading for the user's saved trips
     var isLoadingSavedTrips: Bool = false
     
+    /// Are recommended trips currently being calculated
+    var isLoadingRecommendedTrips: Bool = false
+    
     /// The feed of loaded trips
     var tripFeed: [Trip] = []
     
@@ -43,6 +46,18 @@ import MapKit
     
     /// The feed of user's saved trips
     var savedTrips: [Trip] = []
+    
+    /// The feed of recommended trips
+    var recommendedTrips: [Trip] = []
+    
+    /// The maximum recommended trips to show
+    private let recommendedTripCount = 5
+    
+    /// Runs the MiniLM model. `lazy` so the model is only loaded the first time recommendations are requested
+    @ObservationIgnored private lazy var recommendationService = RecommendationService()
+    
+    /// Set if a load recommendations run was already in progress.
+    @ObservationIgnored private var recommendationsOutdated = false
     
     /// The current trip being viewed in TripDetailView
     var currentTrip: Trip? = nil
@@ -99,6 +114,11 @@ import MapKit
         tripService.clearLastSavedTripDocument()
         savedTrips.removeAll()
         loadSavedTrips()
+    }
+
+    func refreshRecommendedTrips() {
+        recommendedTrips.removeAll()
+        loadRecommendedTrips()
     }
     
     /// Function to start reading all trips from Firestore
@@ -191,7 +211,96 @@ import MapKit
             
         }
     }
+    
+    /// Function to start working out the recommended trips.
+    /// It ranks trips that are in Firebase against the user's `savedTrips`, using the MiniLM model.
+    func loadRecommendedTrips() {
+        if isLoadingRecommendedTrips {
+            recommendationsOutdated = true
+            return
+        }
+        
+        isLoadingRecommendedTrips = true
+        
+        Task {
+            // Artificial wait, can be removed but feels nice
+            try? await Task.sleep(for: .seconds(1))
+            
+            // Get all of saved trips directly from Firebase
+            var allSavedTrips: [Trip] = []
+            var savedTripTitles: [String] = []
+            var savedTripIds: [String] = []
+            do {
+                allSavedTrips = try await tripService.loadAllSavedTrips(ownerId: self.user.id)
+                
+                savedTripTitles = allSavedTrips.map(\.name)
+                savedTripIds = allSavedTrips.map(\.id)
+                
+            } catch {
+                print("Failed to load saved trips: \(error)")
+            }
+            
+            // get all trips from Firebase
+            var allTrips: [Trip] = []
+            
+            do {
+                allTrips = try await tripService.loadAllTrips(ownerId: self.user.id)
+            } catch {
+                self.error = error.localizedDescription
+                isLoadingRecommendedTrips = false
+                return
+            }
+            
+            let candidates = allTrips.filter {
+                !savedTripIds.contains($0.id) && $0.ownerId != self.user.id
+            }
+            
+            // debug
+            print("saved:", savedTripTitles.count, "candidates:", candidates.count)
+            
+            if candidates.isEmpty || savedTripTitles.isEmpty {
+                recommendedTrips = []
+                isLoadingRecommendedTrips = false
+                return
+            }
+            
+            // get the input Strings for the recommendation methods
+            recommendationService.setCandidates(candidates.map { $0.name })
+            // run the Core ML algorithm, and retrieve the Trips that meet the confidence threshold
+            recommendationService.recommend(basedOn: savedTripTitles, topN: recommendedTripCount, confidenceThreshold: 0.2)
+            { [weak self] names in
+                // debug
+                print("model returned:", names)
+                guard let self else { return }
 
+            
+            let matched = names.compactMap { name in
+                candidates.first {
+                    $0.name.trimmingCharacters(in: .whitespacesAndNewlines) == name
+                }
+            }
+            
+            // Get the stops in each trip
+            Task {
+                var converted: [Trip] = []
+                for trip in matched {
+                    if let fullTrip = try? await self.getMKMapItemsForTrip(trip: trip) {
+                        converted.append(fullTrip)
+                    }
+                }
+                // Assign recommendedTrips with the trips with stops included
+                self.recommendedTrips = converted
+                self.isLoadingRecommendedTrips = false
+
+                // handle constant refreshes
+                if self.recommendationsOutdated {
+                    self.recommendationsOutdated = false
+                    self.loadRecommendedTrips()
+                }
+            }
+        }
+    }
+}
     // MARK: - MKMapItem retrieval
         /// Function for converting a trip's place Identifiers to MKMapItems
         func getMKMapItemsForTrip(trip: Trip) async throws -> Trip {
@@ -230,6 +339,10 @@ import MapKit
                 savedTrips[savedSavedTrip].savedByUser = true
             }
             
+            if let recommendedSavedTrip = recommendedTrips.firstIndex(where: { $0.id == tripId}) {
+                recommendedTrips[recommendedSavedTrip].savedByUser = true
+            }
+            
             currentTrip?.savedByUser = true
         }
         
@@ -250,6 +363,10 @@ import MapKit
                 savedTrips[savedSavedTrip].savedByUser = false
             }
             
+            if let recommendedSavedTrip = recommendedTrips.firstIndex(where: { $0.id == tripId}) {
+                recommendedTrips[recommendedSavedTrip].savedByUser = false
+            }
+            
             currentTrip?.savedByUser = false
             
         }
@@ -262,5 +379,11 @@ import MapKit
             refreshFeed()
             refreshUserTrips()
             refreshSavedTrips()
+            
+            // Clear the recommendations: the feed and saved trips above are
+            // still reloading, so recalculating now would use empty lists. HomeView recalculates
+            // them once those have finished loading.
+            recommendedTrips.removeAll()
+            
         }
 }

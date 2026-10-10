@@ -87,12 +87,5 @@ final class ViewModelFactory {
         return SearchTermViewModel(searchTermService: MockSearchTermService())
     }
     
-
-    func createRecommendedFeedViewModel(appVM: AppViewModel) -> RecommendedFeedViewModel {
-        if arguments.isEmpty {
-            return RecommendedFeedViewModel(appVM: appVM)
-        }
-        return RecommendedFeedViewModel(
-            appVM: appVM)
-    }
+    
 }

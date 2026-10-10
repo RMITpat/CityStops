@@ -16,20 +16,16 @@ struct ContentView: View {
     
     @State private var locationVM: LocationViewModel
     @State private var appVM: AppViewModel
-    @State private var recommendationVM: RecommendedFeedViewModel
     @State private var router: Router = Router()
     @State private var searchTermVM: SearchTermViewModel = SearchTermViewModel()
 
     // Initialise the vm's with the signedInUser's information for their internal use
     init(signedInUser: AppUser, vmFactory: ViewModelFactory) {
         self.signedInUser = signedInUser
-
-        let appVM = vmFactory.createAppViewModel(user: signedInUser)
-
+        
         _locationVM = State(initialValue: vmFactory.createLocationViewModel(user: signedInUser))
-        _appVM = State(initialValue: appVM)
+        _appVM = State(initialValue: vmFactory.createAppViewModel(user: signedInUser))
         _searchTermVM = State(initialValue: vmFactory.createSearchTermViewModel())
-        _recommendationVM = State(initialValue: vmFactory.createRecommendedFeedViewModel(appVM: appVM))
     }
     
     var body: some View {
@@ -82,7 +78,6 @@ struct ContentView: View {
         .environment(appVM)
         .environment(router)
         .environment(searchTermVM)
-        .environment(recommendationVM)
         .task {
             searchTermVM.attach(modelContext: modelContext)
         }

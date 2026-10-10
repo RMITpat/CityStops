@@ -29,7 +29,7 @@ struct SelectedPlacesList: View {
     var body: some View {
         @Bindable var tripCreationVM = tripCreationVM
 
-        List {
+        VStack {
             ForEach(tripCreationVM.selectedPlaces, id: \.identifier) { place in
                 HStack(spacing: 8) {
                     LocationCard(location: place,
@@ -45,9 +45,6 @@ struct SelectedPlacesList: View {
                 .deleteDisabled(true) // hides the red minus
             }
         }
-        .listStyle(.plain)
-        .scrollContentBackground(.hidden)
-        .scrollDisabled(isScrollDisabled)
     }
 
     // MARK: - Reorder buttons

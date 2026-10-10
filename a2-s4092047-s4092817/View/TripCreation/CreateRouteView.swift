@@ -49,7 +49,7 @@ struct CreateRouteView: View {
             // Ensures overlay appear / disappear covers entire screen
             Color(.systemBackground)
                 .ignoresSafeArea()
-            
+            ScrollView {
             // MARK: - Base View
                 VStack {
                     
@@ -59,17 +59,17 @@ struct CreateRouteView: View {
                     // MARK: Gesture trigger
                     // Gesture only triggers if it happens over the map.
                     // Implemented to prevent clashes with List gestures.
-                    .simultaneousGesture(longPressThenDrag)
-                    .accessibilityHidden(true)
-                    .frame(height:375)
+                        .simultaneousGesture(longPressThenDrag)
+                        .accessibilityHidden(true)
+                        .frame(height:375)
                     // Route between stops
-                    .task {
-                        await otmVM.generateSegments(
-                            preferences: tripCreationVM.selectedPreferences,
-                            coordinate: locationVM.currentRegion.center
-                        )
-                    }
-                    .accessibilityLabel("Map of your route")
+                        .task {
+                            await otmVM.generateSegments(
+                                preferences: tripCreationVM.selectedPreferences,
+                                coordinate: locationVM.currentRegion.center
+                            )
+                        }
+                        .accessibilityLabel("Map of your route")
                     
                     // MARK: Gesture instruction
                     Text("Long press map for edit trip options")
@@ -78,7 +78,7 @@ struct CreateRouteView: View {
                     
                     // MARK: List of chosen locations
                     SelectedPlacesList(isScrollDisabled: gestureState.isLongPressComplete)
-                    
+                }
                     // MARK: "Open Sheet" button
                     Button {
                         showStopsSheet = true

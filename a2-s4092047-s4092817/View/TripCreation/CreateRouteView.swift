@@ -21,8 +21,6 @@ struct CreateRouteView: View {
         _otmVM = State(initialValue: vmFactory.createOpenTripMapViewModel())
     }
     
-    // Routes between selectionPlaces
-    @State var routes: [MKRoute] = []
     @State var error: String?
     
     // Sheet state
@@ -46,14 +44,8 @@ struct CreateRouteView: View {
                 VStack {
                     
                     // MARK: Map interface - UIKit
-                    UIKitMapView(
-                        position: locationVM.currentLocation,
-                        places: tripCreationVM.selectedPlaces.map({$0.mkMapItem}),
-                        routes: routes,
-                        showsUserLocation: true,
-                        isPinSelectable: true,
-                        interactionModes: gestureState.isLongPressComplete ? [] : .all
-                    )
+                    RouteMapSection(isGestureActive: gestureState.isLongPressComplete)
+                    
                     // MARK: Gesture trigger
                     // Gesture only triggers if it happens over the map.
                     // Implemented to prevent clashes with List gestures.
@@ -67,11 +59,6 @@ struct CreateRouteView: View {
                             coordinate: locationVM.currentRegion.center
                         )
                     }
-                    .onChange(of: tripCreationVM.selectedPlaces) {
-                        Task {
-                            routes = try await locationVM.createTripRoutes(selectedPlaces: tripCreationVM.selectedPlaces)
-                        }
-                    }
                     .accessibilityLabel("Map of your route")
                     
                     Text("Long press map for edit trip options")
@@ -79,24 +66,7 @@ struct CreateRouteView: View {
                         .foregroundStyle(.gray).fixedSize(horizontal: false, vertical: true)
                     
                     // MARK: List of chosen locations
-                    List {
-                        ForEach(tripCreationVM.selectedPlaces, id: \.identifier) { place in
-                            LocationCard(location: place,
-                                         selectedPlaces: $tripCreationVM.selectedPlaces)
-                            .listRowSeparator(.hidden)
-                            .listRowBackground(Color.clear)
-                            .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
-                            .deleteDisabled(true) // hides the red minus
-                        }
-                        .onMove { source, destination in
-                            tripCreationVM.selectedPlaces.move(fromOffsets: source, toOffset: destination)
-                        }
-                    }
-                    .listStyle(.plain)
-                    .scrollContentBackground(.hidden)
-                    // Always show the three-line handle
-                    .environment(\.editMode, .constant( .active))
-                    .scrollDisabled(gestureState.isLongPressComplete)
+                    SelectedPlacesList(isScrollDisabled: gestureState.isLongPressComplete)
                     
                     // MARK: "Open Sheet" button
                     Button {

@@ -7,6 +7,7 @@ import Foundation
 import CoreML
 
 /// Handles ``Trip`` recommendation logic using the `all-MiniLM-L6-v2` PyTorch model.
+/// 
 /// The model facilitates semantic search based on the Title of all the user's saved ``Trip``.
 final class RecommendationService {
         
@@ -20,9 +21,10 @@ final class RecommendationService {
     /// Sequence length used when converting text input to be used in the ML model.
     private let maxLength = 128
 
-    /// The suggested trip titles as Strings (best match first)
+    /// The suggested trip titles as Strings (best match first).
     var suggestions: [String] = []
     
+    /// Error message of service.
     var errorMessage: String?
     
     // Background queue so inference never blocks the UI

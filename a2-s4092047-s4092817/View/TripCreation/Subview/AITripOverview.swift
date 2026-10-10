@@ -11,13 +11,10 @@ import MapKit
 /// The created AI Trip, with  buttons for editing and adding to the created trip
 struct AITripOverview: View {
     @Environment(GeminiViewModel.self) var geminiVM: GeminiViewModel
-    @Environment(LocationViewModel.self) var locationVM: LocationViewModel
     @Environment(TripCreationViewModel.self) var tripCreationVM: TripCreationViewModel
     @Environment(AppViewModel.self) var appVM: AppViewModel
 
     @Environment(Router.self) var router: Router
-
-    @Binding var routes: [MKRoute]
 
     @State private var mode: Mode = .first
 
@@ -29,26 +26,12 @@ struct AITripOverview: View {
     }
     
     var body: some View {
-        @Bindable var locationVM = locationVM
-
         @Bindable var tripCreationVM = tripCreationVM
         @Bindable var geminiVM = geminiVM
-        ScrollView {
-            UIKitMapView(
-                position: locationVM.currentLocation,
-                places: tripCreationVM.selectedPlaces.map({$0.mkMapItem}),
-                routes: routes,
-                showsUserLocation: true,
-                isPinSelectable: true,
-                interactionModes: .all
-            )
+        VStack {
+            RouteMapSection()
             .accessibilityHidden(true)
             .frame(height: 375)
-            .onChange(of: tripCreationVM.selectedPlaces) {
-                Task {
-                    routes = try await locationVM.createTripRoutes(selectedPlaces: tripCreationVM.selectedPlaces)
-                }
-            }
             
             if geminiVM.isLoading {
                 ProgressView("Tweaking trip...")
@@ -139,16 +122,19 @@ struct AITripOverview: View {
                                     .font(.title3)
                             }
                         }
-                        VStack {
-                            ForEach(tripCreationVM.selectedPlaces, id: \.self) { place in
-                                VStack {
-                                    LocationCard(location: place,
-                                                 selectedPlaces: $tripCreationVM.selectedPlaces, placesToRemove: $geminiVM.placesToRemove)
-                                    
-                                }
-                                
-                            }
-                        }.padding()
+//                        VStack {
+//                            ForEach(tripCreationVM.selectedPlaces, id: \.self) { place in
+//                                VStack {
+//                                    LocationCard(location: place,
+//                                                 selectedPlaces: $tripCreationVM.selectedPlaces, placesToRemove: $geminiVM.placesToRemove)
+//
+//                                }
+//
+//                            }
+//                        }.padding()
+                        
+                        // MARK: List of chosen locations
+                        SelectedPlacesList(placesToRemove: $geminiVM.placesToRemove)
                     }
                     
                 }
@@ -205,3 +191,42 @@ struct AITripOverview: View {
 
 }
 
+#Preview {
+    let user = AppUser(id: "Test", username: "test", email: "test@email.com")
+    let melbourne = MKCoordinateRegion(
+        center: CLLocationCoordinate2D(latitude: -37.8136, longitude: 144.9631),
+        span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
+    )
+
+    let tripCreationVM: TripCreationViewModel = {
+        let vm = TripCreationViewModel()
+
+        // Dummy stops around Melbourne
+        func makeItem(_ name: String, _ lat: Double, _ lon: Double) -> MKMapItem {
+            let item = MKMapItem(placemark: MKPlacemark(
+                coordinate: CLLocationCoordinate2D(latitude: lat, longitude: lon)
+            ))
+            item.name = name
+            return item
+        }
+
+        vm.name = "Melbourne Highlights"
+        vm.description = "A relaxed day taking in the city's markets, gardens and laneway culture."
+        vm.selectedPlaces = [
+            makeItem("Federation Square", -37.8180, 144.9691),
+            makeItem("Queen Victoria Market", -37.8076, 144.9568),
+            makeItem("Royal Botanic Gardens", -37.8304, 144.9796)
+        ].map { MapItem(identifier: $0.name ?? UUID().uuidString, mkMapItem: $0) }
+
+        return vm
+    }()
+
+    NavigationStack {
+        AITripOverview()
+            .environment(GeminiViewModel(region: melbourne))
+            .environment(LocationViewModel(user: user))
+            .environment(AppViewModel(user: user))
+            .environment(tripCreationVM)
+            .environment(Router())
+    }
+}

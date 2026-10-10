@@ -97,7 +97,7 @@ struct AITripCreationView: View {
                     }
                 
                 } else {
-                    AITripOverview(routes: $routes)
+                    AITripOverview()
                         .environment(geminiVM)
                 }
             }

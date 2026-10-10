@@ -29,11 +29,34 @@ struct TripNameView: View {
                     .fixedSize(horizontal: false, vertical: true)
                     .font(.title3)
                 
-                
-                TextField("e.g. Food Tour", text: $tripCreationVM.name, axis: .vertical)
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
-                    .accessibilityIdentifier("trip.title.input")
-                    .fixedSize(horizontal: false, vertical: true)
+                // Title field
+                ZStack(alignment: .leading) {
+                    TextField("", text: $tripCreationVM.name)
+                        .textFieldStyle(.plain)
+                        .font(.title3)
+                        .lineLimit(1)
+                        .padding(.horizontal, 9)
+                        .padding(.vertical, 10)
+                        .background(.background)
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                        .overlay {
+                            RoundedRectangle(cornerRadius: 8)
+                                .stroke(Color(.systemGray), lineWidth: 1)
+                        }
+                        .accessibilityIdentifier("trip.title.input")
+                        .accessibilityLabel("Input your trip's title")
+                        .fixedSize(horizontal: false, vertical: true)
+
+                    // Placeholder text; padding matches the TextField's inner padding
+                    if tripCreationVM.name.isEmpty {
+                        Text("e.g. Food Tour")
+                            .padding(.horizontal, 9)
+                            .allowsHitTesting(false)
+                            .accessibilityHidden(true)
+                            .foregroundStyle(Color(.secondaryLabel))
+                            .font(.title3)
+                    }
+                }
                 
                 if let nameError = tripCreationVM.nameError {
                     Text(nameError).foregroundColor(.red)
@@ -61,7 +84,7 @@ struct TripNameView: View {
                         .clipShape(RoundedRectangle(cornerRadius: 8))
                         .overlay {
                             RoundedRectangle(cornerRadius: 8)
-                                .stroke(.secondary.opacity(0.15))
+                                .stroke(Color(.systemGray), lineWidth: 1)
                         }
                         .accessibilityIdentifier("trip.description.input")
                         .accessibilityLabel("Input your trip's description")

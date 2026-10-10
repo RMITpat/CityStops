@@ -99,7 +99,18 @@ struct CreateRouteView: View {
                     // ...but turn it off while a long press is active so the long press wins
                     .environment(\.editMode, .constant( .active))
                     .scrollDisabled(gestureState.isLongPressComplete)
-                    Spacer()
+                    
+                    // MARK: "Open Sheet" button
+                    Button {
+                        showStopsSheet = true
+                    } label: {
+                        Text("Choose Locations")
+                            .multilineTextAlignment(.center)
+                            .fixedSize(horizontal: false, vertical: true)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 8)
+                    }
+                    .accessibilityIdentifier("choose.locations")
                 }
                 
                 if let error {
@@ -109,14 +120,7 @@ struct CreateRouteView: View {
                         .multilineTextAlignment(.center)
                 }
                 
-            // MARK: - Gesture Overlay
-            if gestureState.isLongPressComplete {
-                GestureOverlay(vm: gestureVM)
-                    .ignoresSafeArea()
-            }
         }
-        // fade in when appearing
-        .animation(.easeInOut(duration: 0.3), value: gestureState.isLongPressComplete)
         .contentShape(Rectangle())
         .navigationTitle(Text(tripCreationVM.name))
         .task {
@@ -132,18 +136,6 @@ struct CreateRouteView: View {
                 }
             }
         }
-        
-        // MARK: "Open Sheet" button
-        Button {
-            showStopsSheet = true
-        } label: {
-            Text("Choose Locations")
-                .multilineTextAlignment(.center)
-                .fixedSize(horizontal: false, vertical: true)
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 8)
-        }
-        .accessibilityIdentifier("choose.locations")
         
         // MARK: Choose stops sheet
         .sheet(isPresented: $showStopsSheet) {
@@ -190,6 +182,17 @@ struct CreateRouteView: View {
             .disabled(appVM.isSaving)
             .modifier(ButtonFormat())
         }
+        
+        // MARK: - Gesture Overlay
+        // Applied last so it wraps both the content and the safe area inset
+        .overlay {
+            if gestureState.isLongPressComplete {
+                GestureOverlay(vm: gestureVM)
+                    .ignoresSafeArea()
+            }
+        }
+        // fade in when appearing
+        .animation(.easeInOut(duration: 0.3), value: gestureState.isLongPressComplete)
         
         }
 

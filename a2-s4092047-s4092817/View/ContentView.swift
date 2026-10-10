@@ -8,7 +8,7 @@
 import SwiftUI
 import SwiftData
 
-// View that handles Navigation of the app.
+/// Handles the Navigation of the app.
 struct ContentView: View {
     let signedInUser: AppUser
     @Environment(\.modelContext) private var modelContext

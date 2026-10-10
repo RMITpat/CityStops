@@ -1,0 +1,95 @@
+//
+//  CreationChoiceView.swift
+//  a2-s4092047-s4092817
+//
+//  Created by Riley Tran on 21/9/2026.
+//
+
+import SwiftUI
+
+/// View that allows user to choose between manually creating a ``Trip``, or
+/// use ML features to plan a ``Trip``for them.
+struct CreationChoiceView: View {
+    /// ViewModelFactory to be passed to AITripCreationView
+    @Environment(ViewModelFactory.self) var vmFactory: ViewModelFactory
+    
+    /// LocationViewModel for accessing MapKit methods
+    @Environment(LocationViewModel.self) var locationVM: LocationViewModel
+    
+    /// Router for view navigation
+    @Environment(Router.self) var router: Router
+    
+    /// TripCreationViewModel for holding trip creation state and helper methods
+    @State var tripCreationVM: TripCreationViewModel = TripCreationViewModel()
+
+    var body: some View {
+        @Bindable var locationVM = locationVM
+        @Bindable var router = router
+
+        NavigationStack(path: $router.tripCreationRoute) {
+            
+            VStack {
+                // MARK: Heading
+                Text("How would you like to create your daytrip?")
+                    .bold()
+                // MARK: Plan it myself button
+                Button("Plan it myself") {
+                    tripCreationVM.clear()
+                    router.tripCreationRoute.append(TripCreationRoute.name)
+                }
+                .accessibilityIdentifier("plan.myself")
+                .buttonStyle(.borderedProminent)
+                .controlSize(.large)
+                .font(.title3)
+                
+                Text("or")
+                    .fontWeight(.light)
+                
+                // MARK: Ask Dora button
+                Button("Ask Dora to assist") {
+                    tripCreationVM.clear()
+                    router.tripCreationRoute.append(TripCreationRoute.preferences)
+                }
+                .accessibilityIdentifier("ask.ai")
+                .buttonStyle(.borderedProminent)
+                .controlSize(.large)
+                .tint(.dora)
+                .font(.title3)
+
+                
+            }
+            .onAppear {
+                locationVM.checkLocationAuthorization()
+            }
+            .navigationTitle(
+                Text("Create a Daytrip")
+
+            )
+            .navigationBarTitleDisplayMode(.large)
+            .navigationDestination(for: TripCreationRoute.self) { route in
+            switch route {
+                case .name: TripNameView()
+                case .preferences: TripPreferenceView()
+                case .createRoute: CreateRouteView(vmFactory: vmFactory)
+            case .aiTripCreation: AITripCreationView(region: locationVM.currentRegion, vmFactory: vmFactory)
+            }
+        }
+        }
+        .environment(tripCreationVM)
+
+       
+
+    }
+
+        
+}
+#Preview {
+    let user = AppUser(id: "Test", username: "test", email: "test@email.com")
+    NavigationStack {
+        CreationChoiceView()
+            .environment(LocationViewModel(user: user))
+            .environment(Router())
+            .environment(ViewModelFactory())
+
+    }
+}

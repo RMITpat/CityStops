@@ -43,8 +43,6 @@ struct CreateRouteView: View {
                 .ignoresSafeArea()
             
             // MARK: - Base View
-            ScrollView {
-                
                 VStack {
                     
                     // MARK: Map interface - UIKit
@@ -56,6 +54,10 @@ struct CreateRouteView: View {
                         isPinSelectable: true,
                         interactionModes: gestureState.isLongPressComplete ? [] : .all
                     )
+                    // MARK: Gesture trigger
+                    // Gesture only triggers if it happens over the map.
+                    // Implemented to prevent clashes with List gestures.
+                    .simultaneousGesture(longPressThenDrag)
                     .accessibilityHidden(true)
                     .frame(height:400)
                     // Route between stops
@@ -72,48 +74,34 @@ struct CreateRouteView: View {
                     }
                     .accessibilityLabel("Map of your route")
                     
-                    // MARK: Choose stops sheet
-                    .sheet(isPresented: $showStopsSheet) {
-                        VStack {
-                            CreateTripSheet(mode: tripCreationVM.selectedPreferences.isEmpty ? .second : .first)
-                                .padding(.top, 24)
-                                .environment(otmVM)
-                            Button("Done") {
-                                showStopsSheet.toggle()
-                            }
-                            .buttonStyle(.borderedProminent)
-                            .font(.title2)
-                            .controlSize(.large)
-                            .accessibilityIdentifier("done.button")
-                            .accessibilitySortPriority(2)
-
-                        }
-                        .presentationDetents([.large])
-                        // Lets you pan/zoom the map while the sheet is at small/medium size
-                        .presentationBackgroundInteraction(.enabled(upThrough: .medium))
-                        .presentationDragIndicator(.visible)
-                    }
-                    
-                    // MARK: Scroll View of chosen locations
-                    Text("Long press for edit trip options")
+                    Text("Long press map for edit trip options")
                         .font(.caption)
                         .foregroundStyle(.gray).fixedSize(horizontal: false, vertical: true)
-                    VStack {
+                    
+                    // MARK: Scroll View of chosen locations
+                    List {
                         ForEach(tripCreationVM.selectedPlaces, id: \.identifier) { place in
-                            VStack {
-                                LocationCard(location: place,
-                                             selectedPlaces: $tripCreationVM.selectedPlaces)
-                                
-                            }
+                            LocationCard(location: place,
+                                         selectedPlaces: $tripCreationVM.selectedPlaces)
+                            // Your existing long-press gesture goes here (see note below)
+                            .listRowSeparator(.hidden)
+                            .listRowBackground(Color.clear)
+                            .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
+                            .deleteDisabled(true) // hides the red minus
+                        }
+                        .onMove { source, destination in
+                            tripCreationVM.selectedPlaces.move(fromOffsets: source, toOffset: destination)
                         }
                     }
-                    .padding()
+                    .listStyle(.plain)
+                    .scrollContentBackground(.hidden)
+                    // Always show the three-line handle...
+                    // ...but turn it off while a long press is active so the long press wins
+                    .environment(\.editMode, .constant( .active))
+                    .scrollDisabled(gestureState.isLongPressComplete)
+                    Spacer()
                 }
-                // prevent scrolling when long press is active
-                .scrollDisabled(gestureState.isLongPressComplete)
-                Spacer()
-            }
-               
+                
                 if let error {
                     Text(error)
                         .font(.footnote)
@@ -121,17 +109,15 @@ struct CreateRouteView: View {
                         .multilineTextAlignment(.center)
                 }
                 
-            
-            
             // MARK: - Gesture Overlay
             if gestureState.isLongPressComplete {
                 GestureOverlay(vm: gestureVM)
+                    .ignoresSafeArea()
             }
         }
         // fade in when appearing
         .animation(.easeInOut(duration: 0.3), value: gestureState.isLongPressComplete)
         .contentShape(Rectangle())
-        .simultaneousGesture(longPressThenDrag)
         .navigationTitle(Text(tripCreationVM.name))
         .task {
             // left swipe: cancel trip creation
@@ -146,6 +132,7 @@ struct CreateRouteView: View {
                 }
             }
         }
+        
         // MARK: "Open Sheet" button
         Button {
             showStopsSheet = true
@@ -157,6 +144,28 @@ struct CreateRouteView: View {
                 .padding(.vertical, 8)
         }
         .accessibilityIdentifier("choose.locations")
+        
+        // MARK: Choose stops sheet
+        .sheet(isPresented: $showStopsSheet) {
+            VStack {
+                CreateTripSheet(mode: tripCreationVM.selectedPreferences.isEmpty ? .second : .first)
+                    .padding(.top, 24)
+                    .environment(otmVM)
+                Button("Done") {
+                    showStopsSheet.toggle()
+                }
+                .buttonStyle(.borderedProminent)
+                .font(.title2)
+                .controlSize(.large)
+                .accessibilityIdentifier("done.button")
+                .accessibilitySortPriority(2)
+                
+            }
+            .presentationDetents([.large])
+            // Lets you pan/zoom the map while the sheet is at small/medium size
+            .presentationBackgroundInteraction(.enabled(upThrough: .medium))
+            .presentationDragIndicator(.visible)
+        }
         
         // MARK: "Finish" button
         .safeAreaInset(edge: .bottom) {

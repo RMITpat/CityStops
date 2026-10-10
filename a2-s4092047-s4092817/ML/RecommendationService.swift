@@ -3,13 +3,12 @@
 //  a2-s4092047-s4092817
 //
 
-import Combine
 import Foundation
 import CoreML
 
-/// Handles ``Trip`` recommendation logic using the ``all-MiniLM-L6-v2`` PyTorch model.
+/// Handles ``Trip`` recommendation logic using the `all-MiniLM-L6-v2` PyTorch model.
 /// The model facilitates semantic search based on the Title of all the user's saved ``Trip``.
-final class RecommendationService: ObservableObject {
+final class RecommendationService {
         
     // MARK: - Properties
     /// The Core ML model loaded from MiniLM.mlpackage.
@@ -21,10 +20,11 @@ final class RecommendationService: ObservableObject {
     /// Sequence length used when converting text input to be used in the ML model.
     private let maxLength = 128
 
-    // The suggestions shown in the UI (best match first)
-    @Published var suggestions: [String] = []
-    @Published var errorMessage: String?
-
+    /// The suggested trip titles as Strings (best match first)
+    var suggestions: [String] = []
+    
+    var errorMessage: String?
+    
     // Background queue so inference never blocks the UI
     private let mlQueue = DispatchQueue(label: "ml.minilm.queue", qos: .userInitiated)
 

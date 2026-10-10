@@ -54,7 +54,7 @@ import MapKit
     private let recommendedTripCount = 5
     
     /// Runs the MiniLM model. `lazy` so the model is only loaded the first time recommendations are requested
-    @ObservationIgnored private lazy var recommendationService = RecommendationService()
+    private var recommendationService = RecommendationService()
     
     /// Set if a load recommendations run was already in progress.
     @ObservationIgnored private var recommendationsOutdated = false

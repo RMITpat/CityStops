@@ -78,7 +78,7 @@ struct CreateRouteView: View {
                         .font(.caption)
                         .foregroundStyle(.gray).fixedSize(horizontal: false, vertical: true)
                     
-                    // MARK: Scroll View of chosen locations
+                    // MARK: List of chosen locations
                     List {
                         ForEach(tripCreationVM.selectedPlaces, id: \.identifier) { place in
                             LocationCard(location: place,

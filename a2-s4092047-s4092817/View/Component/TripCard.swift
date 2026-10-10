@@ -21,6 +21,8 @@ struct TripCard: View {
     @Binding var navRoute: [FeedRoute]
     @State var routes: [MKRoute] = []
     
+    var showBookmark: Bool = true
+    
     var body: some View {
         @Bindable var locationVM = locationVM        
 
@@ -56,7 +58,9 @@ struct TripCard: View {
                         .font(.subheadline)
                         .accessibilityLabel("Created on \(trip.createdAt.formatted(date: .complete, time: .shortened))")
                     Spacer()
-                    SaveTripButton(trip: trip)
+                    if showBookmark {
+                        SaveTripButton(trip: trip)
+                    }
                 }
             }
             .frame(maxWidth: .infinity, alignment: .center)
@@ -80,7 +84,7 @@ struct TripCard: View {
     let trip = Trip(id: "1", ownerUsername: "conan", ownerId: "", name: "Cool trip", description: "Cool trip to go on!", places: [], preferences: ["Food", "Landmarks"])
     let trip2 = Trip(id: "", ownerUsername: "bob", ownerId: "", name: "Cool trip again", description: "Another cool trip to go on!", places: [], preferences: ["Food", "Sightseeing"])
     
-    TripFeed(trips: [trip, trip2], isLoading: false, route: $route, onRefresh: {}, loadTrips: {} )
+    TripFeed(trips: [trip, trip2], isLoading: false, route: $route, onRefresh: {}, loadTrips: {}, showBookmark: true )
         .environment(LocationViewModel(user: user))
         .environment(AppViewModel(user: user))
         .environment(Router())

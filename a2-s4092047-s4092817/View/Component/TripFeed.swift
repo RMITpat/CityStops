@@ -17,12 +17,13 @@ struct TripFeed: View {
     let onRefresh: () -> Void
     let loadTrips: () -> Void
     
+    var showBookmark: Bool = true
     var body: some View {
 
         ScrollView {
             LazyVStack {
                 ForEach(trips, id: \.id) { trip in
-                    TripCard(trip: trip, navRoute: $route)
+                    TripCard(trip: trip, navRoute: $route, showBookmark: showBookmark)
                     
                     Divider()
                 }

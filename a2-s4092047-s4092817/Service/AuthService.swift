@@ -10,18 +10,26 @@ import FirebaseCore
 import GoogleSignIn
 import FirebaseFirestore
 
-// Protocol for AuthService
+/// Protocol for AuthService; handles login and signup logic.
 @MainActor
 protocol AuthService {
     var currentUser: AppUser? { get }
+    
+    /// Starts Google Sign-In, then exchanges the Google token for a Firebase credential.
     func signInWithGoogle() async throws -> AppUser
+    
+    /// Signs out.
     func signOut() throws
+    
+    /// Starts a sign in with email.
     func signInWithEmail(email: String, password: String) async throws -> AppUser
+    
+    /// Starts a sign up with email.
     func signUpWithEmail(email: String, password: String, username: String) async throws -> AppUser
 
 }
 
-// Real implementation of AuthService which handles google sign in, sign in and up with email and sign out
+/// Real implementation of AuthService which handles google sign in, sign in and up with email and sign out.
 @MainActor
 final class AuthServiceImpl: AuthService {
 
@@ -30,7 +38,7 @@ final class AuthServiceImpl: AuthService {
         return AppUser.fromFirebaseUser(user)
     }
     
-    // Starts Google Sign-In, then exchanges the Google token for a Firebase credential.
+    /// Starts Google Sign-In, then exchanges the Google token for a Firebase credential.
     func signInWithGoogle() async throws -> AppUser {
         guard FirebaseApp.app() != nil else {
             throw AuthError.misconfigured("Firebase is not configured. Add GoogleService-Info.plist first.")
@@ -62,7 +70,7 @@ final class AuthServiceImpl: AuthService {
         GIDSignIn.sharedInstance.signOut()
     }
     
-    // Starts a sign up with email
+    /// Starts a sign up with email.
     func signUpWithEmail(email: String, password: String, username: String) async throws -> AppUser {
         let authResult = try await Auth.auth().createUser(withEmail: email, password: password)
         let changeReq = authResult.user.createProfileChangeRequest()
@@ -73,7 +81,7 @@ final class AuthServiceImpl: AuthService {
         return AppUser.fromFirebaseUser(authResult.user, username: username)
     }
     
-    // Starts a sign in with email
+    /// Starts a sign in with email
     func signInWithEmail(email: String, password: String) async throws -> AppUser {
         let authResult = try await Auth.auth().signIn(withEmail: email, password: password)
         return AppUser.fromFirebaseUser(authResult.user)
@@ -87,6 +95,7 @@ final class AuthServiceImpl: AuthService {
             .rootViewController
     }
 
+    /// stores error description for authentication.
     enum AuthError: LocalizedError {
         case misconfigured(String)
 

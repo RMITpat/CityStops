@@ -113,8 +113,9 @@ final class RecommendationService {
     /// - Parameters:
     ///   - inputs: One or more strings; the Titles of saved ``Trip``. Their embeddings are averaged into a single recommendation "profile".
     ///   - topN: How many suggestions to return.
-    ///   - comfidenceThreshold: How "similar" the String semantics must be.
+    ///   - confidenceThreshold: How "similar" the String semantics must be.
     ///   - excludeInputs: If true, candidates identical to an input are not suggested back.
+    ///  - completion: handles async. logic.
     func recommend(
         basedOn inputs: [String],
         topN: Int = 5,

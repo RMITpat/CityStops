@@ -8,15 +8,16 @@
 import Foundation
 import CoreLocation
 
-/// Service protocol to be implemented
+/// Service for requesting and returning the user's location. See ``CoreLocationServiceImpl`` for real implementation in app.
 @MainActor
 protocol CoreLocationService {
     var onLocationUpdate: ((CLLocation) -> Void)? { get set }
     
+    /// Sets the current location based off authorisation.
     func checkLocationAuthorization()
 }
 
-/// Service for requesting and returning the user's location
+/// Real implementation of ``CoreLocationService`` in app.
 @MainActor
 final class CoreLocationServiceImpl : NSObject, CoreLocationService, CLLocationManagerDelegate {
     var manager = CLLocationManager()
@@ -26,7 +27,7 @@ final class CoreLocationServiceImpl : NSObject, CoreLocationService, CLLocationM
         self.onLocationUpdate = onLocationUpdate
     }
     
-    /// Sets the current location based off authorisation
+    /// Sets the current location based off authorisation.
     func checkLocationAuthorization() {
         
         // Sets delegate so that locationManagerDidChangeAuthorization and locationManager(didUpdateLocations) functions are called automatically
@@ -47,12 +48,12 @@ final class CoreLocationServiceImpl : NSObject, CoreLocationService, CLLocationM
         }
     }
     
-    /// Triggered every time authorization status changes
+    /// Triggered every time authorization status changes.
     func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
         checkLocationAuthorization()
     }
     
-    /// Called when manager.requestLocation() succeeds
+    /// Called when manager.requestLocation() succeeds.
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         if let location = locations.first {
             onLocationUpdate?(location)

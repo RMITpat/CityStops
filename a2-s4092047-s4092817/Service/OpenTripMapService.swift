@@ -4,23 +4,33 @@
 //
 //  Created by Riley Tran on 29/9/2026.
 //
-///
+
+import SwiftUI
+import CoreLocation
+
 /// The REST API service, OpenTripMap, that fetches locations and landmarks via
 /// the type of location (i.e. landmark, food, shopping).
 ///
 /// Adapted from Week 8 Lectorial code.
 ///
-import SwiftUI
-import CoreLocation
-
+/// See ``OpenTripMapServiceImpl`` for the real implementation in the app.
 protocol OpenTripMapService {
+    /// Fetches nearby locations within a specified radius, filtered by category.
+    ///
+    /// - Parameters:
+    ///   - location: The geographic coordinates to search around.
+    ///   - radius: The search radius in metres.
+    ///   - filter: The category or kinds of locations to include (e.g. restaurants, historic buildings, or shops).
+    ///   - returnLimit: The maximum number of locations to return.
+    /// - Returns: An array of nearby locations matching the specified category.
+    /// - Throws: An error if the request URL is invalid, the network request fails, or the response cannot be decoded.
     func fetchNearbyPointsByCategory(location: CLLocationCoordinate2D,
                                      radius: Int,
                                      filter: String,
                                      returnLimit: Int) async throws -> [OpenTripLocation]
 }
 
-
+/// Real implementation of ``OpenTripMapService`` in the app.
 class OpenTripMapServiceImpl : OpenTripMapService {
     private let apiKey: String
     
@@ -35,7 +45,7 @@ class OpenTripMapServiceImpl : OpenTripMapService {
         }
     }
     
-    /// fetches relevant nearby locations to a given point, filtered by the "kind" of location (e.g. Restaurant, Historic building, Shop etc.)
+    /// Fetches nearby locations within a specified radius, filtered by category.
     func fetchNearbyPointsByCategory(location: CLLocationCoordinate2D,
                                      radius: Int,
                                      filter: String,
@@ -70,11 +80,5 @@ class OpenTripMapServiceImpl : OpenTripMapService {
             print("❌ Decoding error:", error)
             throw error
         }
-        
-        // regular API request + decoding
-//        guard let url = components.url else { throw URLError(.badURL) }
-//        
-//        let (data, _) = try await URLSession.shared.data(from: url)
-//        return try JSONDecoder().decode([OpenTripLocation].self, from: data)
     }
 }

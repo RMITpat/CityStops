@@ -8,15 +8,37 @@
 import Foundation
 import MapKit
 
+
 @MainActor
+/// Defines services for searching places, calculating routes, and retrieving map items.
+///
+/// See ``MapKitServiceImpl`` for real implementation in app.
 protocol MapKitService {
 
+    /// Conduct a search of places using a search request string.
+    /// - Parameters:
+    ///   - searchRequest: The natural language query used to search for places.
+    ///   - currentRegion: The geographic region where search is performed.
+    /// - Returns: Array of ``MapItem`` matching the search query.
+    /// - Throws: An error if the place search fails.
     func searchPlaces(searchRequest: String, currentRegion: MKCoordinateRegion) async throws -> [MapItem]
+    
+    /// Create an MKRoute between 2 MapItems
+    /// - Parameters:
+    ///   - source: The starting location of route.
+    ///   - destination: The ending location of route.
+    /// - Returns: The calculated MKRoute
+    /// - Throws: An error if route calculation fails.
     func createRoute(source: MKMapItem, destination: MKMapItem) async throws -> MKRoute?
     
+    /// Request ``MapItem`` from identifier
+    /// - Parameter identifier: The identifier of the map item.
+    /// - Returns: The corresponding ``MapItem``, or `nil` if the identifier is invalid.
+    /// - Throws: An error if retrieving the map item fails.
     func getMKMapItemFromId(identifier: String) async throws -> MapItem?
 }
 
+/// Real implementation of ``MapKitService`` used in app.
 @MainActor
 final class MapKitServiceImpl : MapKitService {
     private var cachedRoutes: [CachedRoute : MKRoute] = [:]

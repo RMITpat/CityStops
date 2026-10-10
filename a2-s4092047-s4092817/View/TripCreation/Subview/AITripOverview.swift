@@ -67,7 +67,7 @@ struct AITripOverview: View {
                         case .first:
                             // MARK: Title and description
                             VStack(alignment: .leading) {
-                                TextField("e.g. Asian Street Food Tour", text: $tripCreationVM.name)
+                                TextField("e.g. Asian Street Food Tour", text: $tripCreationVM.name, axis: .vertical)
                                     .textFieldStyle(RoundedBorderTextFieldStyle())
                                     .padding(.bottom, 32)
                                     .font(.title)

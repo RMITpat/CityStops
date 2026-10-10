@@ -10,6 +10,7 @@ import Foundation
 import CoreML
 
 /// BERT-style (uncased) WordPiece tokenizer. Matches the tokenizer used by the ML model all-MiniLM-L6-v2.
+///
 /// Used in ``RecommendationService`` to convert text into the appropriate input for the model.
 /// Pulls vocabulary from `vocab.txt`.
 struct WordPieceTokenizer {
@@ -50,7 +51,7 @@ struct WordPieceTokenizer {
         )
     }
 
-    /// Converts a ``String`` into padded `input_ids` and `attention_mask`, each exactly `maxLength` long.
+    /// Converts a String into padded input_ids and attention_mask, each exactly `maxLength` long.
     func encode(_ text: String) -> (ids: [Int32], mask: [Int32]) {
 
         // Start with the special [CLS] token required by BERT-style models.

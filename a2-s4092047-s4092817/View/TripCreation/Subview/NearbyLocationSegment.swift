@@ -9,22 +9,25 @@
 import SwiftUI
 import MapKit
 
-/// Displays nearby locations for one``Preference``.
-/// Uses ``LocationSegmentViewModel`` to facilitate parsing + display
-/// of REST API responses.
+/// Displays nearby locations for one``Preference``, given by REST API.
+/// Subview for ``NearbyLocations``.
 struct NearbyLocationSegment: View {
+    /// The preference this view is displaying locations for
     let preference: Preference
+    
+    /// The coordinate used for reloading locations
     let coordinate: CLLocationCoordinate2D
         
+    /// The selected places binding this View's controls will modify
     @Binding var selectedPlaces: [MapItem]
     
-    // MARK: View Models
+    /// OpenTripMapViewmodel used to access Open Trip Map API
     @Environment(OpenTripMapViewModel.self) private var otmVM
     
     var body: some View {
         
         VStack(alignment: .leading, spacing: 12) {
-            // Preference title
+            // MARK: Preference title
             Text(preference.preference)
                 .font(.title2)
                 .bold()
@@ -34,6 +37,7 @@ struct NearbyLocationSegment: View {
             if let status = otmVM.segmentLocations[preference.preference] {
                 switch status {
                 case .error(_):
+                    // MARK: Error state
                     HStack(spacing: 8) {
                         Text("Couldn't load places for \(preference.preference).")
                             .foregroundStyle(.secondary)
@@ -49,6 +53,7 @@ struct NearbyLocationSegment: View {
                         Spacer()
                     }
                 case .success(let locations):
+                    // MARK: Locations display
                     VStack(spacing: 12) {
                         if locations.isEmpty {
                             HStack(spacing: 8) {
@@ -58,7 +63,7 @@ struct NearbyLocationSegment: View {
                                 Spacer()
                             }
                         }
-                        // List of nearby locations
+                        // MARK: List of nearby locations
                         ForEach(locations, id: \.identifier) { item in
                             LocationCard(
                                 location: item,
@@ -68,6 +73,7 @@ struct NearbyLocationSegment: View {
                 }
             } else {
                 HStack(spacing: 8) {
+                    // MARK: Loading indicator
                     ProgressView()
                     Text("Loading nearby places…")
                         .foregroundStyle(.secondary)

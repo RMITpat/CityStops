@@ -9,25 +9,32 @@ import Foundation
 import CoreLocation
 
 /// Models the necessary location response variables from OpenTripMapAPI response
-/// for conversion to ``MKMapItem``.
-
+/// for conversion to MKMapItem.
 struct OpenTripLocation: Identifiable, Decodable {
     let lat: Double
     let lon: Double
     
+    /// Name of location.
     let name: String
     
-    // TEMP FOR TESTING: this struct won't need to be decodable? (since it will get parsed into an MKMapItem)
+    /// A unique identifier derived from the location's name and coordinates.
+    /// Used to identify locations in SwiftUI views and tests.
     var id: String { "\(name)-\(lat)-\(lon)" }
     
+    /// Defines the API response keys used to decode the location's name and coordinates.
     private enum CodingKeys: String, CodingKey {
         case name, point
     }
 
+    /// Defines the keys used to decode the latitude and longitude from the nested point object.
     private enum PointKeys: String, CodingKey {
         case lat, lon
     }
 
+    /// Creates an OpenTripLocation by decoding the nested structure of an OpenTripMap API response.
+    /// - Parameter decoder: The decoder providing the API response data.
+    /// - Throws: A decoding error if the name, point object, latitude, or longitude is missing
+    ///   or cannot be decoded.
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         name = try container.decode(String.self, forKey: .name)
@@ -37,7 +44,11 @@ struct OpenTripLocation: Identifiable, Decodable {
         lon = try point.decode(Double.self, forKey: .lon)
     }
     
-    // Mock init
+    /// Creates an OpenTripLocation directly using the supplied values, primarily for mock data and tests.
+    /// - Parameters:
+    ///   - name: The name of the location.
+    ///   - lat: The latitude coordinate of the location.
+    ///   - lon: The longitude coordinate of the location.
     init(name: String, lat: Double, lon: Double) {
         self.name = name
         self.lat = lat

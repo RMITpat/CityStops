@@ -8,16 +8,24 @@
 import SwiftUI
 import MapKit
 
+/// Displays the details of a trip and allows saving/deletion.
 struct TripDetailView: View {
+    /// App viewmodel for interacting with Firebase.
     @Environment(AppViewModel.self) var appVM: AppViewModel
+    /// Location ViewModel for accessing MapKit methods.
     @Environment(LocationViewModel.self) var locationVM: LocationViewModel
+    /// Router for view navigation.
     @Environment(Router.self) var router: Router
-
+    
+    /// The overall route for the trip.
     @State var routes: [MKRoute] = []
     
+    /// The picker's display state.
     @State private var mode: Mode = .first
+    /// Error message
     @State private var error: String?
     
+    /// The display states for the picker.
     enum Mode: String, CaseIterable, Identifiable {
         case first = "Details"
         case second = "Places"
@@ -27,14 +35,14 @@ struct TripDetailView: View {
     var body: some View {
         if let trip = appVM.currentTrip {
             ScrollView {
-
-            VStack {
-                TripCardInfo(trip: trip)
                 
+                VStack {
+                    // MARK: Trip name, preferences and creator
+                    TripCardInfo(trip: trip)
+                    
+                }.padding()
                 
-                
-            }.padding()
-// MARK: UIKit Map
+                // MARK: UIKit Map
                 UIKitMapView(
                     position: .framing(trip.mkMapItemPlaces.map({$0.mkMapItem})),
                     places: trip.mkMapItemPlaces.map({$0.mkMapItem}),
@@ -44,20 +52,21 @@ struct TripDetailView: View {
                     interactionModes: .all
                 )
                 .accessibilityHidden(true)
-            .frame(height: 425)
-            .task {
-                do {
-                    routes = try await locationVM.createTripRoutes(selectedPlaces: trip.mkMapItemPlaces, tripID: trip.id)
-                } catch {
-                    self.error = "Failed to create trip route"
+                .frame(height: 325)
+                .task {
+                    do {
+                        routes = try await locationVM.createTripRoutes(selectedPlaces: trip.mkMapItemPlaces, tripID: trip.id)
+                    } catch {
+                        self.error = "Failed to create trip route"
+                    }
+                    
                 }
-                
-            }
                 
                 // MARK: Desc + Save button
                 VStack(alignment: .center) {
                     
                     HStack {
+                        // MARK: Delete button
                         if (trip.ownerId == appVM.user.id) {
                             Button("Delete", systemImage: "trash") {
                                 Task {
@@ -81,13 +90,14 @@ struct TripDetailView: View {
                             .accessibilityLabel("Delete this trip")
                             Spacer()
                         }
+                        // MARK: Save button
                         SaveTripButton(trip: trip)
-                       
+                        
                     }.padding()
                 }
                 .frame(maxWidth: .infinity, alignment: .center)
                 
-                
+                // MARK: Picker for display state
                 Picker("Mode", selection: $mode) {
                     ForEach(Mode.allCases) { Text($0.rawValue).tag($0) }
                 }
@@ -97,7 +107,7 @@ struct TripDetailView: View {
                 
                 switch mode {
                 case .first:
-                    
+                    // MARK: Trip description and creation date
                     VStack(alignment: .leading) {
                         Text(trip.description)
                             .accessibilityIdentifier("trip.description")
@@ -112,25 +122,24 @@ struct TripDetailView: View {
                         ForEach(trip.mkMapItemPlaces, id: \.self) { place in
                             VStack {
                                 LocationCard(location: place)
-                               
+                                
                             }
                         }
                     }.padding()
                 }
-             
+                
                 
             }
             Spacer()
-            // TODO: Toolbar disappear / reappear animation?
                 .toolbar(.hidden, for: .tabBar)
             if let error {
                 Text(error)
                     .foregroundStyle(.red)
             }
-        
-
             
-        } else {
+        }
+        else {
+            // MARK: Error
             VStack {
                 Text("Error")
                     .toolbar(.hidden, for: .tabBar)

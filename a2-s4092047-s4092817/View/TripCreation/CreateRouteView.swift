@@ -10,26 +10,34 @@ import MapKit
 /// View that displays the shortest route that visits all chosen ``Trip`` stops.
 /// Uses ``LocationViewModel`` to calculate route.
 struct CreateRouteView: View {
+    /// LocationViewModel for accessing MapKit methods
     @Environment(LocationViewModel.self) var locationVM: LocationViewModel
+    
+    /// App viewmodel for interacting with Firebase
     @Environment(AppViewModel.self) var appVM: AppViewModel
+    
+    /// TripCreationViewModel for holding trip creation state and helper methods
     @Environment(TripCreationViewModel.self) var tripCreationVM: TripCreationViewModel
+    
+    /// Router for view navigation
     @Environment(Router.self) var router: Router
     
+    /// OpenTripMapViewModel for accessing Open Trip Map API
     @State var otmVM: OpenTripMapViewModel
     
     init(vmFactory: ViewModelFactory) {
         _otmVM = State(initialValue: vmFactory.createOpenTripMapViewModel())
     }
     
-    // Routes between selectionPlaces
-    @State var routes: [MKRoute] = []
+    /// Error message
     @State var error: String?
     
-    // Sheet state
+    /// Sheet state
     @State private var showStopsSheet = true
     
-    // Gesture states
+    /// Gesture state
     @State private var gestureVM = GestureViewModel()
+    /// Gesture state
     @GestureState private var gestureState = ComplexGestureState.inactive
     
     
@@ -41,79 +49,50 @@ struct CreateRouteView: View {
             // Ensures overlay appear / disappear covers entire screen
             Color(.systemBackground)
                 .ignoresSafeArea()
-            
-            // MARK: - Base View
             ScrollView {
-                
+            // MARK: - Base View
                 VStack {
                     
                     // MARK: Map interface - UIKit
-                    UIKitMapView(
-                        position: locationVM.currentLocation,
-                        places: tripCreationVM.selectedPlaces.map({$0.mkMapItem}),
-                        routes: routes,
-                        showsUserLocation: true,
-                        isPinSelectable: true,
-                        interactionModes: gestureState.isLongPressComplete ? [] : .all
-                    )
-                    .accessibilityHidden(true)
-                    .frame(height:400)
+                    RouteMapSection(isGestureActive: gestureState.isLongPressComplete)
+                    
+                    // MARK: Gesture trigger
+                    // Gesture only triggers if it happens over the map.
+                    // Implemented to prevent clashes with List gestures.
+                        .simultaneousGesture(longPressThenDrag)
+                        .accessibilityHidden(true)
+                        .frame(height:375)
                     // Route between stops
-                    .task {
-                        await otmVM.generateSegments(
-                            preferences: tripCreationVM.selectedPreferences,
-                            coordinate: locationVM.currentRegion.center
-                        )
-                    }
-                    .onChange(of: tripCreationVM.selectedPlaces) {
-                        Task {
-                            routes = try await locationVM.createTripRoutes(selectedPlaces: tripCreationVM.selectedPlaces)
+                        .task {
+                            await otmVM.generateSegments(
+                                preferences: tripCreationVM.selectedPreferences,
+                                coordinate: locationVM.currentRegion.center
+                            )
                         }
-                    }
-                    .accessibilityLabel("Map of your route")
+                        .accessibilityLabel("Map of your route")
                     
-                    // MARK: Choose stops sheet
-                    .sheet(isPresented: $showStopsSheet) {
-                        VStack {
-                            CreateTripSheet(mode: tripCreationVM.selectedPreferences.isEmpty ? .second : .first)
-                                .padding(.top, 24)
-                                .environment(otmVM)
-                            Button("Done") {
-                                showStopsSheet.toggle()
-                            }
-                            .buttonStyle(.borderedProminent)
-                            .font(.title2)
-                            .controlSize(.large)
-                            .accessibilityIdentifier("done.button")
-                            .accessibilitySortPriority(2)
-
-                        }
-                        .presentationDetents([.large])
-                        // Lets you pan/zoom the map while the sheet is at small/medium size
-                        .presentationBackgroundInteraction(.enabled(upThrough: .medium))
-                        .presentationDragIndicator(.visible)
-                    }
-                    
-                    // MARK: Scroll View of chosen locations
-                    Text("Long press for edit trip options")
+                    // MARK: Gesture instruction
+                    Text("Long press map for edit trip options")
                         .font(.caption)
                         .foregroundStyle(.gray).fixedSize(horizontal: false, vertical: true)
-                    VStack {
-                        ForEach(tripCreationVM.selectedPlaces, id: \.identifier) { place in
-                            VStack {
-                                LocationCard(location: place,
-                                             selectedPlaces: $tripCreationVM.selectedPlaces)
-                                
-                            }
-                        }
-                    }
-                    .padding()
+                    
+                    // MARK: List of chosen locations
+                    SelectedPlacesList(isScrollDisabled: gestureState.isLongPressComplete)
                 }
-                // prevent scrolling when long press is active
-                .scrollDisabled(gestureState.isLongPressComplete)
-                Spacer()
-            }
-               
+                    // MARK: "Open Sheet" button
+                    Button {
+                        showStopsSheet = true
+                    } label: {
+                        Text("Choose Locations")
+                            .multilineTextAlignment(.center)
+                            .fixedSize(horizontal: false, vertical: true)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 8)
+                    }
+                    .accessibilityIdentifier("choose.locations")
+                }
+                
+            // MARK: error message
                 if let error {
                     Text(error)
                         .font(.footnote)
@@ -121,17 +100,8 @@ struct CreateRouteView: View {
                         .multilineTextAlignment(.center)
                 }
                 
-            
-            
-            // MARK: - Gesture Overlay
-            if gestureState.isLongPressComplete {
-                GestureOverlay(vm: gestureVM)
-            }
         }
-        // fade in when appearing
-        .animation(.easeInOut(duration: 0.3), value: gestureState.isLongPressComplete)
         .contentShape(Rectangle())
-        .simultaneousGesture(longPressThenDrag)
         .navigationTitle(Text(tripCreationVM.name))
         .task {
             // left swipe: cancel trip creation
@@ -146,17 +116,28 @@ struct CreateRouteView: View {
                 }
             }
         }
-        // MARK: "Open Sheet" button
-        Button {
-            showStopsSheet = true
-        } label: {
-            Text("Choose Locations")
-                .multilineTextAlignment(.center)
-                .fixedSize(horizontal: false, vertical: true)
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 8)
+        
+        // MARK: Choose stops sheet
+        .sheet(isPresented: $showStopsSheet) {
+            VStack {
+                CreateTripSheet(mode: tripCreationVM.selectedPreferences.isEmpty ? .second : .first)
+                    .padding(.top, 24)
+                    .environment(otmVM)
+                Button("Done") {
+                    showStopsSheet.toggle()
+                }
+                .buttonStyle(.borderedProminent)
+                .font(.title2)
+                .controlSize(.large)
+                .accessibilityIdentifier("done.button")
+                .accessibilitySortPriority(2)
+                
+            }
+            .presentationDetents([.large])
+            // Lets you pan/zoom the map while the sheet is at small/medium size
+            .presentationBackgroundInteraction(.enabled(upThrough: .medium))
+            .presentationDragIndicator(.visible)
         }
-        .accessibilityIdentifier("choose.locations")
         
         // MARK: "Finish" button
         .safeAreaInset(edge: .bottom) {
@@ -181,6 +162,17 @@ struct CreateRouteView: View {
             .disabled(appVM.isSaving)
             .modifier(ButtonFormat())
         }
+        
+        // MARK: - Gesture Overlay
+        // Applied last so it wraps both the content and the safe area inset
+        .overlay {
+            if gestureState.isLongPressComplete {
+                GestureOverlay(vm: gestureVM)
+                    .ignoresSafeArea()
+            }
+        }
+        // fade in when appearing
+        .animation(.easeInOut(duration: 0.3), value: gestureState.isLongPressComplete)
         
         }
 

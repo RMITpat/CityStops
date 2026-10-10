@@ -8,9 +8,9 @@
 import SwiftUI
 
 /// Overlay component used in ``CreateRouteView``, where user can do a custom
-/// ``Gesture`` to exit the route creation flow, or delete all ``LocationCard`` in their list.
+/// Gesture to exit the route creation flow, or delete all ``LocationCard`` in their list.
 struct GestureOverlay: View {
-
+    /// GestureViewModel for Gesture logic
     let vm: GestureViewModel
 
     var body: some View {

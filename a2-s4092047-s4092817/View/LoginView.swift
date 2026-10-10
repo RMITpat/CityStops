@@ -11,6 +11,7 @@ import GoogleSignInSwift
 /// View that allows users to log in to the app, or sign up through Firebase authentication.
 /// Uses  ``AuthViewModel`` methods for signing in and out.
 struct LoginView: View {
+    /// Viewmodel for authentication logic
     @Environment(AuthViewModel.self) var auth: AuthViewModel
     
     /// Handles Logging In vs. Signing Up user state.
@@ -20,12 +21,12 @@ struct LoginView: View {
         @Bindable var auth = auth
         ScrollView {
             VStack(spacing: 24) {
-                // Heading
+                // MARK: Heading
                 Text(isSigningUp ? "Create Account" : "Welcome Back")
                     .font(.largeTitle)
                     .fontWeight(.bold)
                 
-                // User input fields
+                // MARK: User input fields
                 VStack(spacing: 16) {
                     TextField("Email", text: $auth.email)
                         .keyboardType(.emailAddress)
@@ -44,11 +45,12 @@ struct LoginView: View {
                         .cornerRadius(10)
                 }
                 
+                // MARK: Error
                 if let error = auth.error {
                     Text(error).foregroundColor(.red).font(.footnote)
                 }
                 
-                // Log In / Sign Up button
+                // MARK: Log In / Sign Up button
                 Button(action: {
                     if isSigningUp {
                         Task {
@@ -68,7 +70,7 @@ struct LoginView: View {
                         .cornerRadius(10)
                 }
                 
-                // Log In via Google
+                // MARK: Log In via Google
                 GoogleSignInButton {
                     Task {
                         await auth.signInWithGoogle()
@@ -78,7 +80,7 @@ struct LoginView: View {
                 .disabled(auth.isLoading)
                 .opacity(auth.isLoading ? 0.6 : 1)
                 
-                // Log In / Sign Up state Toggle button
+                // MARK: Log In / Sign Up state Toggle button
                 Button(action: {
                     isSigningUp.toggle()
                     auth.resetError()

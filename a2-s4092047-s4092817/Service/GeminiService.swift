@@ -9,20 +9,20 @@ import Foundation
 import FirebaseAILogic
 import MapKit
 
-/// The struct to decode the model's JSON response to
+/// The struct to decode the model's JSON response to.
 struct AITripDetails: Codable {
     let trip_name: String
     let description: String
 }
 
-/// The AI Trip created
+/// The AI Trip created.
 struct AIResult {
     let tripName: String
     let description: String
     let selectedPlaces: [MapItem]
 }
 
-/// What model is currently being used. Switch when rate limited
+/// What model is currently being used. Switch when rate limited.
 enum GeminiModel: String, CaseIterable, Identifiable {
     var id: Self {self}
     
@@ -33,42 +33,63 @@ enum GeminiModel: String, CaseIterable, Identifiable {
     
 }
 
-/// The GeminiService responsible for making requests to the model, conducting multi turn conversations and providing tools for function calling
+/// The GeminiService responsible for making requests to the model, conducting multi turn conversations and providing tools for function calling.
+/// See ``GeminiServiceImpl`` for the real implementation used in app.
 @MainActor
 protocol GeminiService {
+    /// The name of the Gemini model currently in use.
     var modelName: GeminiModel { get }
 
+    /// Generates a new trip based on the user's request and selected preferences.
+    /// - Parameters:
+    ///   - tripRequest: The user's description of the trip they want to create.
+    ///   - preferences: The selected categories or themes to consider when generating the trip.
+    /// - Returns: The generated trip details and selected locations.
+    /// - Throws: An error if the model request or response decoding fails.
     func request(tripRequest: String, preferences: [String]) async throws -> AIResult
-    func editTrip(identifiers: [String]) async throws -> AIResult
-    func addStops() async throws -> AIResult
     
+    /// Regenerates a trip by replacing specified locations while retaining the remaining stops.
+    /// - Parameters:
+    ///   - identifiers: The identifiers of locations that should be replaced.
+    ///   - selectedPlaces: The current locations in the trip, including their desired order.
+    /// - Returns: The updated trip details and selected locations.
+    /// - Throws: An error if the model request or response decoding fails.
+    func editTrip(identifiers: [String], selectedPlaces: [MapItem]) async throws -> AIResult
     
+    /// Extends an existing trip by generating additional stops.
+    /// - Parameter selectedPlaces: The current locations in the trip, including their desired order.
+    /// - Returns: The updated trip details and selected locations.
+    /// - Throws: An error if the model request or response decoding fails.
+    func addStops(selectedPlaces: [MapItem]) async throws -> AIResult
+    
+    /// Changes the Gemini model used for subsequent requests.
+    /// - Parameter newModel: The model to switch to.
     func setModel(newModel: GeminiModel)
 }
 
 
-
+/// Real implementation of ``GeminiService`` in app.
 @MainActor
 final class GeminiServiceImpl : GeminiService {
-    /// Firebase backend
+    /// Firebase backend.
     let ai: FirebaseAI
     
-    /// The model we chat to
+    /// The model we chat to.
     var model: GenerativeModel
     
-    /// The name of the model we are currently using
+    /// The name of the model we are currently using.
     var modelName: GeminiModel = .flash6
     
-    /// The current region, used for searching places with MapKit
+    /// The current region, used for searching places with MapKit.
     let currentRegion: MKCoordinateRegion
     
-    /// The selectedPlaces for the trip which the model has chosen
+    /// The selectedPlaces for the trip which the model has chosen.
     var selectedPlaces: [MapItem] = []
     
-    /// A cache of searched places so that when the model chooses a spot, we can use the identifier to retrieve its MapItem immediately without needing another search
+    /// A cache of searched places so that when the model chooses a spot, we can use the identifier to retrieve its MapItem immediately without needing another search.
     var searchedPlaces: [String : MKMapItem] = [:]
     
-    /// The current chat. Used to obtain past chat history when changing models
+    /// The current chat. Used to obtain past chat history when changing models.
     var currentChat: Chat
     
     init(region: MKCoordinateRegion) {
@@ -88,7 +109,8 @@ final class GeminiServiceImpl : GeminiService {
         currentChat = model.startChat()
     }
     
-    /// The search places tool that allows the model to search for places local to the user. Provides the model with the name, location category and unique identifier of each place
+    /// The search places tool that allows the model to search for places local to the user.
+    /// Provides the model with the name, location category and unique identifier of each place.
     let searchPlaces = FunctionDeclaration(
       name: "search_places",
       description: """
@@ -105,7 +127,7 @@ final class GeminiServiceImpl : GeminiService {
       ]
     )
     
-    /// The select places tool that allows the model to add places to the trip using the identifiers of a place
+    /// The select places tool that allows the model to add places to the trip using the identifiers of a place.
     let selectPlaces = FunctionDeclaration(
       name: "select_places",
       description: """
@@ -121,7 +143,7 @@ final class GeminiServiceImpl : GeminiService {
       ]
     )
     
-    /// The format by which the model returns the created trip's name and description
+    /// The format by which the model returns the created trip's name and description.
     let tripJSONSchema = Schema.object(
       properties: [
         "trip_name" : .string(),
@@ -129,7 +151,7 @@ final class GeminiServiceImpl : GeminiService {
       ]
     )
     
-    /// The initial request for a trip. We provide the model with the user's inputted prompt and their selected preferences
+    /// The initial request for a trip. We provide the model with the user's inputted prompt and their selected preferences.
     func request(tripRequest: String, preferences: [String]) async throws -> AIResult {
 
         // Tell the model to create a trip based off the prompt and explains to it the tools available.
@@ -172,7 +194,7 @@ final class GeminiServiceImpl : GeminiService {
         
     }
     
-    /// Changes the current model and provides the new model with the old chat history so it has context about the created trip
+    /// Changes the current model and provides the new model with the old chat history so it has context about the created trip.
     func setModel(newModel: GeminiModel) {
         let oldHistory = currentChat.history
         
@@ -190,38 +212,54 @@ final class GeminiServiceImpl : GeminiService {
     }
     
     /// A request that asks the model to edit the existing trip by replacing specific places.
-    func editTrip(identifiers: [String]) async throws -> AIResult {
-        selectedPlaces.removeAll()
+    func editTrip(identifiers: [String], selectedPlaces: [MapItem]) async throws -> AIResult {
+        self.selectedPlaces.removeAll()
         
         var prompt = """
             The user has reviewed your selected places and would like to remove some places. 
             Please find suitable replacements for them from your searched places or through searching for more places. Then, recreate the entire trip using the select_places tool, 
             keeping in places that were not removed. Then submit the trip again using the json schema.
-            The following identifiers should be replaced:
+            
+            The user may have also reordered the locations in your trip. When the trip is recreated, maintain this order and insert new stops at the correct positions. 
+            The current order is as follows: 
             
             """
+        
+        for place in selectedPlaces {
+            prompt.append("\(place.identifier), ")
+        }
+       
+        prompt.append("The following identifiers should be replaced: ")
+        
         for id in identifiers {
             prompt.append(id + " ")
         }
         
+        
         return try await generateTrip(prompt: prompt)
 
         
     }
     
-    /// A request that asks the model to add additional stops to the trip
-    func addStops() async throws -> AIResult {
-        selectedPlaces.removeAll()
-        let prompt = """
-            The user has reviewed your selected places and would like to add some more places. 
+    /// A request that asks the model to add additional stops to the trip.
+    func addStops(selectedPlaces: [MapItem]) async throws -> AIResult {
+        self.selectedPlaces.removeAll()
+        var prompt = """
+            The user has reviewed your selected places and would like to add some more places.
             Please find 3 more locations from your searched places or through searching for more places. Then, add them anywhere to the existing trip.
-            Recreate the entire trip using the select_places tool and submit the trip again using the json schema.            
+            Recreate the entire trip using the select_places tool and submit the trip again using the json schema.   
+            
+            The user may have also reordered the locations in your trip. When the trip is recreated, maintain this order and add your new stops to the end. The current order is as follows:
+            
             """
+        for place in selectedPlaces {
+            prompt.append("\(place.identifier), ")
+        }
         return try await generateTrip(prompt: prompt)
 
     }
     
-    /// Conduct the generation of the trip through conversing with the model
+    /// Conduct the generation of the trip through conversing with the model.
     func generateTrip(prompt: String) async throws -> AIResult {
         let firstResponse = try await currentChat.sendMessage(prompt)
     
@@ -233,7 +271,7 @@ final class GeminiServiceImpl : GeminiService {
         
     }
     
-    /// Manages the multi turn conversation with the model
+    /// Manages the multi turn conversation with the model.
     func multiTurn(firstResponse: GenerateContentResponse) async throws -> GenerateContentResponse {
         var response = firstResponse
         
@@ -253,7 +291,7 @@ final class GeminiServiceImpl : GeminiService {
         
     }
     
-    /// Decodes the json schema provided by the model which contains the created trip's name and description
+    /// Decodes the json schema provided by the model which contains the created trip's name and description.
     func decodeTrip(responseText: String?) throws -> AIResult {
         // If fail to decode, return this default name and description
         let emptyTrip = AIResult(tripName: "Generated Trip", description: "This trip was generated by Dora", selectedPlaces: selectedPlaces)
@@ -271,7 +309,7 @@ final class GeminiServiceImpl : GeminiService {
         return AIResult(tripName: data.trip_name, description: data.description, selectedPlaces: selectedPlaces)
     }
     
-    /// Provide the model with function responses based on its function call
+    /// Provide the model with function responses based on its function call.
     func useTools(response: GenerateContentResponse) async -> [FunctionResponsePart] {
         
         var functionResponses = [FunctionResponsePart]()
@@ -352,7 +390,7 @@ final class GeminiServiceImpl : GeminiService {
         
     }
     
-    /// Conduct a MapKit search for a place and return the results as a JSONObject
+    /// Conduct a MapKit search for a place and return the results as a JSONObject.
     func searchPlaces(searchRequest: String) async throws -> JSONObject {
         let request = MKLocalSearch.Request()
         request.naturalLanguageQuery = searchRequest
@@ -381,7 +419,7 @@ final class GeminiServiceImpl : GeminiService {
         ]
     }
     
-    /// Select a place for the trip by retrieving it from the previously searched places dictionary and adding it to selectedPlaces
+    /// Select a place for the trip by retrieving it from the previously searched places dictionary and adding it to selectedPlaces.
     func selectPlace(identifier: String) {
         if let selectedPlace = searchedPlaces[identifier] {
             print(selectedPlace.name ?? "no name")
@@ -396,7 +434,7 @@ final class GeminiServiceImpl : GeminiService {
     
 }
 
-/// Turn a MKMapItem to a json object
+/// Turn a MKMapItem to a JSON object.
 extension MKMapItem {
     func toJSONObject() -> JSONObject {
         return [

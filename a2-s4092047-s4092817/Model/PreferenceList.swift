@@ -5,7 +5,8 @@
 //  Created by Riley Tran on 22/9/2026.
 //
 
-/// Fixed list of preferences, displayed in the creating daytrip user flow.
+/// Fixed list of ``Preference``s, displayed in the creating Daytrip user flow.
+/// Used in ``TripCreationViewModel``.
 var preferencesList : [Preference] = [Preference(preference: "Food", preferenceSearch: "restaurants", icon: "fork.knife"),
                                       Preference(preference: "Landmarks and Sightseeing", preferenceSearch: "historic", icon: "building.columns"),
                                       Preference(preference: "Shopping", preferenceSearch: "malls", icon: "bag"),

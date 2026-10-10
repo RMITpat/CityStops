@@ -10,8 +10,13 @@ import SwiftUI
 /// Lets user choose the purpose of the ``Trip``; the preferences of locations that they intend to visit in the planned daytrip.
 
 struct TripPreferenceView: View {
+    /// LocationViewModel for accessing MapKit methods
     @Environment(LocationViewModel.self) var locationVM: LocationViewModel
+    
+    /// TripCreationViewModel for holding trip creation state and helper methods
     @Environment(TripCreationViewModel.self) var tripCreationVM: TripCreationViewModel
+    
+    /// Router for view navigation
     @Environment(Router.self) var router: Router
 
     var body: some View {
@@ -31,14 +36,14 @@ struct TripPreferenceView: View {
                         .accessibilityHidden(true)
                         .padding()
 
-                    // Preference name
+                    // MARK: Preference name
                     Text(item.preference)
                         .accessibilityHidden(true)
                         
                     
                     Spacer()
                     
-                    // Check circle
+                    // MARK: Check button
                     Image(systemName: isSelected ?
                           "checkmark.circle.fill" : "circle")
                         .foregroundColor(isSelected ?
@@ -60,7 +65,6 @@ struct TripPreferenceView: View {
         
         
         // MARK: - "Next" Button
-
         .safeAreaInset(edge: .bottom) {
                 Button("Next") {
                     
@@ -76,8 +80,6 @@ struct TripPreferenceView: View {
         
             // MARK: View Title
             .navigationTitle(Text("Trip Preferences"))
-
-            //.navigationSubtitle("What will be the purpose of your daytrip?")
             .navigationBarTitleDisplayMode(.large)
             .toolbar(.hidden, for: .tabBar)
 

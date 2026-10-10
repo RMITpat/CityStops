@@ -7,7 +7,7 @@
 import SwiftUI
 import MapKit
 
-/// UIKit feature - bridges ``MKMapView`` in SwiftUI, which acts as a ``MapKit`` Map view.
+/// UIKit feature - bridges MKMapView in SwiftUI, which acts as a ``MapKit`` Map view.
 @MainActor
 struct UIKitMapView: UIViewRepresentable {
 
@@ -20,7 +20,7 @@ struct UIKitMapView: UIViewRepresentable {
     var places: [MKMapItem]
 
     // Equivalent of the ForEach(routes) { MapPolyline(route) }
-    /// Routes between adjacent ``MKMapItems`` in `places`.
+    /// Routes between adjacent MKMapItems in `places`.
     var routes: [MKRoute]
     
     /// Whether the blue user-location dot is shown.
@@ -181,7 +181,7 @@ struct UIKitMapView: UIViewRepresentable {
     }
 
     // MARK: Annotation type wrapping an MKMapItem
-    /// Adapts an ``MKMapItem`` for use as an ``MKAnnotation`` in ``MKMapView``.
+    /// Adapts an MKMapItem for use as an MKAnnotation in an MKMapView.
     final class PlaceAnnotation: NSObject, MKAnnotation {
 
         let mapItem: MKMapItem

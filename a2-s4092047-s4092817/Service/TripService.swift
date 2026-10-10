@@ -9,7 +9,9 @@ import Foundation
 import FirebaseFirestore
 
 ///
-/// Trip service that handles reading and writing trips to the firebase store
+/// Trip service that handles reading and writing trips to the Firebase store.
+///
+/// See ``TripServiceImpl`` for the real implementation of TripService used in the app, with function comments.
 @MainActor
 protocol TripService {
     func saveTrip(trip: Trip) async throws
@@ -31,7 +33,7 @@ protocol TripService {
 }
 
 ///
-/// Real implementation of TripService used in the app
+/// Real implementation of TripService used in the app.
 @MainActor
 final class TripServiceImpl: TripService {
     private let db = Firestore.firestore()
@@ -52,19 +54,19 @@ final class TripServiceImpl: TripService {
         try await ref.setData(tripWithId.asDictionary)
     }
     
-    /// Reset the last document so the next LoadTrips() call  LoadFirst4Trips()
+    /// Reset the last trip feed document, so the next LoadTrips() calls LoadFirst4Trips().
     func clearLastTripFeedDocument() {
         lastTripFeedDocument = nil
         reachedEndTripFeed = false
     }
     
-    /// Reset the last document so the next LoadTrips() call  LoadFirst4Trips()
+    /// Reset the last user trip document, so the next LoadTrips() calls LoadFirst4Trips().
     func clearLastUserTripDocument() {
         lastUserTripDocument = nil
         reachedEndUserTrips = false
     }
     
-    /// Reset the last saved trip document so the next LoadTrips() calls LoadFirst4Trips()
+    /// Reset the last saved trip document, so the next LoadTrips() calls LoadFirst4Trips()
     func clearLastSavedTripDocument() {
         lastSavedTripDocument = nil
         reachedEndSavedTrips = false
@@ -96,7 +98,7 @@ final class TripServiceImpl: TripService {
         )
     }
     
-    /// Get trips for trip feed from Firebase
+    /// Get trips for ``TripFeed`` from Firebase.
     func loadTrips(ownerId: String) async throws -> [Trip] {
         if reachedEndTripFeed {
             return []
@@ -124,7 +126,7 @@ final class TripServiceImpl: TripService {
     
   
     
-    /// Get user trips from Firebase
+    /// Get user Trips from Firebase.
     func loadUserTrips(ownerId: String) async throws -> [Trip] {
         if reachedEndUserTrips {
             return []
@@ -152,7 +154,7 @@ final class TripServiceImpl: TripService {
         return try await retrieveTrips(queryDocuments: queryDocuments, ownerId: ownerId)
     }
     
-    /// Get saved trips from Firebase
+    /// Get saved Trips from Firebase
     func loadSavedTrips(ownerId: String) async throws -> [Trip] {
         if reachedEndSavedTrips {
             return []
@@ -185,7 +187,7 @@ final class TripServiceImpl: TripService {
         return try await retrieveTrips(queryDocuments: convertedTrips, ownerId: ownerId)
     }
     
-    /// Looks up the saved trip id in the trips collection manually since Firestore is NoSQL and has no table joins :(
+    /// Looks up the saved tripID in the Trips collection manually, since Firestore is NoSQL and has no table joins :(
     func lookupSavedTrips(savedTrips: [QueryDocumentSnapshot]) async throws -> [QueryDocumentSnapshot] {
         var queryDocuments: [QueryDocumentSnapshot] = []
 
@@ -209,7 +211,7 @@ final class TripServiceImpl: TripService {
     }
     
     
-    /// Turn querydocuments into trips
+    /// Turn querydocuments into Trips.
     func retrieveTrips(queryDocuments: [QueryDocumentSnapshot], ownerId: String) async throws -> [Trip] {
         var trips: [Trip] = []
         for document in queryDocuments {
@@ -226,7 +228,7 @@ final class TripServiceImpl: TripService {
         return trips
     }
     
-    /// Loads the first 4 trips and sets the lastDocument for the next query to begin at
+    /// Loads the first 4 trips, and sets the lastDocument for the next query to begin at.
     func loadFirst4Trips(query: FirebaseFirestore.Query) async throws -> [QueryDocumentSnapshot] {
         let snapshot = try await query.getDocuments()
 
@@ -234,7 +236,7 @@ final class TripServiceImpl: TripService {
     }
     
     
-    /// Loads the next 4 trips starting at the previous query's end
+    /// Loads the next 4 trips starting at the previous query's end.
     func loadNext4Trips(lastDocument: DocumentSnapshot, query: FirebaseFirestore.Query) async throws -> [QueryDocumentSnapshot] {
         let snapshot = try await query
             .start(afterDocument: lastDocument)
@@ -245,7 +247,7 @@ final class TripServiceImpl: TripService {
     }
  
     
-    /// Save a document which contains the user's id and the id of the trip they are bookmarking
+    /// Save a document which contains the user's ID and the ID of the trip they are bookmarking.
     func bookmarkTrip(ownerId: String, tripId: String) async throws {
         let ref = db.collection("bookmarkedTrips").document()
         
@@ -257,7 +259,7 @@ final class TripServiceImpl: TripService {
         try await ref.setData(data)
     }
     
-    /// Unsave a trip by deleting document from bookmarkedTrips collection
+    /// Unsave a trip by deleting document from bookmarkedTrips collection.
     func removeTripBookmark(ownerId: String, tripId: String) async throws {
         let dbCollection = db.collection("bookmarkedTrips")
         let snapshot = try await dbCollection
@@ -270,7 +272,7 @@ final class TripServiceImpl: TripService {
         }
         
     }
-    /// Save a trip by adding document to bookmarkedTrips collection
+    /// Save a trip by adding document to bookmarkedTrips collection in Firestore.
     func checkIfTripIsSaved(ownerId: String, tripId: String) async throws -> Bool {
         let dbCollection = db.collection("bookmarkedTrips")
         let snapshot = try await dbCollection
@@ -280,7 +282,7 @@ final class TripServiceImpl: TripService {
         return !snapshot.documents.isEmpty
     }
     
-    /// Delete a trip by deleting document from trips collection
+    /// Delete a trip by deleting the document from trips collection in Firestore.
     func deleteTrip(tripId: String) async throws {
         
         let tripsSnapshot = try await db.collection("trips")

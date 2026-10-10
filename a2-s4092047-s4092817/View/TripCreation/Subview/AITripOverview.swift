@@ -10,18 +10,25 @@ import MapKit
 
 /// The created AI Trip, with  buttons for editing and adding to the created trip
 struct AITripOverview: View {
+    /// GeminiViewModel for accessing Gemini API
     @Environment(GeminiViewModel.self) var geminiVM: GeminiViewModel
-    @Environment(LocationViewModel.self) var locationVM: LocationViewModel
+    
+    /// TripCreationViewModel for holding trip creation state and helper methods
     @Environment(TripCreationViewModel.self) var tripCreationVM: TripCreationViewModel
+    
+    /// App viewmodel for interacting with Firebase
     @Environment(AppViewModel.self) var appVM: AppViewModel
 
+    /// Router for view navigation
     @Environment(Router.self) var router: Router
 
-    @Binding var routes: [MKRoute]
-
+    /// Current picker state
     @State private var mode: Mode = .first
 
+    /// Error message
     @State private var error: String?
+    
+    /// Picker display states
     enum Mode: String, CaseIterable, Identifiable {
         case first = "Details"
         case second = "Places"
@@ -29,176 +36,158 @@ struct AITripOverview: View {
     }
     
     var body: some View {
-        @Bindable var locationVM = locationVM
-
         @Bindable var tripCreationVM = tripCreationVM
         @Bindable var geminiVM = geminiVM
         ScrollView {
-            UIKitMapView(
-                position: locationVM.currentLocation,
-                places: tripCreationVM.selectedPlaces.map({$0.mkMapItem}),
-                routes: routes,
-                showsUserLocation: true,
-                isPinSelectable: true,
-                interactionModes: .all
-            )
-            .accessibilityHidden(true)
-            .frame(height: 390)
-            .onChange(of: tripCreationVM.selectedPlaces) {
-                Task {
-                    routes = try await locationVM.createTripRoutes(selectedPlaces: tripCreationVM.selectedPlaces)
-                }
-            }
-            
-            if geminiVM.isLoading {
-                ProgressView("Tweaking trip...")
-                    .progressViewStyle(.circular)
-                    .scaleEffect(1.3)
-                    .frame(maxWidth: .infinity, alignment: .center)
-                    .padding(.top)
+            VStack {
+                // MARK: Map display
+                RouteMapSection()
+                    .accessibilityHidden(true)
+                    .frame(height: 375)
                 
-            } else {
-                VStack {
-                    Picker("Mode", selection: $mode) {
-                        ForEach(Mode.allCases) { Text($0.rawValue).tag($0) }
-                    }
-                    .pickerStyle(.segmented)
-                    .padding(.horizontal, 16)
-                    .accessibilitySortPriority(3)
+                if geminiVM.isLoading {
+                    // MARK: Gemini loading indicator
+                    ProgressView("Tweaking trip...")
+                        .progressViewStyle(.circular)
+                        .scaleEffect(1.3)
+                        .frame(maxWidth: .infinity, alignment: .center)
+                        .padding(.top)
                     
-                    switch mode {
-                    case .first:
-                        VStack(alignment: .leading) {
-                            TextField("e.g. Asian Street Food Tour", text: $tripCreationVM.name)
-                                .textFieldStyle(RoundedBorderTextFieldStyle())
-                                .padding(.bottom, 32)
-                                .font(.title)
-                                .accessibilityIdentifier("ai.title")
-                                .accessibilityLabel("Edit the ai generated title")
-                            
-                            TextEditor(text: $tripCreationVM.description)
-                                .frame(minHeight: 120)
-                                .padding(.horizontal, 2)
-                                .scrollContentBackground(.hidden)
-                                .background(.background)
-                                .clipShape(RoundedRectangle(cornerRadius: 8))
-                                .overlay {
-                                    RoundedRectangle(cornerRadius: 8)
-                                        .stroke(.secondary.opacity(0.15))
-                                }
-                                .accessibilityIdentifier("ai.description")
-                                .accessibilityLabel("Edit the ai generated decription")
+                } else {
+                    VStack {
+                        // MARK: Picker
+                        Picker("Mode", selection: $mode) {
+                            ForEach(Mode.allCases) { Text($0.rawValue).tag($0) }
                         }
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding()
+                        .pickerStyle(.segmented)
+                        .padding(.horizontal, 16)
+                        .accessibilitySortPriority(3)
                         
-                    case .second:
-                        HStack {
-                            Button("Replace selected spots") {
-                                Task {
-                                    do {
-                                        try await tripCreationVM.fromAIResult(result: geminiVM.editTrip())
-                                        self.error?.removeAll()
-                                        
-                                    } catch {
-                                        self.error = "Failed to regenerate stops"
-                                    }
-                                }
+                        switch mode {
+                        case .first:
+                            // MARK: Title and description
+                            VStack(alignment: .leading) {
+                                TextField("e.g. Asian Street Food Tour", text: $tripCreationVM.name)
+                                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                                    .padding(.bottom, 32)
+                                    .font(.title)
+                                    .accessibilityIdentifier("ai.title")
+                                    .accessibilityLabel("Edit the ai generated title")
                                 
-                            }
-                            .disabled(geminiVM.placesToRemove.isEmpty || geminiVM.isLoading)
-                            .buttonStyle(.glassProminent)
-                            .tint(.dora)
-                            .accessibilityIdentifier("replace.spots")
-                            .accessibilityHint("Ask AI to replace the spots you have selected")
-
-                            
-                            Button("Add more spots") {
-                                Task {
-                                    do {
-                                        self.error?.removeAll()
-                                        
-                                        try await tripCreationVM.fromAIResult(result: geminiVM.addStops())
-                                        
-                                    } catch {
-                                        self.error = "Failed to add more stops"
+                                TextEditor(text: $tripCreationVM.description)
+                                    .frame(minHeight: 120)
+                                    .padding(.horizontal, 2)
+                                    .scrollContentBackground(.hidden)
+                                    .background(.background)
+                                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                                    .overlay {
+                                        RoundedRectangle(cornerRadius: 8)
+                                            .stroke(.secondary.opacity(0.15))
                                     }
-                                }
-                                
+                                    .accessibilityIdentifier("ai.description")
+                                    .accessibilityLabel("Edit the ai generated decription")
                             }
-                            .disabled(geminiVM.isLoading)
-                            .buttonStyle(.glassProminent)
-                            .tint(.dora)
-                            .accessibilityIdentifier("add.spots")
-                            .accessibilityHint("Ask AI to come up with more spots to this trip")
-
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding()
                             
-                            if let error {
-                                Text(error)
-                                    .foregroundStyle(.red)
-                                    .font(.title3)
-                            }
-                        }
-                        VStack {
-                            ForEach(tripCreationVM.selectedPlaces, id: \.self) { place in
-                                VStack {
-                                    LocationCard(location: place,
-                                                 selectedPlaces: $tripCreationVM.selectedPlaces, placesToRemove: $geminiVM.placesToRemove)
+                        case .second:
+                            // MARK: Location list
+                            HStack {
+                                // MARK: Replace spots button
+                                Button("Replace selected spots") {
+                                    Task {
+                                        do {
+                                            try await tripCreationVM.fromAIResult(result: geminiVM.editTrip(selectedPlaces: tripCreationVM.selectedPlaces))
+                                            self.error?.removeAll()
+                                            
+                                        } catch {
+                                            self.error = "Failed to regenerate stops"
+                                        }
+                                    }
                                     
                                 }
+                                .disabled(geminiVM.placesToRemove.isEmpty || geminiVM.isLoading)
+                                .buttonStyle(.glassProminent)
+                                .tint(.dora)
+                                .accessibilityIdentifier("replace.spots")
+                                .accessibilityHint("Ask AI to replace the spots you have selected")
                                 
+                                // MARK: Add spots button
+                                Button("Add more spots") {
+                                    Task {
+                                        do {
+                                            self.error?.removeAll()
+                                            
+                                            try await tripCreationVM.fromAIResult(result: geminiVM.addStops(selectedPlaces: tripCreationVM.selectedPlaces))
+                                            
+                                        } catch {
+                                            self.error = "Failed to add more stops"
+                                        }
+                                    }
+                                    
+                                }
+                                .disabled(geminiVM.isLoading)
+                                .buttonStyle(.glassProminent)
+                                .tint(.dora)
+                                .accessibilityIdentifier("add.spots")
+                                .accessibilityHint("Ask AI to come up with more spots to this trip")
+                                
+                                // MARK: Error message
+                                if let error {
+                                    Text(error)
+                                        .foregroundStyle(.red)
+                                        .font(.title3)
+                                }
                             }
-                        }.padding()
+                            
+                            // MARK: List of chosen locations
+                            SelectedPlacesList(placesToRemove: $geminiVM.placesToRemove)
+                        }
+                        
                     }
+                }
+                
+                Spacer()
+                
+                HStack {
+                    // MARK: Start again button
+                    Button("Start again") {
+                        geminiVM.placesToRemove.removeAll()
+                        geminiVM.resultReturned = false
+                        tripCreationVM.clear()
+                        router.tripCreationRoute = [TripCreationRoute.preferences]
+                        
+                    }.disabled(geminiVM.isLoading)
+                        .buttonStyle(.glassProminent)
+                        .tint(.dora)
+                        .accessibilityIdentifier("start.again")
+                        .accessibilityHint("Discard this trip and start again at preference selection")
+                        .accessibilitySortPriority(2)
+                    
+                    // MARK: Finish button
+                    Button("Finish") {
+                        Task {
+                            do {
+                                try await appVM.saveTrip(name: tripCreationVM.name, description: tripCreationVM.description, selectedPlaces: tripCreationVM.selectedPlaces, preferences: tripCreationVM.selectedPreferences.map {$0.preference })
+                                
+                                tripCreationVM.clear()
+                                router.tripCreationRoute.removeAll()
+                                appVM.refreshFeed()
+                                appVM.refreshUserTrips()
+                                router.selectedTab = .home
+                            } catch {
+                                self.error = error.localizedDescription
+                            }
+                        }
+                    }.disabled(appVM.isSaving)
+                        .buttonStyle(.glassProminent)
+                        .accessibilityIdentifier("finish.button")
+                        .accessibilityHint("Save this trip and return to the home feed")
+                        .accessibilitySortPriority(1)
                     
                 }
+                .frame(alignment: .center)
             }
-            
-            
-            
-            
-            
-            
-            
-            Spacer()
-            
-            HStack {
-                Button("Start again") {
-                    geminiVM.placesToRemove.removeAll()
-                    geminiVM.resultReturned = false
-                    tripCreationVM.clear()
-                    router.tripCreationRoute = [TripCreationRoute.preferences]
-                    
-                }.disabled(geminiVM.isLoading)
-                    .buttonStyle(.glassProminent)
-                    .tint(.dora)
-                    .accessibilityIdentifier("start.again")
-                    .accessibilityHint("Discard this trip and start again at preference selection")
-                    .accessibilitySortPriority(2)
-                
-                
-                Button("Finish") {
-                    Task {
-                        do {
-                            try await appVM.saveTrip(name: tripCreationVM.name, description: tripCreationVM.description, selectedPlaces: tripCreationVM.selectedPlaces, preferences: tripCreationVM.selectedPreferences.map {$0.preference })
-                            
-                            tripCreationVM.clear()
-                            router.tripCreationRoute.removeAll()
-                            appVM.refreshFeed()
-                            appVM.refreshUserTrips()
-                            router.selectedTab = .home
-                        } catch {
-                            self.error = error.localizedDescription
-                        }
-                    }
-                }.disabled(appVM.isSaving)
-                    .buttonStyle(.glassProminent)
-                    .accessibilityIdentifier("finish.button")
-                    .accessibilityHint("Save this trip and return to the home feed")
-                    .accessibilitySortPriority(1)
-
-            }
-            .frame(alignment: .center)
         }
     }
   

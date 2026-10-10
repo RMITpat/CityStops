@@ -7,13 +7,13 @@
 
 import SwiftUI
 
-    /// ``enum`` that holds the sequential Gesture's current state.
+    /// Holds the sequential Gesture's current state.
     enum ComplexGestureState {
         case inactive
         case pressing
         case dragging(translation: CGSize)
 
-        /// determines the translation from the gesture start point, to its current point.
+        /// Determines the translation from the gesture start point, to its current point.
         var translation: CGSize {
             switch self {
             case .inactive, .pressing:
@@ -24,7 +24,7 @@ import SwiftUI
             }
         }
         
-        /// determines if the user is long pressing.
+        /// Determines if the user is long pressing.
         var isLongPressComplete: Bool {
             switch self {
             // if dragging state has begun, the long pressing has already registered.
@@ -37,7 +37,7 @@ import SwiftUI
         }
     }
 
-    /// ``enum`` defining the swipe direction of the sequential Gesture.
+    /// Defines the swipe direction of the sequential Gesture.
     enum SwipeDirection {
         case left
         case right

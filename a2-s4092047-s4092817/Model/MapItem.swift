@@ -8,7 +8,7 @@
 import Foundation
 import MapKit
 
-/// Wrapper around MKMapItem
+/// Wrapper around MKMapItem.
 struct MapItem : Hashable {
     let identifier: String
     let mkMapItem: MKMapItem

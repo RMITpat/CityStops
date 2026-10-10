@@ -8,6 +8,8 @@
 import Foundation
 import SwiftData
 
+/// Represents a search term stored in the SwiftData database.
+/// Used in ``SearchTermService``.
 @Model
 final class SearchTerm {
     @Attribute(.unique) var id: UUID

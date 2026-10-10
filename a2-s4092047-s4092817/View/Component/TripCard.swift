@@ -25,9 +25,10 @@ struct TripCard: View {
         @Bindable var locationVM = locationVM        
 
         VStack(alignment: .leading) {
-            
+            // MARK: Trip name, creator and preferences
             TripCardInfo(trip: trip)
             
+            // MARK: Map view
             UIKitMapView(
                 position: .framing(trip.mkMapItemPlaces.map({$0.mkMapItem})),
                 places: trip.mkMapItemPlaces.map({$0.mkMapItem}),

@@ -7,13 +7,16 @@
 
 import SwiftUI
 import MapKit
-
+/// Reusable display for a location
 struct LocationCard: View {
+    /// MapItem to display
     let location: MapItem
+    
+    /// Selected places binding which is modified by this view's controls
     var selectedPlaces: Binding<[MapItem]>?
+    
+    /// Places to remove binding which is modified by this view's controls. Associated with GeminiViewModel
     var placesToRemove: Binding<[String]>?
-
-    @Environment(\.colorSchemeContrast) private var colorSchemeContrast
 
     
     /// Takes a ``Location`` to be  displayed.
@@ -38,7 +41,7 @@ struct LocationCard: View {
         return false
     }
     
-    
+    // MARK: Whether a location is selected for removal in an AI Generated trip
     var isSelectedForRemoval: Bool {
         if let placesToRemove {
             return placesToRemove.wrappedValue.contains(where: {
@@ -52,13 +55,13 @@ struct LocationCard: View {
     var body: some View {
         HStack(spacing: 16) {
             
-            // Location pin SF Symbol icon
+            // MARK: Location pin SF Symbol icon
             Image(systemName: "mappin.circle.fill")
                 .font(.title2)
                 .foregroundStyle(.gray)
                 .accessibilityHidden(true)
             
-            // Place information
+            // MARK: Place information
             VStack(alignment: .leading, spacing: 4) {
                 Text(location.mkMapItem.name ?? "No name")
                     .font(.headline)
@@ -91,6 +94,7 @@ struct LocationCard: View {
                     .accessibilityIdentifier("add.remove." + (location.mkMapItem.name ?? ""))
             }
             
+            // MARK: Selection for adding/removing from places to remove in AI Generated trip
             if (placesToRemove != nil) {
                 Button("",
                        systemImage: isSelectedForRemoval ? "checkmark.circle.fill" : "circle"

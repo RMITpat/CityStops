@@ -7,12 +7,15 @@
 
 import SwiftUI
 
-/// View that allows user to log out of the app (and other settings stuff)
+/// View that allows user to log out of the app 
 struct SettingsView: View {
+    /// AuthViewModel for interacting with Firebase Auth
     @Environment(AuthViewModel.self) var auth: AuthViewModel
 
     var body: some View {
         VStack {
+            
+            // MARK: Sign out button
             Button("Sign out") {
                 auth.signOut()
             }

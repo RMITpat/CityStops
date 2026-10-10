@@ -10,24 +10,34 @@ import MapKit
 /// View that displays the shortest route that visits all chosen ``Trip`` stops.
 /// Uses ``LocationViewModel`` to calculate route.
 struct CreateRouteView: View {
+    /// LocationViewModel for accessing MapKit methods
     @Environment(LocationViewModel.self) var locationVM: LocationViewModel
+    
+    /// App viewmodel for interacting with Firebase
     @Environment(AppViewModel.self) var appVM: AppViewModel
+    
+    /// TripCreationViewModel for holding trip creation state and helper methods
     @Environment(TripCreationViewModel.self) var tripCreationVM: TripCreationViewModel
+    
+    /// Router for view navigation
     @Environment(Router.self) var router: Router
     
+    /// OpenTripMapViewModel for accessing Open Trip Map API
     @State var otmVM: OpenTripMapViewModel
     
     init(vmFactory: ViewModelFactory) {
         _otmVM = State(initialValue: vmFactory.createOpenTripMapViewModel())
     }
     
+    /// Error message
     @State var error: String?
     
-    // Sheet state
+    /// Sheet state
     @State private var showStopsSheet = true
     
-    // Gesture states
+    /// Gesture state
     @State private var gestureVM = GestureViewModel()
+    /// Gesture state
     @GestureState private var gestureState = ComplexGestureState.inactive
     
     
@@ -61,6 +71,7 @@ struct CreateRouteView: View {
                     }
                     .accessibilityLabel("Map of your route")
                     
+                    // MARK: Gesture instruction
                     Text("Long press map for edit trip options")
                         .font(.caption)
                         .foregroundStyle(.gray).fixedSize(horizontal: false, vertical: true)
@@ -81,6 +92,7 @@ struct CreateRouteView: View {
                     .accessibilityIdentifier("choose.locations")
                 }
                 
+            // MARK: error message
                 if let error {
                     Text(error)
                         .font(.footnote)

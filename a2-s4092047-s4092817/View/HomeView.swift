@@ -11,15 +11,19 @@ import MapKit
 /// Home view for viewing trip feed.
 /// Implements ``AuthViewModel`` to allow sign out (needs to be moved into settings)
 struct HomeView: View {
+    /// AppViewModel for accessing Firebase
     @Environment(AppViewModel.self) var appVM: AppViewModel
+    /// Router for view navigation
     @Environment(Router.self) var router: Router
     
+    /// Mode for controlling picker display
     enum Mode: String, CaseIterable, Identifiable {
         case first = "Recently Planned Trips"
         case second = "Recommended Trips"
         var id: Self { self }
     }
     
+    /// The current picker display
     @State var mode: Mode
     
     var body: some View {
@@ -36,6 +40,7 @@ struct HomeView: View {
                     .padding(.horizontal, 16)
                     .padding(.top, 56)
                 
+                // MARK: The picker for displaying different feeds
                 Picker("Mode", selection: $mode) {
                     ForEach(Mode.allCases) { Text($0.rawValue).tag($0) }
                 }
@@ -46,6 +51,7 @@ struct HomeView: View {
                 
                 switch mode {
                 case .first:
+                    // MARK: Recenty craeted trips feed
                     TripFeed(trips: appVM.tripFeed, isLoading: appVM.isLoadingTrips, route: $router.feedRoute) {
                         appVM.refreshFeed()
                     } loadTrips: {
@@ -53,6 +59,7 @@ struct HomeView: View {
                     }
                     
                 case .second:
+                    // MARK: Recommended trips feed
                     if appVM.isLoadingRecommendedTrips {
                         ProgressView()
                             .frame(maxWidth: .infinity)

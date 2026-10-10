@@ -13,23 +13,32 @@ import MapKit
 /// - Uses ``LocationViewModel`` to pass stops to ``CreateRouteView``
 
 struct CreateTripSheet: View {
+    /// LocationViewModel for accessing MapKit methods
     @Environment(LocationViewModel.self) var locationVM: LocationViewModel
+    
+    /// TripCreationViewModel for holding trip creation state and helper methods
     @Environment(TripCreationViewModel.self) var tripCreationVM: TripCreationViewModel
+    
+    /// SearchTermViewmodel for accessing SwiftData and recently searched terms
     @Environment(SearchTermViewModel.self) var searchTermVM: SearchTermViewModel
+    
+    /// Router for view navigation
     @Environment(Router.self) var router: Router
 
-    // The place search request inputted by the user
+    /// The place search request inputted by the user
     @State var searchRequest: String = ""
     
-    // The results of a place search
+    /// The results of a place search
     @State var searchResults: [MapItem] = []
     
+    /// The picker display states
     enum Mode: String, CaseIterable, Identifiable {
         case first = "Nearby Stops"
         case second = "Search for Stops"
         var id: Self { self }
     }
     
+    /// The current picker display state
     @State var mode: Mode
     
     var body: some View {
@@ -53,9 +62,11 @@ struct CreateTripSheet: View {
             
             switch mode {
             case .first:
+                // MARK: Nearby locations display
                 NearbyLocations()
                 
             case .second:
+                // MARK: Search locations display
                 SearchLocations()
                 
             }

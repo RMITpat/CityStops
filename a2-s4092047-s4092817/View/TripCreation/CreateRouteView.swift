@@ -83,7 +83,6 @@ struct CreateRouteView: View {
                         ForEach(tripCreationVM.selectedPlaces, id: \.identifier) { place in
                             LocationCard(location: place,
                                          selectedPlaces: $tripCreationVM.selectedPlaces)
-                            // Your existing long-press gesture goes here (see note below)
                             .listRowSeparator(.hidden)
                             .listRowBackground(Color.clear)
                             .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
@@ -95,8 +94,7 @@ struct CreateRouteView: View {
                     }
                     .listStyle(.plain)
                     .scrollContentBackground(.hidden)
-                    // Always show the three-line handle...
-                    // ...but turn it off while a long press is active so the long press wins
+                    // Always show the three-line handle
                     .environment(\.editMode, .constant( .active))
                     .scrollDisabled(gestureState.isLongPressComplete)
                     
